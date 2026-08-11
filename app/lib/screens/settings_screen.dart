@@ -1169,6 +1169,10 @@ class _ThemeGalleryDialogState extends State<_ThemeGalleryDialog> {
                                           itemBuilder: (context, index) {
                                             final meta = metas[index];
                                             return _ThemeCard(
+                                              // Key by theme id so the card's
+                                              // loaded preview stays with its
+                                              // theme when the filter re-sorts.
+                                              key: ValueKey(meta.id),
                                               themes: widget.themes,
                                               meta: meta,
                                               active:
@@ -1262,6 +1266,7 @@ class _ThemeCard extends StatefulWidget {
   final VoidCallback onTap;
 
   const _ThemeCard({
+    super.key,
     required this.themes,
     required this.meta,
     required this.active,
