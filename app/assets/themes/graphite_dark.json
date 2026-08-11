@@ -1,0 +1,22 @@
+{
+  "id": "graphite_dark",
+  "name": "Graphite Dark",
+  "family": "Graphite",
+  "isDark": true,
+  "colors": {
+    "navBg": "#181818",
+    "navActiveBg": "#202020",
+    "surface": "#262626",
+    "surfaceLight": "#323232",
+    "card": "#26262680",
+    "cardBorder": "#404040",
+    "accent": "#6ea0c0",
+    "textPrimary": "#d0d0d0",
+    "textSecondary": "#ababab",
+    "textMuted": "#686868",
+    "error": "#db6b6b",
+    "success": "#7ba87b",
+    "warning": "#cca040",
+    "scaffoldBg": "#181818"
+  }
+}

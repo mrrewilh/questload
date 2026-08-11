@@ -1,0 +1,22 @@
+{
+  "id": "material_palenight",
+  "name": "Material Palenight",
+  "family": "Material",
+  "isDark": true,
+  "colors": {
+    "navBg": "#292d3e",
+    "navActiveBg": "#303448",
+    "surface": "#363a4f",
+    "surfaceLight": "#434861",
+    "card": "#363a4f80",
+    "cardBorder": "#515780",
+    "accent": "#82aaff",
+    "textPrimary": "#c0caf5",
+    "textSecondary": "#a0a8cd",
+    "textMuted": "#676e95",
+    "error": "#f07178",
+    "success": "#c3e88d",
+    "warning": "#ffcb6b",
+    "scaffoldBg": "#292d3e"
+  }
+}

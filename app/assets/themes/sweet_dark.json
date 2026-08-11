@@ -1,0 +1,22 @@
+{
+  "id": "sweet_dark",
+  "name": "Sweet Dark",
+  "family": "Sweet",
+  "isDark": true,
+  "colors": {
+    "navBg": "#13131d",
+    "navActiveBg": "#1b1b2a",
+    "surface": "#23233a",
+    "surfaceLight": "#2f2f4a",
+    "card": "#23233a80",
+    "cardBorder": "#3d3d5c",
+    "accent": "#b87cff",
+    "textPrimary": "#d9d9e6",
+    "textSecondary": "#b3b3c9",
+    "textMuted": "#6d6d91",
+    "error": "#f07178",
+    "success": "#a1ef78",
+    "warning": "#fade5c",
+    "scaffoldBg": "#13131d"
+  }
+}

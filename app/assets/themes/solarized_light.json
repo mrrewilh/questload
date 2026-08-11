@@ -1,0 +1,22 @@
+{
+  "id": "solarized_light",
+  "name": "Solarized Light",
+  "family": "Solarized",
+  "isDark": false,
+  "colors": {
+    "navBg": "#fdf6e3",
+    "navActiveBg": "#eee8d5",
+    "surface": "#fdf6e3",
+    "surfaceLight": "#fdf7e6",
+    "card": "#fdf6e3",
+    "cardBorder": "#d6cbb6",
+    "accent": "#268bd2",
+    "textPrimary": "#586e75",
+    "textSecondary": "#657b83",
+    "textMuted": "#93a1a1",
+    "error": "#dc322f",
+    "success": "#859900",
+    "warning": "#b58900",
+    "scaffoldBg": "#fdf6e3"
+  }
+}

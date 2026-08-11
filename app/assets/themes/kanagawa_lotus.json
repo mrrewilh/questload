@@ -1,0 +1,22 @@
+{
+  "id": "kanagawa_lotus",
+  "name": "Kanagawa Lotus",
+  "family": "Kanagawa",
+  "isDark": false,
+  "colors": {
+    "navBg": "#f2ecdf",
+    "navActiveBg": "#ede2cf",
+    "surface": "#e5d7bf",
+    "surfaceLight": "#e8dbc6",
+    "card": "#e5d7bf",
+    "cardBorder": "#bc9c7e",
+    "accent": "#597b9f",
+    "textPrimary": "#545464",
+    "textSecondary": "#43436c",
+    "textMuted": "#8c8fa0",
+    "error": "#c84053",
+    "success": "#6b8c42",
+    "warning": "#b48e3d",
+    "scaffoldBg": "#f2ecdf"
+  }
+}

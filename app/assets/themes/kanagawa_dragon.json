@@ -1,0 +1,22 @@
+{
+  "id": "kanagawa_dragon",
+  "name": "Kanagawa Dragon",
+  "family": "Kanagawa",
+  "isDark": true,
+  "colors": {
+    "navBg": "#18161a",
+    "navActiveBg": "#1d1c21",
+    "surface": "#25212a",
+    "surfaceLight": "#322c37",
+    "card": "#25212a80",
+    "cardBorder": "#403a47",
+    "accent": "#8ba4b0",
+    "textPrimary": "#c8c093",
+    "textSecondary": "#b4ae8f",
+    "textMuted": "#716b61",
+    "error": "#c4746e",
+    "success": "#87a987",
+    "warning": "#c4a86a",
+    "scaffoldBg": "#18161a"
+  }
+}

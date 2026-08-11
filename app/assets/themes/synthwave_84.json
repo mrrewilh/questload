@@ -1,0 +1,22 @@
+{
+  "id": "synthwave_84",
+  "name": "SynthWave '84",
+  "family": "SynthWave",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1a1a2e",
+    "navActiveBg": "#222240",
+    "surface": "#26264a",
+    "surfaceLight": "#32325a",
+    "card": "#26264a80",
+    "cardBorder": "#44446a",
+    "accent": "#f4a0d0",
+    "textPrimary": "#d0d0f0",
+    "textSecondary": "#a8a8e0",
+    "textMuted": "#6060a0",
+    "error": "#ff6070",
+    "success": "#72f1b8",
+    "warning": "#feee98",
+    "scaffoldBg": "#1a1a2e"
+  }
+}

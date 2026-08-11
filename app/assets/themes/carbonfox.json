@@ -1,0 +1,22 @@
+{
+  "id": "carbonfox",
+  "name": "Carbonfox",
+  "family": "Nightfox",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1b1d1f",
+    "navActiveBg": "#202326",
+    "surface": "#26282b",
+    "surfaceLight": "#313336",
+    "card": "#26282b80",
+    "cardBorder": "#3d4043",
+    "accent": "#78a9ff",
+    "textPrimary": "#e0e2e4",
+    "textSecondary": "#bcbec0",
+    "textMuted": "#5c5e62",
+    "error": "#ff7eb6",
+    "success": "#42be65",
+    "warning": "#ffb000",
+    "scaffoldBg": "#1b1d1f"
+  }
+}

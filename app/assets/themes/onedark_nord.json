@@ -1,0 +1,22 @@
+{
+  "id": "onedark_nord",
+  "name": "Onedark Nord",
+  "family": "Onedark Nord",
+  "isDark": true,
+  "colors": {
+    "navBg": "#232a34",
+    "navActiveBg": "#2a333e",
+    "surface": "#303b48",
+    "surfaceLight": "#3c4858",
+    "card": "#303b4880",
+    "cardBorder": "#4d5b6d",
+    "accent": "#81a1c1",
+    "textPrimary": "#c8d0da",
+    "textSecondary": "#a4adb8",
+    "textMuted": "#607080",
+    "error": "#bf616a",
+    "success": "#a3be8c",
+    "warning": "#ebcb8b",
+    "scaffoldBg": "#232a34"
+  }
+}

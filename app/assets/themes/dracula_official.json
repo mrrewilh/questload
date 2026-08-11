@@ -1,0 +1,22 @@
+{
+  "id": "dracula_official",
+  "name": "Dracula Official",
+  "family": "Dracula",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1e1f2b",
+    "navActiveBg": "#282a36",
+    "surface": "#2b2d3b",
+    "surfaceLight": "#363848",
+    "card": "#2b2d3b80",
+    "cardBorder": "#44475a",
+    "accent": "#ff79c6",
+    "textPrimary": "#f8f8f2",
+    "textSecondary": "#d3d4dc",
+    "textMuted": "#6272a4",
+    "error": "#ff5555",
+    "success": "#50fa7b",
+    "warning": "#f1fa8c",
+    "scaffoldBg": "#1e1f2b"
+  }
+}

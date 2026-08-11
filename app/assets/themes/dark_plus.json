@@ -1,0 +1,22 @@
+{
+  "id": "dark_plus",
+  "name": "Dark+ (VS Code)",
+  "family": "Dark+",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1e1e1e",
+    "navActiveBg": "#252526",
+    "surface": "#2d2d2d",
+    "surfaceLight": "#3c3c3c",
+    "card": "#2d2d2d80",
+    "cardBorder": "#474747",
+    "accent": "#569cd6",
+    "textPrimary": "#d4d4d4",
+    "textSecondary": "#aeaeae",
+    "textMuted": "#6a6a6a",
+    "error": "#f44747",
+    "success": "#6a9955",
+    "warning": "#d7ba7d",
+    "scaffoldBg": "#1e1e1e"
+  }
+}

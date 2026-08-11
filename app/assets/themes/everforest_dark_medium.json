@@ -1,0 +1,22 @@
+{
+  "id": "everforest_dark_medium",
+  "name": "Everforest Dark Medium",
+  "family": "Everforest",
+  "isDark": true,
+  "colors": {
+    "navBg": "#2d353b",
+    "navActiveBg": "#343f44",
+    "surface": "#3d484d",
+    "surfaceLight": "#4a565c",
+    "card": "#3d484d80",
+    "cardBorder": "#596c76",
+    "accent": "#7fbbb3",
+    "textPrimary": "#d3c6aa",
+    "textSecondary": "#b9c0ab",
+    "textMuted": "#859289",
+    "error": "#e67e80",
+    "success": "#a7c080",
+    "warning": "#dbbc7f",
+    "scaffoldBg": "#2d353b"
+  }
+}

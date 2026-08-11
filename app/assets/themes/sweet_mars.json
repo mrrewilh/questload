@@ -1,0 +1,22 @@
+{
+  "id": "sweet_mars",
+  "name": "Sweet Mars",
+  "family": "Sweet",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1b1414",
+    "navActiveBg": "#2a1d1d",
+    "surface": "#332323",
+    "surfaceLight": "#403030",
+    "card": "#33232380",
+    "cardBorder": "#543e3e",
+    "accent": "#e5826f",
+    "textPrimary": "#dcc8c1",
+    "textSecondary": "#b8a59e",
+    "textMuted": "#7a6363",
+    "error": "#f07178",
+    "success": "#a1d67a",
+    "warning": "#f0c95c",
+    "scaffoldBg": "#1b1414"
+  }
+}

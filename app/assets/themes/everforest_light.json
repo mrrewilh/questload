@@ -1,0 +1,22 @@
+{
+  "id": "everforest_light",
+  "name": "Everforest Light",
+  "family": "Everforest",
+  "isDark": false,
+  "colors": {
+    "navBg": "#f4eed7",
+    "navActiveBg": "#f3ead3",
+    "surface": "#efe6c8",
+    "surfaceLight": "#f0e9ce",
+    "card": "#efe6c8",
+    "cardBorder": "#c9b99a",
+    "accent": "#7fbbb3",
+    "textPrimary": "#5c5e4e",
+    "textSecondary": "#6f715b",
+    "textMuted": "#939673",
+    "error": "#e67e80",
+    "success": "#a7c080",
+    "warning": "#dbbc7f",
+    "scaffoldBg": "#f4eed7"
+  }
+}

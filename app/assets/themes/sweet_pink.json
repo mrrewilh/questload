@@ -1,0 +1,22 @@
+{
+  "id": "sweet_pink",
+  "name": "Sweet Pink",
+  "family": "Sweet",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1a1420",
+    "navActiveBg": "#281d30",
+    "surface": "#332540",
+    "surfaceLight": "#423252",
+    "card": "#33254080",
+    "cardBorder": "#554167",
+    "accent": "#f07cbf",
+    "textPrimary": "#d9c6d6",
+    "textSecondary": "#b8a3b5",
+    "textMuted": "#7b6385",
+    "error": "#f07178",
+    "success": "#aed67a",
+    "warning": "#eac95c",
+    "scaffoldBg": "#1a1420"
+  }
+}

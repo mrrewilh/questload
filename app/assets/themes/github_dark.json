@@ -1,0 +1,22 @@
+{
+  "id": "github_dark",
+  "name": "GitHub Dark",
+  "family": "GitHub",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0d1117",
+    "navActiveBg": "#161b22",
+    "surface": "#1c2128",
+    "surfaceLight": "#272c34",
+    "card": "#1c212880",
+    "cardBorder": "#373e47",
+    "accent": "#58a6ff",
+    "textPrimary": "#e6edf3",
+    "textSecondary": "#c9d1d9",
+    "textMuted": "#6e7681",
+    "error": "#f85149",
+    "success": "#3fb950",
+    "warning": "#d29922",
+    "scaffoldBg": "#0d1117"
+  }
+}

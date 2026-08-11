@@ -1,0 +1,22 @@
+{
+  "id": "cyberdream",
+  "name": "Cyberdream",
+  "family": "Cyberdream",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0f0f1a",
+    "navActiveBg": "#161625",
+    "surface": "#1a1a2e",
+    "surfaceLight": "#222240",
+    "card": "#1a1a2e80",
+    "cardBorder": "#2f2f55",
+    "accent": "#00e5ff",
+    "textPrimary": "#d0d0f0",
+    "textSecondary": "#a0a0d0",
+    "textMuted": "#50507a",
+    "error": "#ff5370",
+    "success": "#00e676",
+    "warning": "#ffab40",
+    "scaffoldBg": "#0f0f1a"
+  }
+}

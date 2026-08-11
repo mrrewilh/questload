@@ -1,0 +1,22 @@
+{
+  "id": "ayu_dark",
+  "name": "Ayu Dark",
+  "family": "Ayu",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0f1419",
+    "navActiveBg": "#131721",
+    "surface": "#1a1f29",
+    "surfaceLight": "#242b38",
+    "card": "#1a1f2980",
+    "cardBorder": "#2f3848",
+    "accent": "#39bae6",
+    "textPrimary": "#d9d7d0",
+    "textSecondary": "#bfbdb6",
+    "textMuted": "#5e6673",
+    "error": "#f07178",
+    "success": "#aad94c",
+    "warning": "#ffb454",
+    "scaffoldBg": "#0f1419"
+  }
+}

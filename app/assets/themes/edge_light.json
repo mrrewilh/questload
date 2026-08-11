@@ -1,0 +1,22 @@
+{
+  "id": "edge_light",
+  "name": "Edge Light",
+  "family": "Edge",
+  "isDark": false,
+  "colors": {
+    "navBg": "#f2f0e8",
+    "navActiveBg": "#e8e4dc",
+    "surface": "#faf8f0",
+    "surfaceLight": "#faf8f1",
+    "card": "#faf8f0",
+    "cardBorder": "#c0bbb2",
+    "accent": "#73b3d9",
+    "textPrimary": "#4c505c",
+    "textSecondary": "#656c7a",
+    "textMuted": "#9a9eaa",
+    "error": "#e67e80",
+    "success": "#8bb87c",
+    "warning": "#dbbc7f",
+    "scaffoldBg": "#f2f0e8"
+  }
+}

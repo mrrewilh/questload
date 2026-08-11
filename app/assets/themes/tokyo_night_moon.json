@@ -1,0 +1,22 @@
+{
+  "id": "tokyo_night_moon",
+  "name": "Tokyo Night Moon",
+  "family": "Tokyo Night",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1e2030",
+    "navActiveBg": "#2a2c3d",
+    "surface": "#222436",
+    "surfaceLight": "#2f3148",
+    "card": "#22243680",
+    "cardBorder": "#444a73",
+    "accent": "#82aaff",
+    "textPrimary": "#c8d3f5",
+    "textSecondary": "#a9b1d6",
+    "textMuted": "#545c7e",
+    "error": "#ff5370",
+    "success": "#41a6a6",
+    "warning": "#ffc777",
+    "scaffoldBg": "#1e2030"
+  }
+}

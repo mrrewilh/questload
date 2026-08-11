@@ -1,0 +1,22 @@
+{
+  "id": "tokyo_night",
+  "name": "Tokyo Night",
+  "family": "Tokyo Night",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1a1b26",
+    "navActiveBg": "#24283b",
+    "surface": "#1f2335",
+    "surfaceLight": "#2f3346",
+    "card": "#1f233580",
+    "cardBorder": "#3b4261",
+    "accent": "#7aa2f7",
+    "textPrimary": "#c0caf5",
+    "textSecondary": "#a9b1d6",
+    "textMuted": "#565f89",
+    "error": "#f7768e",
+    "success": "#9ece6a",
+    "warning": "#e0af68",
+    "scaffoldBg": "#1a1b26"
+  }
+}

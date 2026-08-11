@@ -1,0 +1,22 @@
+{
+  "id": "gruvbox_dark_hard",
+  "name": "Gruvbox Dark Hard",
+  "family": "Gruvbox",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1d2021",
+    "navActiveBg": "#282828",
+    "surface": "#32302f",
+    "surfaceLight": "#3c3836",
+    "card": "#32302f80",
+    "cardBorder": "#504945",
+    "accent": "#83a598",
+    "textPrimary": "#fbf1c7",
+    "textSecondary": "#ebdbb2",
+    "textMuted": "#928374",
+    "error": "#fb4934",
+    "success": "#b8bb26",
+    "warning": "#fabd2f",
+    "scaffoldBg": "#1d2021"
+  }
+}

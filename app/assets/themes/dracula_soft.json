@@ -1,0 +1,22 @@
+{
+  "id": "dracula_soft",
+  "name": "Dracula Soft",
+  "family": "Dracula",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1e1e28",
+    "navActiveBg": "#242430",
+    "surface": "#282838",
+    "surfaceLight": "#343448",
+    "card": "#28283880",
+    "cardBorder": "#44445a",
+    "accent": "#bd93f9",
+    "textPrimary": "#f2f2ea",
+    "textSecondary": "#cdcdc5",
+    "textMuted": "#626284",
+    "error": "#ff5555",
+    "success": "#50fa7b",
+    "warning": "#f1fa8c",
+    "scaffoldBg": "#1e1e28"
+  }
+}

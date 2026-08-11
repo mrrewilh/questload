@@ -1,0 +1,22 @@
+{
+  "id": "questload",
+  "name": "QuestLoad",
+  "family": "QuestLoad",
+  "isDark": true,
+  "colors": {
+    "navBg": "#111111",
+    "navActiveBg": "#1E1E1E",
+    "surface": "#1A1A1A",
+    "surfaceLight": "#242424",
+    "card": "#222222",
+    "cardBorder": "#333333",
+    "accent": "#E0E0E0",
+    "textPrimary": "#F0F0F0",
+    "textSecondary": "#9E9E9E",
+    "textMuted": "#616161",
+    "error": "#CF6679",
+    "success": "#81C784",
+    "warning": "#FFD54F",
+    "scaffoldBg": "#0D0D0D"
+  }
+}

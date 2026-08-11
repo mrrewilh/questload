@@ -1,0 +1,22 @@
+{
+  "id": "monokai_ristretto",
+  "name": "Monokai Ristretto",
+  "family": "Monokai",
+  "isDark": true,
+  "colors": {
+    "navBg": "#2c2525",
+    "navActiveBg": "#342c2c",
+    "surface": "#3b3333",
+    "surfaceLight": "#493f3f",
+    "card": "#3b333380",
+    "cardBorder": "#594e4e",
+    "accent": "#a9dc76",
+    "textPrimary": "#f0eae0",
+    "textSecondary": "#cfc5b8",
+    "textMuted": "#7e7060",
+    "error": "#fc5d7c",
+    "success": "#9ece6a",
+    "warning": "#e0af68",
+    "scaffoldBg": "#2c2525"
+  }
+}

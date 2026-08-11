@@ -1,0 +1,22 @@
+{
+  "id": "papercolor",
+  "name": "PaperColor",
+  "family": "PaperColor",
+  "isDark": false,
+  "colors": {
+    "navBg": "#e8e4d4",
+    "navActiveBg": "#ddd8c8",
+    "surface": "#f0ecda",
+    "surfaceLight": "#f1eede",
+    "card": "#f0ecda",
+    "cardBorder": "#c4bfa8",
+    "accent": "#4d7b9e",
+    "textPrimary": "#3a3a3a",
+    "textSecondary": "#585858",
+    "textMuted": "#8a8a8a",
+    "error": "#bc4c4c",
+    "success": "#5f8f4c",
+    "warning": "#c49a3a",
+    "scaffoldBg": "#e8e4d4"
+  }
+}

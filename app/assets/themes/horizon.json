@@ -1,0 +1,22 @@
+{
+  "id": "horizon",
+  "name": "Horizon",
+  "family": "Horizon",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1c1820",
+    "navActiveBg": "#231f28",
+    "surface": "#2a2632",
+    "surfaceLight": "#363240",
+    "card": "#2a263280",
+    "cardBorder": "#474352",
+    "accent": "#e4a0a0",
+    "textPrimary": "#d0c8d0",
+    "textSecondary": "#aba3ab",
+    "textMuted": "#635c70",
+    "error": "#e95678",
+    "success": "#29d398",
+    "warning": "#fab795",
+    "scaffoldBg": "#1c1820"
+  }
+}

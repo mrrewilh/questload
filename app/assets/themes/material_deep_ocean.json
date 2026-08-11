@@ -1,0 +1,22 @@
+{
+  "id": "material_deep_ocean",
+  "name": "Material Deep Ocean",
+  "family": "Material",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0b0f19",
+    "navActiveBg": "#111420",
+    "surface": "#171b28",
+    "surfaceLight": "#212539",
+    "card": "#171b2880",
+    "cardBorder": "#2f3553",
+    "accent": "#82aaff",
+    "textPrimary": "#b6c3f0",
+    "textSecondary": "#96a6d0",
+    "textMuted": "#4e5573",
+    "error": "#f07178",
+    "success": "#c3e88d",
+    "warning": "#ffcb6b",
+    "scaffoldBg": "#0b0f19"
+  }
+}

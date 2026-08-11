@@ -1,0 +1,22 @@
+{
+  "id": "oxocarbon_dark",
+  "name": "Oxocarbon Dark",
+  "family": "Oxocarbon",
+  "isDark": true,
+  "colors": {
+    "navBg": "#111416",
+    "navActiveBg": "#161a1c",
+    "surface": "#1b1f22",
+    "surfaceLight": "#262a2e",
+    "card": "#1b1f2280",
+    "cardBorder": "#34383d",
+    "accent": "#78a9ff",
+    "textPrimary": "#d0d4da",
+    "textSecondary": "#acb2bc",
+    "textMuted": "#6a7079",
+    "error": "#ff7eb6",
+    "success": "#42be65",
+    "warning": "#ffb000",
+    "scaffoldBg": "#111416"
+  }
+}

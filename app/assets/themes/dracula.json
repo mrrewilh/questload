@@ -1,0 +1,22 @@
+{
+  "id": "dracula",
+  "name": "Dracula",
+  "family": "Dracula",
+  "isDark": true,
+  "colors": {
+    "navBg": "#21222c",
+    "navActiveBg": "#282a36",
+    "surface": "#282a36",
+    "surfaceLight": "#343746",
+    "card": "#282a3680",
+    "cardBorder": "#44475a",
+    "accent": "#bd93f9",
+    "textPrimary": "#f8f8f2",
+    "textSecondary": "#d2d4de",
+    "textMuted": "#6272a4",
+    "error": "#ff5555",
+    "success": "#50fa7b",
+    "warning": "#f1fa8c",
+    "scaffoldBg": "#21222c"
+  }
+}

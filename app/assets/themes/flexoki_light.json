@@ -1,0 +1,22 @@
+{
+  "id": "flexoki_light",
+  "name": "Flexoki Light",
+  "family": "Flexoki",
+  "isDark": false,
+  "colors": {
+    "navBg": "#f2f0e5",
+    "navActiveBg": "#e6e4d9",
+    "surface": "#fffcf0",
+    "surfaceLight": "#fffcf1",
+    "card": "#fffcf0",
+    "cardBorder": "#c8c5b8",
+    "accent": "#6f9b8e",
+    "textPrimary": "#100f0f",
+    "textSecondary": "#403e39",
+    "textMuted": "#878580",
+    "error": "#c55148",
+    "success": "#879a54",
+    "warning": "#b56f3d",
+    "scaffoldBg": "#f2f0e5"
+  }
+}

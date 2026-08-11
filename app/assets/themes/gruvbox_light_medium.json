@@ -1,0 +1,22 @@
+{
+  "id": "gruvbox_light_medium",
+  "name": "Gruvbox Light Medium",
+  "family": "Gruvbox",
+  "isDark": false,
+  "colors": {
+    "navBg": "#fbf1c7",
+    "navActiveBg": "#f2e5bc",
+    "surface": "#ebdbb2",
+    "surfaceLight": "#eddfbb",
+    "card": "#ebdbb2",
+    "cardBorder": "#bdae93",
+    "accent": "#458588",
+    "textPrimary": "#282828",
+    "textSecondary": "#3c3836",
+    "textMuted": "#928374",
+    "error": "#9d0006",
+    "success": "#79740e",
+    "warning": "#b57614",
+    "scaffoldBg": "#fbf1c7"
+  }
+}

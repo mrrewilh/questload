@@ -1,0 +1,22 @@
+{
+  "id": "andromeda",
+  "name": "Andromeda",
+  "family": "Andromeda",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1a1c23",
+    "navActiveBg": "#22242b",
+    "surface": "#282a33",
+    "surfaceLight": "#343740",
+    "card": "#282a3380",
+    "cardBorder": "#434753",
+    "accent": "#96d0e8",
+    "textPrimary": "#d0d4e0",
+    "textSecondary": "#abb0bc",
+    "textMuted": "#666a78",
+    "error": "#e06070",
+    "success": "#96d0a0",
+    "warning": "#d0b060",
+    "scaffoldBg": "#1a1c23"
+  }
+}

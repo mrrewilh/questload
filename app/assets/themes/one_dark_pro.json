@@ -1,0 +1,22 @@
+{
+  "id": "one_dark_pro",
+  "name": "One Dark Pro",
+  "family": "One Dark",
+  "isDark": true,
+  "colors": {
+    "navBg": "#21252b",
+    "navActiveBg": "#282c34",
+    "surface": "#2b2f38",
+    "surfaceLight": "#363b45",
+    "card": "#2b2f3880",
+    "cardBorder": "#4f5663",
+    "accent": "#61afef",
+    "textPrimary": "#abb2bf",
+    "textSecondary": "#8e94a2",
+    "textMuted": "#5c6370",
+    "error": "#e06c75",
+    "success": "#98c379",
+    "warning": "#e5c07b",
+    "scaffoldBg": "#21252b"
+  }
+}

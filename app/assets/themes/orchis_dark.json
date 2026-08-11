@@ -1,0 +1,22 @@
+{
+  "id": "orchis_dark",
+  "name": "Orchis Dark",
+  "family": "Orchis",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1a1a24",
+    "navActiveBg": "#22222e",
+    "surface": "#28283a",
+    "surfaceLight": "#34344a",
+    "card": "#28283a80",
+    "cardBorder": "#42425c",
+    "accent": "#7aa2f7",
+    "textPrimary": "#c8c8e0",
+    "textSecondary": "#a5a5c0",
+    "textMuted": "#666688",
+    "error": "#e26a6a",
+    "success": "#7ab87a",
+    "warning": "#d0a840",
+    "scaffoldBg": "#1a1a24"
+  }
+}

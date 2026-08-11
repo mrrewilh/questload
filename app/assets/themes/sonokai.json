@@ -1,0 +1,22 @@
+{
+  "id": "sonokai",
+  "name": "Sonokai",
+  "family": "Sonokai",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1a1b24",
+    "navActiveBg": "#222330",
+    "surface": "#2a2d3a",
+    "surfaceLight": "#36394a",
+    "card": "#2a2d3a80",
+    "cardBorder": "#464b60",
+    "accent": "#9ed0d0",
+    "textPrimary": "#e0e2e8",
+    "textSecondary": "#b8bcc8",
+    "textMuted": "#6c7080",
+    "error": "#fc5d7c",
+    "success": "#9ece6a",
+    "warning": "#f9e076",
+    "scaffoldBg": "#1a1b24"
+  }
+}

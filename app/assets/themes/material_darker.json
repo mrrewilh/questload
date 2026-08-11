@@ -1,0 +1,22 @@
+{
+  "id": "material_darker",
+  "name": "Material Darker",
+  "family": "Material",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0a0a0f",
+    "navActiveBg": "#111117",
+    "surface": "#16161e",
+    "surfaceLight": "#1e1e2a",
+    "card": "#16161e80",
+    "cardBorder": "#2c2c3f",
+    "accent": "#82aaff",
+    "textPrimary": "#a0a8c0",
+    "textSecondary": "#8088a8",
+    "textMuted": "#4a5073",
+    "error": "#e06c75",
+    "success": "#98c379",
+    "warning": "#e5c07b",
+    "scaffoldBg": "#0a0a0f"
+  }
+}

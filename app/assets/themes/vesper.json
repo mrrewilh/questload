@@ -1,0 +1,22 @@
+{
+  "id": "vesper",
+  "name": "Vesper",
+  "family": "Vesper",
+  "isDark": true,
+  "colors": {
+    "navBg": "#101012",
+    "navActiveBg": "#18181a",
+    "surface": "#202024",
+    "surfaceLight": "#2c2c30",
+    "card": "#20202480",
+    "cardBorder": "#3d3d42",
+    "accent": "#b8a8c0",
+    "textPrimary": "#d0d0d0",
+    "textSecondary": "#a8a8ac",
+    "textMuted": "#606068",
+    "error": "#d06060",
+    "success": "#80a880",
+    "warning": "#c0a860",
+    "scaffoldBg": "#101012"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "flexoki_dark",
+  "name": "Flexoki Dark",
+  "family": "Flexoki",
+  "isDark": true,
+  "colors": {
+    "navBg": "#100f0f",
+    "navActiveBg": "#1c1b1a",
+    "surface": "#232221",
+    "surfaceLight": "#302d2c",
+    "card": "#23222180",
+    "cardBorder": "#3d3a37",
+    "accent": "#6f9b8e",
+    "textPrimary": "#dad6ce",
+    "textSecondary": "#b8b2a8",
+    "textMuted": "#6f6e69",
+    "error": "#c55148",
+    "success": "#879a54",
+    "warning": "#b56f3d",
+    "scaffoldBg": "#100f0f"
+  }
+}

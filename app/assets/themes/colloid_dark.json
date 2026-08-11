@@ -1,0 +1,22 @@
+{
+  "id": "colloid_dark",
+  "name": "Colloid Dark",
+  "family": "Colloid",
+  "isDark": true,
+  "colors": {
+    "navBg": "#171717",
+    "navActiveBg": "#1e1e1e",
+    "surface": "#242424",
+    "surfaceLight": "#303030",
+    "card": "#24242480",
+    "cardBorder": "#3d3d3d",
+    "accent": "#5294e2",
+    "textPrimary": "#d4d4d4",
+    "textSecondary": "#b0b0b0",
+    "textMuted": "#6e6e6e",
+    "error": "#e06060",
+    "success": "#80b080",
+    "warning": "#d4a040",
+    "scaffoldBg": "#171717"
+  }
+}

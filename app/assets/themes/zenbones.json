@@ -1,0 +1,22 @@
+{
+  "id": "zenbones",
+  "name": "Zenbones",
+  "family": "Zenbones",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1a1a1a",
+    "navActiveBg": "#202020",
+    "surface": "#252525",
+    "surfaceLight": "#303030",
+    "card": "#25252580",
+    "cardBorder": "#3d3d3d",
+    "accent": "#8a8a8a",
+    "textPrimary": "#c0c0c0",
+    "textSecondary": "#9a9a9a",
+    "textMuted": "#606060",
+    "error": "#c06060",
+    "success": "#80a080",
+    "warning": "#c0a060",
+    "scaffoldBg": "#1a1a1a"
+  }
+}

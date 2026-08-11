@@ -1,0 +1,49 @@
+# Build artifacts
+app/target/
+app/core/target/
+app/android/app/build/
+app/android/.gradle/
+app/desktop/src-tauri/target/
+app/vr/app/build/
+app/vr/.gradle/
+app/.dart_tool/
+app/build/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+
+# Database files
+*.db*
+
+# User files (My test files, you can create something like this if you are forking/contributing.)
+user/
+
+# Cache directories
+.cache/
+.cargo/
+.npm/
+node_modules/
+
+# IDE
+.pi/
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+
+# Credentials (Template)
+*credentials*.json
+!credentials.json.example

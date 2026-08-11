@@ -1,0 +1,22 @@
+{
+  "id": "ayu_light",
+  "name": "Ayu Light",
+  "family": "Ayu",
+  "isDark": false,
+  "colors": {
+    "navBg": "#fcfcfc",
+    "navActiveBg": "#f0f0f0",
+    "surface": "#fafafa",
+    "surfaceLight": "#fafafa",
+    "card": "#fafafa",
+    "cardBorder": "#d9d8d7",
+    "accent": "#399ee6",
+    "textPrimary": "#5c6773",
+    "textSecondary": "#788591",
+    "textMuted": "#abb0b6",
+    "error": "#f07171",
+    "success": "#86b300",
+    "warning": "#f2ae49",
+    "scaffoldBg": "#fcfcfc"
+  }
+}

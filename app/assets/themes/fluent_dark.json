@@ -1,0 +1,22 @@
+{
+  "id": "fluent_dark",
+  "name": "Fluent Dark",
+  "family": "Fluent",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1f1f1f",
+    "navActiveBg": "#272727",
+    "surface": "#2e2e2e",
+    "surfaceLight": "#3a3a3a",
+    "card": "#2e2e2e80",
+    "cardBorder": "#4a4a4a",
+    "accent": "#60cdff",
+    "textPrimary": "#e0e0e0",
+    "textSecondary": "#b8b8b8",
+    "textMuted": "#707070",
+    "error": "#e06060",
+    "success": "#80c080",
+    "warning": "#d4a040",
+    "scaffoldBg": "#1f1f1f"
+  }
+}

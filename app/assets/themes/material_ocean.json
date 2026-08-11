@@ -1,0 +1,22 @@
+{
+  "id": "material_ocean",
+  "name": "Material Ocean",
+  "family": "Material",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0f111a",
+    "navActiveBg": "#181a1f",
+    "surface": "#1e2030",
+    "surfaceLight": "#282a3a",
+    "card": "#1e203080",
+    "cardBorder": "#373a50",
+    "accent": "#82aaff",
+    "textPrimary": "#c0caf5",
+    "textSecondary": "#a0a8cd",
+    "textMuted": "#545c7e",
+    "error": "#f07178",
+    "success": "#c3e88d",
+    "warning": "#ffcb6b",
+    "scaffoldBg": "#0f111a"
+  }
+}

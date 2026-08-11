@@ -1,0 +1,22 @@
+{
+  "id": "tokyo_night_storm",
+  "name": "Tokyo Night Storm",
+  "family": "Tokyo Night",
+  "isDark": true,
+  "colors": {
+    "navBg": "#24283b",
+    "navActiveBg": "#2a2f45",
+    "surface": "#2e3348",
+    "surfaceLight": "#3b4159",
+    "card": "#2e334880",
+    "cardBorder": "#4c5370",
+    "accent": "#7dcfff",
+    "textPrimary": "#c0caf5",
+    "textSecondary": "#a9b1d6",
+    "textMuted": "#565f89",
+    "error": "#f7768e",
+    "success": "#9ece6a",
+    "warning": "#e0af68",
+    "scaffoldBg": "#24283b"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "oxocarbon_light",
+  "name": "Oxocarbon Light",
+  "family": "Oxocarbon",
+  "isDark": false,
+  "colors": {
+    "navBg": "#f2f4f8",
+    "navActiveBg": "#e3e6ed",
+    "surface": "#ffffff",
+    "surfaceLight": "#ffffff",
+    "card": "#ffffff",
+    "cardBorder": "#c5ccda",
+    "accent": "#0f62fe",
+    "textPrimary": "#161616",
+    "textSecondary": "#525252",
+    "textMuted": "#8a9099",
+    "error": "#da1e28",
+    "success": "#198038",
+    "warning": "#f1c21b",
+    "scaffoldBg": "#f2f4f8"
+  }
+}

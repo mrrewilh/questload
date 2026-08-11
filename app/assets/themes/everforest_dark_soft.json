@@ -1,0 +1,22 @@
+{
+  "id": "everforest_dark_soft",
+  "name": "Everforest Dark Soft",
+  "family": "Everforest",
+  "isDark": true,
+  "colors": {
+    "navBg": "#2f383e",
+    "navActiveBg": "#374247",
+    "surface": "#404c52",
+    "surfaceLight": "#4f5b62",
+    "card": "#404c5280",
+    "cardBorder": "#5d707b",
+    "accent": "#7fbbb3",
+    "textPrimary": "#d3c6aa",
+    "textSecondary": "#b9c0ab",
+    "textMuted": "#859289",
+    "error": "#e67e80",
+    "success": "#a7c080",
+    "warning": "#dbbc7f",
+    "scaffoldBg": "#2f383e"
+  }
+}

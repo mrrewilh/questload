@@ -1,0 +1,22 @@
+{
+  "id": "gruvbox_light_soft",
+  "name": "Gruvbox Light Soft",
+  "family": "Gruvbox",
+  "isDark": false,
+  "colors": {
+    "navBg": "#f2e5bc",
+    "navActiveBg": "#ebdbb2",
+    "surface": "#d5c4a1",
+    "surfaceLight": "#dacbac",
+    "card": "#d5c4a1",
+    "cardBorder": "#a89984",
+    "accent": "#458588",
+    "textPrimary": "#282828",
+    "textSecondary": "#3c3836",
+    "textMuted": "#928374",
+    "error": "#9d0006",
+    "success": "#79740e",
+    "warning": "#b57614",
+    "scaffoldBg": "#f2e5bc"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "kanagawa_wave",
+  "name": "Kanagawa Wave",
+  "family": "Kanagawa",
+  "isDark": true,
+  "colors": {
+    "navBg": "#16161d",
+    "navActiveBg": "#1f1f28",
+    "surface": "#28283a",
+    "surfaceLight": "#363548",
+    "card": "#28283a80",
+    "cardBorder": "#45445a",
+    "accent": "#7e9cd8",
+    "textPrimary": "#dcd7ba",
+    "textSecondary": "#c8c3a6",
+    "textMuted": "#727169",
+    "error": "#e46876",
+    "success": "#98bb6c",
+    "warning": "#e6c384",
+    "scaffoldBg": "#16161d"
+  }
+}

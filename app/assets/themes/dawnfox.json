@@ -1,0 +1,22 @@
+{
+  "id": "dawnfox",
+  "name": "Dawnfox",
+  "family": "Nightfox",
+  "isDark": false,
+  "colors": {
+    "navBg": "#f4ede8",
+    "navActiveBg": "#ece4dd",
+    "surface": "#e5ddd5",
+    "surfaceLight": "#e8e1da",
+    "card": "#e5ddd5",
+    "cardBorder": "#bfb5aa",
+    "accent": "#56949f",
+    "textPrimary": "#575279",
+    "textSecondary": "#6e6a86",
+    "textMuted": "#9893a5",
+    "error": "#b4637a",
+    "success": "#56949f",
+    "warning": "#ea9d34",
+    "scaffoldBg": "#f4ede8"
+  }
+}

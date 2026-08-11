@@ -1,0 +1,22 @@
+{
+  "id": "aura",
+  "name": "Aura",
+  "family": "Aura",
+  "isDark": true,
+  "colors": {
+    "navBg": "#15111e",
+    "navActiveBg": "#1d172a",
+    "surface": "#231d36",
+    "surfaceLight": "#2f2845",
+    "card": "#231d3680",
+    "cardBorder": "#3e3560",
+    "accent": "#a277ff",
+    "textPrimary": "#d0c8e0",
+    "textSecondary": "#aba3c0",
+    "textMuted": "#605888",
+    "error": "#ff6070",
+    "success": "#61ffca",
+    "warning": "#ffca85",
+    "scaffoldBg": "#15111e"
+  }
+}

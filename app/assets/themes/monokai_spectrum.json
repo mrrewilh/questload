@@ -1,0 +1,22 @@
+{
+  "id": "monokai_spectrum",
+  "name": "Monokai Spectrum",
+  "family": "Monokai",
+  "isDark": true,
+  "colors": {
+    "navBg": "#221f22",
+    "navActiveBg": "#2a262a",
+    "surface": "#322e32",
+    "surfaceLight": "#3f3a3f",
+    "card": "#322e3280",
+    "cardBorder": "#504a50",
+    "accent": "#ff6188",
+    "textPrimary": "#f7f1ff",
+    "textSecondary": "#d4cce3",
+    "textMuted": "#7a6f8c",
+    "error": "#fc5d7c",
+    "success": "#9ece6a",
+    "warning": "#ffd866",
+    "scaffoldBg": "#221f22"
+  }
+}

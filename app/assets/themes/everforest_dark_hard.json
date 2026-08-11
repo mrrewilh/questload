@@ -1,0 +1,22 @@
+{
+  "id": "everforest_dark_hard",
+  "name": "Everforest Dark Hard",
+  "family": "Everforest",
+  "isDark": true,
+  "colors": {
+    "navBg": "#2b3339",
+    "navActiveBg": "#323d43",
+    "surface": "#3a454b",
+    "surfaceLight": "#47535b",
+    "card": "#3a454b80",
+    "cardBorder": "#566b76",
+    "accent": "#7fbbb3",
+    "textPrimary": "#d3c6aa",
+    "textSecondary": "#b9c0ab",
+    "textMuted": "#859289",
+    "error": "#e67e80",
+    "success": "#a7c080",
+    "warning": "#dbbc7f",
+    "scaffoldBg": "#2b3339"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "moonlight_ii",
+  "name": "Moonlight II",
+  "family": "Moonlight",
+  "isDark": true,
+  "colors": {
+    "navBg": "#191a2e",
+    "navActiveBg": "#1f2040",
+    "surface": "#24264a",
+    "surfaceLight": "#2f3158",
+    "card": "#24264a80",
+    "cardBorder": "#3d4070",
+    "accent": "#82aaff",
+    "textPrimary": "#c8cbe0",
+    "textSecondary": "#a4a8c5",
+    "textMuted": "#5c60a0",
+    "error": "#ff5370",
+    "success": "#41a6a6",
+    "warning": "#ffc777",
+    "scaffoldBg": "#191a2e"
+  }
+}

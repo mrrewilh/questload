@@ -1,0 +1,22 @@
+{
+  "id": "night_owl",
+  "name": "Night Owl",
+  "family": "Night Owl",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0b0d17",
+    "navActiveBg": "#111320",
+    "surface": "#171923",
+    "surfaceLight": "#232635",
+    "card": "#17192380",
+    "cardBorder": "#353949",
+    "accent": "#82aaff",
+    "textPrimary": "#cdd3e0",
+    "textSecondary": "#a8b0c2",
+    "textMuted": "#5e6779",
+    "error": "#fc7b7b",
+    "success": "#80cbc4",
+    "warning": "#ffcb6b",
+    "scaffoldBg": "#0b0d17"
+  }
+}

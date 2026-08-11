@@ -1,0 +1,22 @@
+{
+  "id": "github_light",
+  "name": "GitHub Light",
+  "family": "GitHub",
+  "isDark": false,
+  "colors": {
+    "navBg": "#f6f8fa",
+    "navActiveBg": "#eef1f5",
+    "surface": "#ffffff",
+    "surfaceLight": "#ffffff",
+    "card": "#ffffff",
+    "cardBorder": "#d0d7de",
+    "accent": "#0969da",
+    "textPrimary": "#1f2328",
+    "textSecondary": "#656d76",
+    "textMuted": "#8c959f",
+    "error": "#cf222e",
+    "success": "#1a7f37",
+    "warning": "#9a6700",
+    "scaffoldBg": "#f6f8fa"
+  }
+}

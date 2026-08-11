@@ -1,0 +1,352 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'services/log_service.dart';
+import 'services/theme_service.dart';
+import 'services/theme_brightness_service.dart';
+import 'l10n/app_localizations.dart';
+import 'services/adb_service.dart';
+import 'services/paths_service.dart';
+import 'screens/layout_shell.dart';
+import 'screens/home_screen.dart';
+import 'screens/library_screen.dart';
+import 'screens/device_screen.dart';
+import 'screens/downloads_screen.dart';
+import 'screens/settings_screen.dart';
+import 'core/app_theme.dart';
+import 'core/constants.dart';
+
+/// Tracks SettingsScreen constructor params for cache comparison.
+class _SettingsScreenParams {
+  final bool isSidebarLayout;
+  final bool smoothScroll;
+  final String themeId;
+  final String themeMode;
+
+  const _SettingsScreenParams({
+    required this.isSidebarLayout,
+    required this.smoothScroll,
+    required this.themeId,
+    required this.themeMode,
+  });
+}
+
+class QuestLoadApp extends StatefulWidget {
+  final AdbService adb;
+  final ThemeService themes;
+
+  const QuestLoadApp({
+    super.key,
+    required this.adb,
+    required this.themes,
+  });
+
+  @override
+  State<QuestLoadApp> createState() => _QuestLoadAppState();
+}
+
+class _QuestLoadAppState extends State<QuestLoadApp>
+    with WidgetsBindingObserver {
+  bool _isMaximized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkMaximized();
+  }
+
+  @override
+  void didChangeMetrics() {
+    _checkMaximized();
+  }
+
+  void _checkMaximized() {
+    try {
+      final maximized = appWindow.isMaximized;
+      if (maximized != _isMaximized && mounted) {
+        setState(() => _isMaximized = maximized);
+      }
+    } catch (e) {
+      LogService.error('Window maximize check failed: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final app = MaterialApp(
+      title: 'QuestLoad',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.dark,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: AppShell(adb: widget.adb, themes: widget.themes),
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(_isMaximized ? 0 : 12),
+      child: app,
+    );
+  }
+}
+
+class AppShell extends StatefulWidget {
+  final AdbService adb;
+  final ThemeService themes;
+
+  const AppShell({
+    super.key,
+    required this.adb,
+    required this.themes,
+  });
+
+  @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
+  late final Widget _home;
+  Widget _device = const SizedBox.shrink();
+  late final LibraryScreen _library;
+  late final DownloadsScreen _downloads;
+  AppLayout _layout = AppLayout.compact;
+  String _themeId = 'questload';
+  String _themeMode = 'auto';
+  bool _smoothScroll = true;
+  bool _deviceConnected = false;
+  ThemeData? _cachedThemeData;
+
+  ThemeData get _themeData => _cachedThemeData ?? AppTheme.dark();
+  SettingsScreen? _cachedSettings;
+  _SettingsScreenParams? _lastSettingsParams;
+
+  Future<String> get _settingsPath => PathsService.settingsPath;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    ThemeBrightnessService.instance.start();
+    // Auto mode follows the OS brightness live.
+    ThemeBrightnessService.instance.brightness.addListener(_onBrightness);
+    _home = const HomeScreen();
+    _library = const LibraryScreen();
+    _device = _buildDeviceScreen();
+    _downloads = const DownloadsScreen();
+    _loadSettings();
+    _pollDevice();
+  }
+
+  void _onBrightness() {
+    if (_themeMode == 'auto') _applyTheme(_themeId);
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    // Non-Linux: the engine already tracks the OS theme.
+    if (!ThemeBrightnessService.instance.usesPortal) {
+      ThemeBrightnessService.instance.brightness.value =
+          WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    }
+  }
+
+  Future<void> _pollDevice() async {
+    while (mounted) {
+      try {
+        final serials = await widget.adb.refreshDevices();
+        if (mounted) {
+          setState(() => _deviceConnected = serials.isNotEmpty);
+        }
+      } catch (e) {
+        LogService.error('Device poll failed: $e');
+      }
+      await Future.delayed(kDevicePollInterval);
+    }
+  }
+
+  Map<String, dynamic> _currentSettings() => {
+        'layout_mode': _layout == AppLayout.sidebar ? 'sidebar' : 'compact',
+        'theme_id': _themeId,
+        'theme_mode': _themeMode,
+        'smooth_scroll': _smoothScroll,
+      };
+
+  Future<void> _loadSettings() async {
+    try {
+      final path = await _settingsPath;
+      Map<String, dynamic> json;
+      if (File(path).existsSync()) {
+        json = jsonDecode(await File(path).readAsString())
+            as Map<String, dynamic>;
+      } else {
+        json = <String, dynamic>{
+          'layout_mode': 'compact',
+          'theme_id': 'questload',
+          'theme_mode': 'auto',
+          'smooth_scroll': true,
+        };
+      }
+      if (!mounted) return;
+      _layout = (json['layout_mode'] as String?) == 'sidebar'
+          ? AppLayout.sidebar
+          : AppLayout.compact;
+      _themeId = (json['theme_id'] as String?) ?? 'questload';
+      _themeMode = (json['theme_mode'] as String?) ?? 'auto';
+      _smoothScroll = (json['smooth_scroll'] as bool?) ?? true;
+      await _applyTheme(_themeId);
+    } catch (e) {
+      LogService.error('Settings load failed: $e');
+      if (mounted) _saveSettings();
+    }
+  }
+
+  Future<void> _saveSettings() async {
+    try {
+      final path = await _settingsPath;
+      await File(path).writeAsString(jsonEncode(_currentSettings()));
+    } catch (e) {
+      LogService.error('Settings save failed: $e');
+    }
+  }
+
+  Future<void> _applyTheme(String id) async {
+    final data = await _resolveTheme(id);
+    if (mounted && data != null) {
+      setState(() {
+        _cachedThemeData = data;
+      });
+    }
+  }
+
+  /// Resolves the [ThemeData] for a theme id + the brightness mode.
+  /// Only the questload theme honors light/dark/auto; gallery themes are
+  /// fixed palettes.
+  Future<ThemeData?> _resolveTheme(String id) async {
+    if (id == 'questload') {
+      return switch (_themeMode) {
+        'light' => AppTheme.light(),
+        'dark' => AppTheme.dark(),
+        _ => ThemeBrightnessService.instance.brightness.value == Brightness.dark
+            ? AppTheme.dark()
+            : AppTheme.light(),
+      };
+    }
+    final theme = await widget.themes.loadTheme(id);
+    return theme?.buildThemeData();
+  }
+
+  void _selectThemeMode(String mode) {
+    _themeMode = mode;
+    _cachedSettings = null;
+    _applyTheme(_themeId);
+    _saveSettings();
+  }
+
+  void _toggleLayout() {
+    setState(() {
+      _layout =
+          _layout == AppLayout.sidebar ? AppLayout.compact : AppLayout.sidebar;
+      _cachedSettings = null;
+    });
+    _saveSettings();
+  }
+
+  void _toggleSmoothScroll() {
+    setState(() {
+      _smoothScroll = !_smoothScroll;
+      _cachedSettings = null;
+      // The device screen bakes the flag at construction; rebuild it so the
+      // setting applies immediately.
+      _device = _buildDeviceScreen();
+    });
+    _saveSettings();
+  }
+
+  Widget _buildDeviceScreen() => DeviceScreen(
+        adb: widget.adb,
+        smoothScroll: _smoothScroll,
+        onConnectionChanged: () {
+          widget.adb.refreshDevices().then((serials) {
+            if (mounted) setState(() => _deviceConnected = serials.isNotEmpty);
+          });
+        },
+      );
+
+  Future<void> _selectTheme(String id) async {
+    _themeId = id;
+    await _applyTheme(id);
+    _saveSettings();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final params = _SettingsScreenParams(
+      isSidebarLayout: _layout == AppLayout.sidebar,
+      smoothScroll: _smoothScroll,
+      themeId: _themeId,
+      themeMode: _themeMode,
+    );
+    final paramsSame = _lastSettingsParams != null &&
+        _lastSettingsParams!.isSidebarLayout == params.isSidebarLayout &&
+        _lastSettingsParams!.smoothScroll == params.smoothScroll &&
+        _lastSettingsParams!.themeId == params.themeId &&
+        _lastSettingsParams!.themeMode == params.themeMode;
+    _lastSettingsParams = params;
+    if (!paramsSame || _cachedSettings == null) {
+      _cachedSettings = SettingsScreen(
+        adb: widget.adb,
+        isSidebarLayout: _layout == AppLayout.sidebar,
+        smoothScroll: _smoothScroll,
+        themeId: _themeId,
+        themeMode: _themeMode,
+        themes: widget.themes,
+        onToggleLayout: _toggleLayout,
+        onToggleSmoothScroll: _toggleSmoothScroll,
+        onSelectTheme: _selectTheme,
+        onSelectThemeMode: _selectThemeMode,
+      );
+    }
+
+    return Theme(
+      data: _themeData,
+      child: Builder(builder: (context) {
+        return LayoutShell(
+          home: _home,
+          library: _library,
+          device: _device,
+          downloads: _downloads,
+          showDeviceTab: !widget.adb.isOnDevice,
+          deviceConnected: _deviceConnected,
+          layout: _layout,
+          smoothScroll: _smoothScroll,
+          onToggleLayout: _toggleLayout,
+          settings: _cachedSettings!,
+        );
+      }),
+    );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    ThemeBrightnessService.instance.brightness.removeListener(_onBrightness);
+    _cachedSettings = null;
+    super.dispose();
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "sweet_purple",
+  "name": "Sweet Purple",
+  "family": "Sweet",
+  "isDark": true,
+  "colors": {
+    "navBg": "#16121f",
+    "navActiveBg": "#1f1a2e",
+    "surface": "#28213b",
+    "surfaceLight": "#352d4d",
+    "card": "#28213b80",
+    "cardBorder": "#453b60",
+    "accent": "#b87cff",
+    "textPrimary": "#d4cce3",
+    "textSecondary": "#afabb8",
+    "textMuted": "#6d6291",
+    "error": "#f07178",
+    "success": "#aed67a",
+    "warning": "#e8d05c",
+    "scaffoldBg": "#16121f"
+  }
+}

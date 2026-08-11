@@ -1,0 +1,22 @@
+{
+  "id": "edge_dark",
+  "name": "Edge Dark",
+  "family": "Edge",
+  "isDark": true,
+  "colors": {
+    "navBg": "#13161c",
+    "navActiveBg": "#1a1e26",
+    "surface": "#202530",
+    "surfaceLight": "#2c313e",
+    "card": "#20253080",
+    "cardBorder": "#3b4150",
+    "accent": "#73b3d9",
+    "textPrimary": "#c3cbda",
+    "textSecondary": "#a0a9b8",
+    "textMuted": "#586070",
+    "error": "#e67e80",
+    "success": "#8bb87c",
+    "warning": "#dbbc7f",
+    "scaffoldBg": "#13161c"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "ayu_mirage",
+  "name": "Ayu Mirage",
+  "family": "Ayu",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1f2430",
+    "navActiveBg": "#252a36",
+    "surface": "#2e3340",
+    "surfaceLight": "#3a4052",
+    "card": "#2e334080",
+    "cardBorder": "#495162",
+    "accent": "#39bae6",
+    "textPrimary": "#d4d6d9",
+    "textSecondary": "#b8b9bf",
+    "textMuted": "#5e6673",
+    "error": "#f28779",
+    "success": "#aad94c",
+    "warning": "#ffd173",
+    "scaffoldBg": "#1f2430"
+  }
+}

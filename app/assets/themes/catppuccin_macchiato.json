@@ -1,0 +1,22 @@
+{
+  "id": "catppuccin_macchiato",
+  "name": "Catppuccin Macchiato",
+  "family": "Catppuccin",
+  "isDark": true,
+  "colors": {
+    "navBg": "#181926",
+    "navActiveBg": "#1e2030",
+    "surface": "#24273a",
+    "surfaceLight": "#363a4f",
+    "card": "#24273a80",
+    "cardBorder": "#494d64",
+    "accent": "#c6a0f6",
+    "textPrimary": "#cad3f5",
+    "textSecondary": "#b8c0e0",
+    "textMuted": "#939ab7",
+    "error": "#ed8796",
+    "success": "#a6da95",
+    "warning": "#eed49f",
+    "scaffoldBg": "#24273a"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "poimandres",
+  "name": "Poimandres",
+  "family": "Poimandres",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0f171d",
+    "navActiveBg": "#151d24",
+    "surface": "#1b2229",
+    "surfaceLight": "#262d36",
+    "card": "#1b222980",
+    "cardBorder": "#353d48",
+    "accent": "#a6accd",
+    "textPrimary": "#d0d8e0",
+    "textSecondary": "#a5adb8",
+    "textMuted": "#5b6673",
+    "error": "#e06070",
+    "success": "#7ba890",
+    "warning": "#c4a060",
+    "scaffoldBg": "#0f171d"
+  }
+}

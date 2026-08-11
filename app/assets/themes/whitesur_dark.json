@@ -1,0 +1,22 @@
+{
+  "id": "whitesur_dark",
+  "name": "WhiteSur Dark",
+  "family": "WhiteSur",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1c1c1e",
+    "navActiveBg": "#242426",
+    "surface": "#2c2c2e",
+    "surfaceLight": "#38383a",
+    "card": "#2c2c2e80",
+    "cardBorder": "#48484a",
+    "accent": "#64a8e4",
+    "textPrimary": "#e0e0e0",
+    "textSecondary": "#b8b8b8",
+    "textMuted": "#707070",
+    "error": "#e06060",
+    "success": "#80b080",
+    "warning": "#d4a040",
+    "scaffoldBg": "#1c1c1e"
+  }
+}

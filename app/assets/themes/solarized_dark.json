@@ -1,0 +1,22 @@
+{
+  "id": "solarized_dark",
+  "name": "Solarized Dark",
+  "family": "Solarized",
+  "isDark": true,
+  "colors": {
+    "navBg": "#002b36",
+    "navActiveBg": "#073642",
+    "surface": "#073642",
+    "surfaceLight": "#18424e",
+    "card": "#07364280",
+    "cardBorder": "#335a64",
+    "accent": "#268bd2",
+    "textPrimary": "#839496",
+    "textSecondary": "#657b83",
+    "textMuted": "#586e75",
+    "error": "#dc322f",
+    "success": "#859900",
+    "warning": "#b58900",
+    "scaffoldBg": "#002b36"
+  }
+}

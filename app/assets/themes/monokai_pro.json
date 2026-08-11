@@ -1,0 +1,22 @@
+{
+  "id": "monokai_pro",
+  "name": "Monokai Pro",
+  "family": "Monokai",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1a1a1a",
+    "navActiveBg": "#222222",
+    "surface": "#2d2d2d",
+    "surfaceLight": "#3a3a3a",
+    "card": "#2d2d2d80",
+    "cardBorder": "#4b4b4b",
+    "accent": "#a9dc76",
+    "textPrimary": "#f8f8f2",
+    "textSecondary": "#d6d6d0",
+    "textMuted": "#75715e",
+    "error": "#f92672",
+    "success": "#a6e22e",
+    "warning": "#e6db74",
+    "scaffoldBg": "#1a1a1a"
+  }
+}

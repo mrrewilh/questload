@@ -1,0 +1,22 @@
+{
+  "id": "decay_teal",
+  "name": "Decay Teal",
+  "family": "Decay",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0e1517",
+    "navActiveBg": "#141c1f",
+    "surface": "#1b2427",
+    "surfaceLight": "#263034",
+    "card": "#1b242780",
+    "cardBorder": "#334146",
+    "accent": "#7ba8b7",
+    "textPrimary": "#bdc6c4",
+    "textSecondary": "#9dab9f",
+    "textMuted": "#5b7172",
+    "error": "#e37f7a",
+    "success": "#95bb72",
+    "warning": "#dbbc7a",
+    "scaffoldBg": "#0e1517"
+  }
+}

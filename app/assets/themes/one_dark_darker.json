@@ -1,0 +1,22 @@
+{
+  "id": "one_dark_darker",
+  "name": "One Dark Darker",
+  "family": "One Dark",
+  "isDark": true,
+  "colors": {
+    "navBg": "#181a1f",
+    "navActiveBg": "#1e2127",
+    "surface": "#22252b",
+    "surfaceLight": "#2d3038",
+    "card": "#22252b80",
+    "cardBorder": "#454a55",
+    "accent": "#61afef",
+    "textPrimary": "#abb2bf",
+    "textSecondary": "#8a92a3",
+    "textMuted": "#565c6a",
+    "error": "#e06c75",
+    "success": "#98c379",
+    "warning": "#e5c07b",
+    "scaffoldBg": "#181a1f"
+  }
+}

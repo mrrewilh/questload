@@ -1,0 +1,22 @@
+{
+  "id": "rose_pine_dawn",
+  "name": "Ros\u00e9 Pine Dawn",
+  "family": "Ros\u00e9 Pine",
+  "isDark": false,
+  "colors": {
+    "navBg": "#faf4ed",
+    "navActiveBg": "#fffaf3",
+    "surface": "#f2e9e1",
+    "surfaceLight": "#f3ebe4",
+    "card": "#f2e9e1",
+    "cardBorder": "#cecacd",
+    "accent": "#907aa9",
+    "textPrimary": "#575279",
+    "textSecondary": "#6e6a86",
+    "textMuted": "#9893a5",
+    "error": "#b4637a",
+    "success": "#56949f",
+    "warning": "#ea9d34",
+    "scaffoldBg": "#faf4ed"
+  }
+}

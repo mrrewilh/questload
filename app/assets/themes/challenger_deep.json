@@ -1,0 +1,22 @@
+{
+  "id": "challenger_deep",
+  "name": "Challenger Deep",
+  "family": "Challenger Deep",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0b0e1a",
+    "navActiveBg": "#111526",
+    "surface": "#161b33",
+    "surfaceLight": "#212740",
+    "card": "#161b3380",
+    "cardBorder": "#333a55",
+    "accent": "#91a2d0",
+    "textPrimary": "#c8d0e0",
+    "textSecondary": "#a0aabe",
+    "textMuted": "#555e7a",
+    "error": "#e06080",
+    "success": "#7ab0a0",
+    "warning": "#c8a860",
+    "scaffoldBg": "#0b0e1a"
+  }
+}

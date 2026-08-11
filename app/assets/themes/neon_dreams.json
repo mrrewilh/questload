@@ -1,0 +1,22 @@
+{
+  "id": "neon_dreams",
+  "name": "Neon Dreams",
+  "family": "Neon Dreams",
+  "isDark": true,
+  "colors": {
+    "navBg": "#14141e",
+    "navActiveBg": "#1c1c2a",
+    "surface": "#222238",
+    "surfaceLight": "#2e2e48",
+    "card": "#22223880",
+    "cardBorder": "#404060",
+    "accent": "#9a7aff",
+    "textPrimary": "#d0c8e8",
+    "textSecondary": "#aaa0c8",
+    "textMuted": "#5e5a88",
+    "error": "#ff6070",
+    "success": "#70e0b0",
+    "warning": "#f0c080",
+    "scaffoldBg": "#14141e"
+  }
+}

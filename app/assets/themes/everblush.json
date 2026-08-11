@@ -1,0 +1,22 @@
+{
+  "id": "everblush",
+  "name": "Everblush",
+  "family": "Everblush",
+  "isDark": true,
+  "colors": {
+    "navBg": "#141b1e",
+    "navActiveBg": "#1a2326",
+    "surface": "#1f2a2d",
+    "surfaceLight": "#2c393e",
+    "card": "#1f2a2d80",
+    "cardBorder": "#3b4a51",
+    "accent": "#67b0e8",
+    "textPrimary": "#dadada",
+    "textSecondary": "#b3b9b8",
+    "textMuted": "#5f7a6e",
+    "error": "#e57474",
+    "success": "#8ccf7e",
+    "warning": "#e5c76b",
+    "scaffoldBg": "#141b1e"
+  }
+}

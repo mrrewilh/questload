@@ -1,0 +1,22 @@
+{
+  "id": "manta",
+  "name": "Manta",
+  "family": "Manta",
+  "isDark": true,
+  "colors": {
+    "navBg": "#131518",
+    "navActiveBg": "#1a1c20",
+    "surface": "#202328",
+    "surfaceLight": "#2c2f35",
+    "card": "#20232880",
+    "cardBorder": "#3a3e46",
+    "accent": "#88a0b8",
+    "textPrimary": "#c0c5ce",
+    "textSecondary": "#9ca2ac",
+    "textMuted": "#5a6070",
+    "error": "#d06060",
+    "success": "#80a080",
+    "warning": "#c0a060",
+    "scaffoldBg": "#131518"
+  }
+}

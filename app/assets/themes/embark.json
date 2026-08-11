@@ -1,0 +1,22 @@
+{
+  "id": "embark",
+  "name": "Embark",
+  "family": "Embark",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0f1016",
+    "navActiveBg": "#15171e",
+    "surface": "#1b1e27",
+    "surfaceLight": "#262a35",
+    "card": "#1b1e2780",
+    "cardBorder": "#353a48",
+    "accent": "#a0a8c0",
+    "textPrimary": "#c0c4d0",
+    "textSecondary": "#9a9eae",
+    "textMuted": "#5a5e70",
+    "error": "#d06070",
+    "success": "#80a890",
+    "warning": "#c0a060",
+    "scaffoldBg": "#0f1016"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "rose_pine_moon",
+  "name": "Ros\u00e9 Pine Moon",
+  "family": "Ros\u00e9 Pine",
+  "isDark": true,
+  "colors": {
+    "navBg": "#232136",
+    "navActiveBg": "#2a273f",
+    "surface": "#393552",
+    "surfaceLight": "#454160",
+    "card": "#39355280",
+    "cardBorder": "#555169",
+    "accent": "#c4a7e7",
+    "textPrimary": "#e0def4",
+    "textSecondary": "#c5c3d8",
+    "textMuted": "#6e6a86",
+    "error": "#eb6f92",
+    "success": "#9ccfd8",
+    "warning": "#f6c177",
+    "scaffoldBg": "#232136"
+  }
+}

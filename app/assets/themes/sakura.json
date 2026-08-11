@@ -1,0 +1,22 @@
+{
+  "id": "sakura",
+  "name": "Sakura",
+  "family": "Sakura",
+  "isDark": true,
+  "colors": {
+    "navBg": "#1a1418",
+    "navActiveBg": "#221c20",
+    "surface": "#2a2228",
+    "surfaceLight": "#372e34",
+    "card": "#2a222880",
+    "cardBorder": "#483c44",
+    "accent": "#e0a0b8",
+    "textPrimary": "#d0c0c8",
+    "textSecondary": "#b09ca8",
+    "textMuted": "#706070",
+    "error": "#e06070",
+    "success": "#90a888",
+    "warning": "#ccb060",
+    "scaffoldBg": "#1a1418"
+  }
+}

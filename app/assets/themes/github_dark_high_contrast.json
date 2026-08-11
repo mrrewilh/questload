@@ -1,0 +1,22 @@
+{
+  "id": "github_dark_high_contrast",
+  "name": "GitHub Dark High Contrast",
+  "family": "GitHub",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0a0c10",
+    "navActiveBg": "#14181e",
+    "surface": "#1a1f26",
+    "surfaceLight": "#252c35",
+    "card": "#1a1f2680",
+    "cardBorder": "#364150",
+    "accent": "#71b7fb",
+    "textPrimary": "#f0f3f6",
+    "textSecondary": "#d0d7de",
+    "textMuted": "#88929e",
+    "error": "#ff6b69",
+    "success": "#3fb950",
+    "warning": "#dba331",
+    "scaffoldBg": "#0a0c10"
+  }
+}

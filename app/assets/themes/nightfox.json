@@ -1,0 +1,22 @@
+{
+  "id": "nightfox",
+  "name": "Nightfox",
+  "family": "Nightfox",
+  "isDark": true,
+  "colors": {
+    "navBg": "#192330",
+    "navActiveBg": "#1d2837",
+    "surface": "#212e3f",
+    "surfaceLight": "#2e3c4f",
+    "card": "#212e3f80",
+    "cardBorder": "#3c4c61",
+    "accent": "#86bcdb",
+    "textPrimary": "#cdcecf",
+    "textSecondary": "#afb0b4",
+    "textMuted": "#586980",
+    "error": "#c94f6d",
+    "success": "#81b29a",
+    "warning": "#dbc074",
+    "scaffoldBg": "#192330"
+  }
+}

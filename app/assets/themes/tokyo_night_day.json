@@ -1,0 +1,22 @@
+{
+  "id": "tokyo_night_day",
+  "name": "Tokyo Night Day",
+  "family": "Tokyo Night",
+  "isDark": false,
+  "colors": {
+    "navBg": "#e1e2e7",
+    "navActiveBg": "#d4d6e0",
+    "surface": "#e9edf2",
+    "surfaceLight": "#ebeff3",
+    "card": "#e9edf2",
+    "cardBorder": "#b2b8c7",
+    "accent": "#3760bf",
+    "textPrimary": "#3760bf",
+    "textSecondary": "#4c6aa6",
+    "textMuted": "#848cb5",
+    "error": "#f52a65",
+    "success": "#587539",
+    "warning": "#8c6c3e",
+    "scaffoldBg": "#e1e2e7"
+  }
+}

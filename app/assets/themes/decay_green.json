@@ -1,0 +1,22 @@
+{
+  "id": "decay_green",
+  "name": "Decay Green",
+  "family": "Decay",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0e1513",
+    "navActiveBg": "#141b18",
+    "surface": "#19231e",
+    "surfaceLight": "#25302a",
+    "card": "#19231e80",
+    "cardBorder": "#334237",
+    "accent": "#9bb07b",
+    "textPrimary": "#bcc7bc",
+    "textSecondary": "#9dad94",
+    "textMuted": "#5b7162",
+    "error": "#e37f6c",
+    "success": "#a3bb7b",
+    "warning": "#dbbc6f",
+    "scaffoldBg": "#0e1513"
+  }
+}

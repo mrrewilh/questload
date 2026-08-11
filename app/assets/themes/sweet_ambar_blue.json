@@ -1,0 +1,22 @@
+{
+  "id": "sweet_ambar_blue",
+  "name": "Sweet Ambar Blue",
+  "family": "Sweet",
+  "isDark": true,
+  "colors": {
+    "navBg": "#14171f",
+    "navActiveBg": "#1c2130",
+    "surface": "#242b3d",
+    "surfaceLight": "#303850",
+    "card": "#242b3d80",
+    "cardBorder": "#3e4865",
+    "accent": "#7ca6f0",
+    "textPrimary": "#cbd3e3",
+    "textSecondary": "#a4b0c7",
+    "textMuted": "#627499",
+    "error": "#f07178",
+    "success": "#9dd47a",
+    "warning": "#ecd25c",
+    "scaffoldBg": "#14171f"
+  }
+}

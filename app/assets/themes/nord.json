@@ -1,0 +1,22 @@
+{
+  "id": "nord",
+  "name": "Nord",
+  "family": "Nord",
+  "isDark": true,
+  "colors": {
+    "navBg": "#2e3440",
+    "navActiveBg": "#3b4252",
+    "surface": "#434c5e",
+    "surfaceLight": "#4c566a",
+    "card": "#434c5e80",
+    "cardBorder": "#5e6a81",
+    "accent": "#88c0d0",
+    "textPrimary": "#eceff4",
+    "textSecondary": "#e5e9f0",
+    "textMuted": "#7b88a1",
+    "error": "#bf616a",
+    "success": "#a3be8c",
+    "warning": "#ebcb8b",
+    "scaffoldBg": "#2e3440"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "duskfox",
+  "name": "Duskfox",
+  "family": "Nightfox",
+  "isDark": true,
+  "colors": {
+    "navBg": "#232136",
+    "navActiveBg": "#2a273f",
+    "surface": "#332f47",
+    "surfaceLight": "#403c57",
+    "card": "#332f4780",
+    "cardBorder": "#4f4c67",
+    "accent": "#9ccfd8",
+    "textPrimary": "#e0def4",
+    "textSecondary": "#c5c3d8",
+    "textMuted": "#6e6a86",
+    "error": "#eb6f92",
+    "success": "#9ccfd8",
+    "warning": "#f6c177",
+    "scaffoldBg": "#232136"
+  }
+}

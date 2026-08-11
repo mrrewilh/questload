@@ -1,0 +1,22 @@
+{
+  "id": "jellybeans",
+  "name": "Jellybeans",
+  "family": "Jellybeans",
+  "isDark": true,
+  "colors": {
+    "navBg": "#151718",
+    "navActiveBg": "#1c1e1f",
+    "surface": "#232526",
+    "surfaceLight": "#2f3132",
+    "card": "#23252680",
+    "cardBorder": "#404243",
+    "accent": "#8197bf",
+    "textPrimary": "#c0bda8",
+    "textSecondary": "#9b9888",
+    "textMuted": "#5e6160",
+    "error": "#cf6a4c",
+    "success": "#8faa56",
+    "warning": "#e8bf6a",
+    "scaffoldBg": "#151718"
+  }
+}

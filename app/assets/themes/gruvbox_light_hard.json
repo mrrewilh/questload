@@ -1,0 +1,22 @@
+{
+  "id": "gruvbox_light_hard",
+  "name": "Gruvbox Light Hard",
+  "family": "Gruvbox",
+  "isDark": false,
+  "colors": {
+    "navBg": "#f9f5d7",
+    "navActiveBg": "#fbf1c7",
+    "surface": "#f2e5bc",
+    "surfaceLight": "#f3e8c4",
+    "card": "#f2e5bc",
+    "cardBorder": "#d5c4a1",
+    "accent": "#458588",
+    "textPrimary": "#282828",
+    "textSecondary": "#3c3836",
+    "textMuted": "#928374",
+    "error": "#9d0006",
+    "success": "#79740e",
+    "warning": "#b57614",
+    "scaffoldBg": "#f9f5d7"
+  }
+}

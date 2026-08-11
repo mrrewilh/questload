@@ -1,0 +1,22 @@
+{
+  "id": "noir",
+  "name": "Noir",
+  "family": "Noir",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0d0d0d",
+    "navActiveBg": "#141414",
+    "surface": "#1a1a1a",
+    "surfaceLight": "#262626",
+    "card": "#1a1a1a80",
+    "cardBorder": "#333333",
+    "accent": "#808080",
+    "textPrimary": "#b0b0b0",
+    "textSecondary": "#8a8a8a",
+    "textMuted": "#505050",
+    "error": "#b05050",
+    "success": "#609060",
+    "warning": "#b09050",
+    "scaffoldBg": "#0d0d0d"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "bamboo",
+  "name": "Bamboo",
+  "family": "Bamboo",
+  "isDark": true,
+  "colors": {
+    "navBg": "#0f1410",
+    "navActiveBg": "#161d18",
+    "surface": "#1c2620",
+    "surfaceLight": "#27332c",
+    "card": "#1c262080",
+    "cardBorder": "#354338",
+    "accent": "#8aab8a",
+    "textPrimary": "#c0ccb8",
+    "textSecondary": "#9aad94",
+    "textMuted": "#5a7262",
+    "error": "#c06050",
+    "success": "#7aa860",
+    "warning": "#c0a050",
+    "scaffoldBg": "#0f1410"
+  }
+}

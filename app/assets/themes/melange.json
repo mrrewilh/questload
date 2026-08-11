@@ -1,0 +1,22 @@
+{
+  "id": "melange",
+  "name": "Melange",
+  "family": "Melange",
+  "isDark": true,
+  "colors": {
+    "navBg": "#171411",
+    "navActiveBg": "#1f1b17",
+    "surface": "#26221d",
+    "surfaceLight": "#332e28",
+    "card": "#26221d80",
+    "cardBorder": "#423c34",
+    "accent": "#b09a7a",
+    "textPrimary": "#c8c0b0",
+    "textSecondary": "#a89e8e",
+    "textMuted": "#6a6258",
+    "error": "#c06050",
+    "success": "#88a070",
+    "warning": "#c0a060",
+    "scaffoldBg": "#171411"
+  }
+}
