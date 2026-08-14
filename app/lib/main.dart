@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart'
     show PlatformDispatcher, TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:window_manager/window_manager.dart';
 import 'services/log_service.dart';
 import 'services/theme_service.dart';
@@ -28,21 +29,24 @@ void main() async {
   final adb = AdbService();
 
   await windowManager.ensureInitialized();
+  await Window.initialize();
 
   final windowOptions = WindowOptions(
     size: kWindowInitialSize,
     minimumSize: kWindowMinSize,
     center: true,
     title: 'QuestLoad',
-    // Windows-only: transparent window so ClipRRect corners show the
-    // desktop through. Linux transparency is handled in the GTK runner.
-    backgroundColor: defaultTargetPlatform == TargetPlatform.windows
-        ? Colors.transparent
-        : null,
     titleBarStyle: TitleBarStyle.hidden,
     skipTaskbar: false,
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      // Rounded-corner recipe (window_manager + flutter_acrylic):
+      // drop the outline frame, then composition-level transparency.
+      // Resize still works via DragToResizeArea -> startResizing.
+      await windowManager.setAsFrameless();
+      await Window.setEffect(effect: WindowEffect.transparent);
+    }
     await windowManager.show();
     await windowManager.focus();
   });

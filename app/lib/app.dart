@@ -87,6 +87,9 @@ class _QuestLoadAppState extends State<QuestLoadApp>
     final app = MaterialApp(
       title: 'QuestLoad',
       debugShowCheckedModeBanner: false,
+      // Transparent so the ClipRRect corners show the desktop through on
+      // Windows (rounded-corner recipe: MaterialApp must not paint).
+      color: Colors.transparent,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.dark,
