@@ -107,11 +107,17 @@ class _QuestLoadAppState extends State<QuestLoadApp>
 
     // Desktop: invisible edge strips so the frameless window stays
     // resizable (native resize borders are gone with the custom frame).
+    // Wrapped in Directionality — DragToResizeArea's Stack uses
+    // AlignmentDirectional and sits above the MaterialApp, which would
+    // otherwise have no text-direction ancestor.
     final isDesktop = defaultTargetPlatform == TargetPlatform.linux ||
         defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.macOS;
     return isDesktop
-        ? DragToResizeArea(resizeEdgeSize: 8, child: shell)
+        ? Directionality(
+            textDirection: TextDirection.ltr,
+            child: DragToResizeArea(resizeEdgeSize: 8, child: shell),
+          )
         : shell;
   }
 }
