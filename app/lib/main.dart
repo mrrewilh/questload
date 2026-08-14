@@ -1,6 +1,7 @@
-import 'package:flutter/foundation.dart' show PlatformDispatcher;
+import 'package:flutter/foundation.dart'
+    show PlatformDispatcher, TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:window_manager/window_manager.dart';
 import 'services/log_service.dart';
 import 'services/theme_service.dart';
 import 'services/adb_service.dart';
@@ -26,17 +27,27 @@ void main() async {
 
   final adb = AdbService();
 
-  runApp(QuestLoadApp(adb: adb, themes: themes));
+  await windowManager.ensureInitialized();
 
-  doWhenWindowReady(() {
-    final win = appWindow;
-    const initialSize = kWindowInitialSize;
-    win.minSize = kWindowMinSize;
-    win.size = initialSize;
-    win.alignment = Alignment.center;
-    win.title = 'QuestLoad';
-    win.show();
+  final windowOptions = WindowOptions(
+    size: kWindowInitialSize,
+    minimumSize: kWindowMinSize,
+    center: true,
+    title: 'QuestLoad',
+    // Windows-only: transparent window so ClipRRect corners show the
+    // desktop through. Linux transparency is handled in the GTK runner.
+    backgroundColor: defaultTargetPlatform == TargetPlatform.windows
+        ? Colors.transparent
+        : null,
+    titleBarStyle: TitleBarStyle.hidden,
+    skipTaskbar: false,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
   });
+
+  runApp(QuestLoadApp(adb: adb, themes: themes));
 }
 
 /// Fallback error screen shown when the entire app crashes.

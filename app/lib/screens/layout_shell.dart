@@ -2,7 +2,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:silky_scroll/silky_scroll.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:window_manager/window_manager.dart';
 import '../l10n/app_localizations.dart';
 import '../core/app_theme.dart';
 
@@ -45,7 +45,7 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
   bool get _isDesktop => _isDesktopPlatform();
 
   Widget _moveWindow(Widget child) =>
-      _isDesktop ? MoveWindow(child: child) : child;
+      _isDesktop ? DragToMoveArea(child: child) : child;
 
   List<AppPage> get _visiblePages {
     if (widget.showDeviceTab) return AppPage.values;
@@ -181,20 +181,20 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _circleBtn(Icons.horizontal_rule_rounded, () {
-            if (appWindow.isMaximized) appWindow.restore();
-            appWindow.minimize();
+          _circleBtn(Icons.horizontal_rule_rounded, () async {
+            if (await windowManager.isMaximized()) await windowManager.restore();
+            await windowManager.minimize();
           },
               c.textSecondary, c.navActiveBg),
-          _circleBtn(Icons.crop_square_rounded, () {
-            if (appWindow.isMaximized) {
-              appWindow.restore();
+          _circleBtn(Icons.crop_square_rounded, () async {
+            if (await windowManager.isMaximized()) {
+              await windowManager.restore();
             } else {
-              appWindow.maximize();
+              await windowManager.maximize();
             }
           },
               c.textSecondary, c.navActiveBg),
-          _circleBtn(Icons.close, () => appWindow.close(),
+          _circleBtn(Icons.close, () => windowManager.close(),
               c.textSecondary, c.navActiveBg),
         ],
       ),

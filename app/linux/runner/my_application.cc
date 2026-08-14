@@ -1,6 +1,5 @@
 #include "my_application.h"
 
-#include <bitsdojo_window_linux/bitsdojo_window_plugin.h>
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
@@ -53,8 +52,9 @@ static void my_application_activate(GApplication* application) {
     gtk_window_set_title(window, "questload");
   }
 
-  auto bdw = bitsdojo_window_from(window);
-  bdw->setCustomFrame(true);
+  // Frameless window — the titlebar is drawn in Flutter (same as what
+  // bitsdojo's setCustomFrame did, minus the dependency).
+  gtk_window_set_decorated(window, FALSE);
 
   // Enable RGBA visual for transparent window (Planify-style rounded corners)
   #ifdef GDK_WINDOWING_X11

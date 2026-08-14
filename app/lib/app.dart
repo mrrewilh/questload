@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:window_manager/window_manager.dart';
 import 'services/log_service.dart';
 import 'services/theme_service.dart';
 import 'services/theme_brightness_service.dart';
@@ -65,14 +67,13 @@ class _QuestLoadAppState extends State<QuestLoadApp>
   }
 
   void _checkMaximized() {
-    try {
-      final maximized = appWindow.isMaximized;
+    windowManager.isMaximized().then((maximized) {
       if (maximized != _isMaximized && mounted) {
         setState(() => _isMaximized = maximized);
       }
-    } catch (e) {
+    }).catchError((e) {
       LogService.error('Window maximize check failed: $e');
-    }
+    });
   }
 
   @override
@@ -99,10 +100,19 @@ class _QuestLoadAppState extends State<QuestLoadApp>
       home: AppShell(adb: widget.adb, themes: widget.themes),
     );
 
-    return ClipRRect(
+    final Widget shell = ClipRRect(
       borderRadius: BorderRadius.circular(_isMaximized ? 0 : 12),
       child: app,
     );
+
+    // Desktop: invisible edge strips so the frameless window stays
+    // resizable (native resize borders are gone with the custom frame).
+    final isDesktop = defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+    return isDesktop
+        ? DragToResizeArea(resizeEdgeSize: 8, child: shell)
+        : shell;
   }
 }
 
