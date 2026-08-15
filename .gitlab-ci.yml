@@ -1,0 +1,16 @@
+# Windows builds run on the VM's self-hosted runner (tag: windows-vm).
+# No macOS — nothing to test on.
+
+build-windows:
+  stage: build
+  tags:
+    - windows-vm
+  script:
+    - cd app
+    - C:\flutter\bin\flutter.bat pub get
+    - C:\flutter\bin\flutter.bat build windows --release
+  artifacts:
+    name: "questload-windows"
+    paths:
+      - app/build/windows/x64/runner/Release/
+    expire_in: 7 days
