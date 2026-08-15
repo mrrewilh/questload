@@ -5,6 +5,10 @@ build-windows:
   stage: build
   tags:
     - windows-vm
+  before_script:
+    # Runner runs as SYSTEM; flutter's internal git rejects the user-owned
+    # flutter checkout without this.
+    - git config --global --add safe.directory C:/Users/mstab/flutter
   script:
     - cd app
     - C:\Users\mstab\flutter\bin\flutter.bat pub get
