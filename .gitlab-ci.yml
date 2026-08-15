@@ -7,8 +7,8 @@ build-windows:
     - windows-vm
   script:
     - cd app
-    - C:\flutter\bin\flutter.bat pub get
-    - C:\flutter\bin\flutter.bat build windows --release
+    - C:\Users\mstab\flutter\bin\flutter.bat pub get
+    - C:\Users\mstab\flutter\bin\flutter.bat build windows --release
   artifacts:
     name: "questload-windows"
     paths:
