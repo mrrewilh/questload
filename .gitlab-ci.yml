@@ -34,8 +34,7 @@ build-windows:
     - $zipHash = (Get-FileHash build\questload-$ver.zip -Algorithm SHA256).Hash.ToLower()
     - $manifest = @{ version = $ver; sha256 = $zipHash; zip = "questload-$ver.zip" } | ConvertTo-Json
     - Set-Content build\manifest.json $manifest
-    - git tag $ver
-    - git push -q "https://oauth2:${CI_JOB_TOKEN}@gitlab.com/qload/questload.git" $ver 2>$null
+    - git tag $ver; git push -q "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/qload/questload.git" $ver; if ($LASTEXITCODE -ne 0) { Write-Host "tag push failed, continuing" }
     - Write-Host "done $ver"
   artifacts:
     name: "questload-windows"
