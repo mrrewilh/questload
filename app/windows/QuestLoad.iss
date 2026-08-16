@@ -14,6 +14,7 @@ DefaultDirName={localappdata}\Programs\QuestLoad
 PrivilegesRequired=lowest
 DisableProgramGroupPage=yes
 OutputBaseFilename=questload-setup-{#MyAppVersion}
+OutputDir=..\..\build
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -21,7 +22,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayName={#MyAppName}
 
 [Files]
-Source: "app\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\questload.exe"

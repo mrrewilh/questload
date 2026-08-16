@@ -24,13 +24,13 @@ build-windows:
     - Copy-Item platform-tools\platform-tools\adb.exe, platform-tools\platform-tools\AdbWinApi.dll, platform-tools\platform-tools\AdbWinUsbApi.dll app\build\windows\x64\runner\Release\
     - git clone -q --depth 1 https://gitlab.com/qload/questload-changelog.git changelog-repo
     - if (Test-Path changelog-repo) { Copy-Item changelog-repo\CHANGELOG.md app\build\windows\x64\runner\Release\; Copy-Item -Recurse changelog-repo\changelogassets app\build\windows\x64\runner\Release\ } else { Write-Host "changelog repo unreachable, building without it" }
+    - New-Item -ItemType Directory -Force build | Out-Null
     - Compress-Archive -Path app\build\windows\x64\runner\Release\* -DestinationPath build\questload-$ver.zip
     - Invoke-WebRequest -Uri "https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe" -OutFile innosetup.exe
     - Start-Process -Wait -FilePath .\innosetup.exe -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART"
     - $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     - if (-not (Test-Path $iscc)) { $iscc = "C:\Program Files\Inno Setup 6\ISCC.exe" }
     - '& $iscc app\windows\QuestLoad.iss /DMyAppVersion=$ver'
-    - Copy-Item app\Output\questload-setup-$ver.exe build\
     - $zipHash = (Get-FileHash build\questload-$ver.zip -Algorithm SHA256).Hash.ToLower()
     - $manifest = @{ version = $ver; sha256 = $zipHash; zip = "questload-$ver.zip" } | ConvertTo-Json
     - Set-Content build\manifest.json $manifest
