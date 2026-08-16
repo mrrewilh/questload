@@ -409,6 +409,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateNoUpdates => 'You\'re up to date';
 
   @override
+  String get updateUnreachable => 'Couldn\'t reach the update server.';
+
+  @override
   String get updateAutoCheck => 'Check for updates on launch';
 
   @override

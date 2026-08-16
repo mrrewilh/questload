@@ -27,8 +27,9 @@ build-windows:
     - Copy-Item platform-tools\platform-tools\adb.exe, platform-tools\platform-tools\AdbWinApi.dll, platform-tools\platform-tools\AdbWinUsbApi.dll app\build\windows\x64\runner\Release\
     - git clone -q --depth 1 https://gitlab.com/qload/questload-changelog.git changelog-repo
     - if (Test-Path changelog-repo) { Copy-Item changelog-repo\CHANGELOG.md app\build\windows\x64\runner\Release\; Copy-Item -Recurse changelog-repo\changelogassets app\build\windows\x64\runner\Release\ } else { Write-Host "changelog repo unreachable, building without it" }
-    - New-Item -ItemType Directory -Force build | Out-Null
-    - Compress-Archive -Path app\build\windows\x64\runner\Release\* -DestinationPath build\questload-$ver.zip
+    - New-Item -ItemType Directory -Force build\questload | Out-Null
+    - Copy-Item app\build\windows\x64\runner\Release\* build\questload\ -Recurse
+    - Compress-Archive -Path build\questload -DestinationPath build\questload-$ver.zip
     - $zipHash = (Get-FileHash build\questload-$ver.zip -Algorithm SHA256).Hash.ToLower()
     - $manifest = @{ version = $ver; sha256 = $zipHash; zip = "questload-$ver.zip" } | ConvertTo-Json
     - Set-Content build\manifest.json $manifest
@@ -36,5 +37,6 @@ build-windows:
   artifacts:
     name: "questload-windows"
     paths:
-      - build/
+      - build/questload-*.zip
+      - build/manifest.json
     expire_in: 7 days

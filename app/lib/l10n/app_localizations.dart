@@ -838,6 +838,12 @@ abstract class AppLocalizations {
   /// **'You\'re up to date'**
   String get updateNoUpdates;
 
+  /// No description provided for @updateUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the update server.'**
+  String get updateUnreachable;
+
   /// No description provided for @updateAutoCheck.
   ///
   /// In en, this message translates to:

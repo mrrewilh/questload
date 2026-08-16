@@ -23,6 +23,16 @@ class UpdateInfo {
   });
 }
 
+/// Result of an update check: the found update (if any) and whether the
+/// update server was reachable at all. "No update" and "couldn't check"
+/// are different things and should not be shown as the same message.
+class UpdateCheckResult {
+  final UpdateInfo? info;
+  final bool reachable;
+
+  const UpdateCheckResult({this.info, required this.reachable});
+}
+
 /// Compares date versions like 26.8.16 and 26.8.16-1.
 /// Returns <0 when a is older, 0 when equal, >0 when newer.
 int compareVersions(String a, String b) {
@@ -56,27 +66,33 @@ class UpdateService {
   }
 
   /// Asks the release manifest whether a newer version exists.
-  static Future<UpdateInfo?> check({required String currentVersion}) async {
+  static Future<UpdateCheckResult> check(
+      {required String currentVersion}) async {
     try {
       final client = HttpClient();
       final req = await client.getUrl(Uri.parse(kUpdateManifestUrl));
       final res = await req.close();
-      if (res.statusCode != 200) return null;
+      if (res.statusCode != 200) {
+        return const UpdateCheckResult(reachable: false);
+      }
       final body = await res.transform(utf8.decoder).join();
       final data = jsonDecode(body) as Map<String, dynamic>;
       final version = data['version'] as String?;
       if (version == null || compareVersions(version, currentVersion) <= 0) {
-        return null;
+        return const UpdateCheckResult(reachable: true);
       }
-      return UpdateInfo(
-        version: version,
-        sha256: (data['sha256'] as String?) ?? '',
-        zipUrl: (data['zip_url'] as String?) ?? '',
-        zipName: (data['zip'] as String?) ?? 'questload-$version.zip',
+      return UpdateCheckResult(
+        reachable: true,
+        info: UpdateInfo(
+          version: version,
+          sha256: (data['sha256'] as String?) ?? '',
+          zipUrl: (data['zip_url'] as String?) ?? '',
+          zipName: (data['zip'] as String?) ?? 'questload-$version.zip',
+        ),
       );
     } catch (e) {
       LogService.warning('Update check failed: $e');
-      return null;
+      return const UpdateCheckResult(reachable: false);
     }
   }
 
@@ -170,13 +186,16 @@ class UpdateService {
   /// Only the app's restart click calls this — never app close.
   static Future<void> applyStaged(
       Directory extracted, File zip, String currentExePath) async {
-    final newExe = File(
-        '${extracted.path}${Platform.pathSeparator}questload.exe');
+    // The zip ships a questload/ folder — swap from inside it.
+    final inner =
+        Directory('${extracted.path}${Platform.pathSeparator}questload');
+    final src = await inner.exists() ? inner.path : extracted.path;
+    final newExe = File('$src${Platform.pathSeparator}questload.exe');
     final installDir = File(currentExePath).parent.path;
     final script = '''
 \$exe = "$currentExePath"
 \$new = "$newExe"
-\$src = "${extracted.path}"
+\$src = "$src"
 \$dest = "$installDir"
 while (Get-Process -Name questload -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 400 }
 try {

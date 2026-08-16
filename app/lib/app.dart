@@ -198,6 +198,9 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver, Window
   }
 
   Future<void> _pollDevice() async {
+    // The server must be claimed (or not) before any adb command runs,
+    // otherwise adb auto-starts it and we'd never know it's ours.
+    await widget.adb.ensureServer();
     while (mounted) {
       try {
         final serials = await widget.adb.refreshDevices();
@@ -366,8 +369,21 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver, Window
       {bool showUpToDate = true, bool respectSkip = false}) async {
     final info = await PackageInfo.fromPlatform();
     final current = info.version;
-    final update = await UpdateService.check(currentVersion: current);
+    final result = await UpdateService.check(currentVersion: current);
     if (!mounted) return;
+    if (!result.reachable) {
+      if (showUpToDate) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.updateUnreachable),
+            backgroundColor: context.ql.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+    final update = result.info;
     if (update == null) {
       if (showUpToDate) {
         ScaffoldMessenger.of(context).showSnackBar(

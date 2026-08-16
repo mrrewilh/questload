@@ -24,6 +24,23 @@ class AdbService {
   /// True when this instance started the adb server.
   bool get startedServer => _startedServer;
 
+  /// Is an adb server already listening on the port?
+  /// Can't use any adb command for this — every adb command auto-starts
+  /// the server, so it would always look "already running".
+  Future<bool> _serverListening() async {
+    final port = int.tryParse(
+            Platform.environment['ANDROID_ADB_SERVER_PORT'] ?? '') ??
+        5037;
+    try {
+      final sock = await Socket.connect('127.0.0.1', port,
+              timeout: const Duration(seconds: 1));
+      sock.destroy();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Starts the adb server if it isn't already running, and remembers
   /// whether we were the ones who started it — so we can clean it up on
   /// exit without killing a server the user had before QuestLoad.
@@ -31,15 +48,12 @@ class AdbService {
     if (_startedServer) return;
     final adb = await _findAdb();
     if (adb.isEmpty) return;
+    if (await _serverListening()) return; // already running, not ours
+    _startedServer = true;
     try {
-      final up = await Process.run(adb, ['get-state'])
-          .timeout(kAdbConnectTimeout);
-      if (up.exitCode == 0) return; // already running, not ours
-      final start = await Process.run(adb, ['start-server'])
-          .timeout(kAdbCommandTimeout);
-      if (start.exitCode == 0) _startedServer = true;
+      await Process.run(adb, ['start-server']).timeout(kAdbCommandTimeout);
     } catch (e) {
-      LogService.warning('adb server check failed: $e');
+      LogService.warning('adb start-server failed: $e');
     }
   }
 

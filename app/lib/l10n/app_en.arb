@@ -135,6 +135,7 @@
   "updateCheck": "Check for updates",
   "updateChecking": "Checking for updates...",
   "updateNoUpdates": "You're up to date",
+  "updateUnreachable": "Couldn't reach the update server.",
   "updateAutoCheck": "Check for updates on launch",
   "updateRemindNever": "Don't remind me about this update",
   "updateLater": "Later",
