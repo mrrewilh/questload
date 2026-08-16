@@ -24,8 +24,10 @@ build-windows:
     - Invoke-WebRequest -Uri "https://dl.google.com/android/repository/platform-tools-latest-windows.zip" -OutFile platform-tools.zip
     - Expand-Archive platform-tools.zip -DestinationPath platform-tools
     - Copy-Item platform-tools\platform-tools\adb.exe, platform-tools\platform-tools\AdbWinApi.dll, platform-tools\platform-tools\AdbWinUsbApi.dll app\build\windows\x64\runner\Release\
-    # changelog for this version (public repo, no auth). Missing = no changelog, fine.
-    - try { Invoke-WebRequest -Uri "https://gitlab.com/api/v4/projects/qload%2Fquestload-changelog/repository/files/$([uri]::EscapeDataString('changelog/' + $ver + '.md'))/raw?ref=main" -OutFile app\build\windows\x64\runner\Release\changelog.md } catch { Write-Host "no changelog for $ver" }
+    # changelog + its images, pulled fresh from the public repo
+    - git clone -q --depth 1 https://gitlab.com/qload/questload-changelog.git changelog-repo
+    - Copy-Item changelog-repo\CHANGELOG.md app\build\windows\x64\runner\Release\
+    - Copy-Item -Recurse changelog-repo\changelogassets app\build\windows\x64\runner\Release\
     # portable zip
     - Compress-Archive -Path app\build\windows\x64\runner\Release\* -DestinationPath build\questload-$ver.zip
     # installer
@@ -33,7 +35,7 @@ build-windows:
     - Start-Process -Wait -FilePath .\innosetup.exe -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART"
     - $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     - if (-not (Test-Path $iscc)) { $iscc = "C:\Program Files\Inno Setup 6\ISCC.exe" }
-    - & $iscc app\windows\QuestLoad.iss /DMyAppVersion=$ver
+    - '& $iscc app\windows\QuestLoad.iss /DMyAppVersion=$ver'
     - Copy-Item app\Output\questload-setup-$ver.exe build\
     # manifest for the update check (hosted with the release once the repo is public)
     - $zipHash = (Get-FileHash build\questload-$ver.zip -Algorithm SHA256).Hash.ToLower()

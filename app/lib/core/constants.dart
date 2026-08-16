@@ -32,4 +32,4 @@ const kUpdateManifestUrl =
     'https://gitlab.com/api/v4/projects/qload%2Fquestload/releases/permalink/latest';
 // Changelog files, pulled at build time from the public changelog repo and
 // shipped inside the app. Shown once after an update.
-const kChangelogFileName = 'changelog.md';
+const kChangelogFileName = 'CHANGELOG.md';
