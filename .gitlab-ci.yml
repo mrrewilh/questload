@@ -23,8 +23,7 @@ build-windows:
     - Expand-Archive platform-tools.zip -DestinationPath platform-tools
     - Copy-Item platform-tools\platform-tools\adb.exe, platform-tools\platform-tools\AdbWinApi.dll, platform-tools\platform-tools\AdbWinUsbApi.dll app\build\windows\x64\runner\Release\
     - git clone -q --depth 1 https://gitlab.com/qload/questload-changelog.git changelog-repo
-    - Copy-Item changelog-repo\CHANGELOG.md app\build\windows\x64\runner\Release\
-    - Copy-Item -Recurse changelog-repo\changelogassets app\build\windows\x64\runner\Release\
+    - if (Test-Path changelog-repo) { Copy-Item changelog-repo\CHANGELOG.md app\build\windows\x64\runner\Release\; Copy-Item -Recurse changelog-repo\changelogassets app\build\windows\x64\runner\Release\ } else { Write-Host "changelog repo unreachable, building without it" }
     - Compress-Archive -Path app\build\windows\x64\runner\Release\* -DestinationPath build\questload-$ver.zip
     - Invoke-WebRequest -Uri "https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe" -OutFile innosetup.exe
     - Start-Process -Wait -FilePath .\innosetup.exe -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART"

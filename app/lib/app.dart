@@ -353,12 +353,13 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     if (!mounted) return;
 
     if (_updateAutoCheck && _updateSkipVersion != current) {
-      await _checkForUpdates(showUpToDate: false);
+      await _checkForUpdates(showUpToDate: false, respectSkip: true);
     }
   }
 
-  /// Manual check from settings.
-  Future<void> _checkForUpdates({bool showUpToDate = true}) async {
+  /// Manual check from settings. Ignores the skip so it can be undone.
+  Future<void> _checkForUpdates(
+      {bool showUpToDate = true, bool respectSkip = false}) async {
     final info = await PackageInfo.fromPlatform();
     final current = info.version;
     final update = await UpdateService.check(currentVersion: current);
@@ -375,7 +376,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       }
       return;
     }
-    if (update.version == _updateSkipVersion) return;
+    if (respectSkip && update.version == _updateSkipVersion) return;
 
     final canDownload = defaultTargetPlatform == TargetPlatform.windows;
     final choice = await showDialog<Object>(
