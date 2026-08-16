@@ -131,6 +131,7 @@
   "updateDownloading": "Downloading… {percent}%",
   "updateInstalling": "Installing update…",
   "updateFailed": "Update failed. Please try again.",
+  "updates": "Update",
   "updateCheck": "Check for updates",
   "updateChecking": "Checking for updates...",
   "updateNoUpdates": "You're up to date",

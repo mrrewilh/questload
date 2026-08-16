@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/ql_widgets.dart';
 
 /// Result of the update-available dialog.
 enum UpdateChoice { download, later }
@@ -56,23 +57,21 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          const SizedBox(height: 8),
-          CheckboxListTile(
+          const SizedBox(height: 12),
+          QLCheckbox(
             value: _skip,
-            onChanged: (v) => setState(() => _skip = v ?? false),
-            title: Text(l.updateRemindNever, style: Theme.of(context).textTheme.bodySmall),
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            dense: true,
+            label: l.updateRemindNever,
+            onChanged: (v) => setState(() => _skip = v),
           ),
         ],
       ),
       actions: [
-        TextButton(
+        QLButton(
+          label: l.updateLater,
           onPressed: () => Navigator.of(context).pop(UpdateChoice.later),
-          child: Text(l.updateLater),
         ),
-        FilledButton(
+        QLButton(
+          label: widget.canDownload ? l.updateDownload : l.updateContinue,
           onPressed: () {
             if (_skip) {
               Navigator.of(context).pop('skip');
@@ -80,7 +79,6 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
               Navigator.of(context).pop(UpdateChoice.download);
             }
           },
-          child: Text(widget.canDownload ? l.updateDownload : l.updateContinue),
         ),
       ],
     );
@@ -99,13 +97,13 @@ Future<bool> showApplyUpdateDialog(BuildContext context) async {
       title: Text(l.updateApplyTitle),
       content: Text(l.updateApplyText),
       actions: [
-        TextButton(
+        QLButton(
+          label: l.updateLater,
           onPressed: () => Navigator.of(ctx).pop(false),
-          child: Text(l.updateLater),
         ),
-        FilledButton(
+        QLButton(
+          label: l.updateRestartNow,
           onPressed: () => Navigator.of(ctx).pop(true),
-          child: Text(l.updateRestartNow),
         ),
       ],
     ),
@@ -136,9 +134,9 @@ Future<void> showChangelogDialog(
         ),
       ),
       actions: [
-        FilledButton(
+        QLButton(
+          label: l.close,
           onPressed: () => Navigator.of(ctx).pop(),
-          child: Text(l.close),
         ),
       ],
     ),

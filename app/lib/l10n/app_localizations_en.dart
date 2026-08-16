@@ -397,6 +397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateFailed => 'Update failed. Please try again.';
 
   @override
+  String get updates => 'Update';
+
+  @override
   String get updateCheck => 'Check for updates';
 
   @override

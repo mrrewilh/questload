@@ -11,6 +11,7 @@ import '../services/log_service.dart';
 import '../core/app_theme.dart';
 import '../services/theme_service.dart';
 import '../core/constants.dart';
+import '../widgets/ql_widgets.dart';
 
 class SettingsScreen extends StatefulWidget {
   final AdbService adb;
@@ -110,7 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _SettingRow(
                 title: l.toggleLayout,
                 subtitle: widget.isSidebarLayout ? l.sidebar : l.compactMode,
-                trailing: _QLSwitch(
+                trailing: QLSwitch(
                   value: widget.isSidebarLayout,
                   onChanged: (_) => widget.onToggleLayout(),
                 ),
@@ -121,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: widget.smoothScroll
                     ? l.smoothScrollOn
                     : l.smoothScrollOff,
-                trailing: _QLSwitch(
+                trailing: QLSwitch(
                   value: widget.smoothScroll,
                   onChanged: (_) => widget.onToggleSmoothScroll(),
                 ),
@@ -144,6 +145,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
 
+          // ─── Update ─────────────────────────────────────────────
+          const SizedBox(height: 24),
+          Text(l.updates, style: textTheme.titleLarge),
+          const SizedBox(height: 12.0),
+          _SectionCard(
+            c: c,
+            children: [
+              _SettingRow(
+                title: l.updateAutoCheck,
+                subtitle: '',
+                trailing: QLSwitch(
+                  value: widget.updateAutoCheck,
+                  onChanged: (_) => widget.onToggleUpdateAutoCheck(),
+                ),
+              ),
+              const SizedBox(height: 8),
+              QLButton(
+                label: l.updateCheck,
+                loading: false,
+                onPressed: widget.onCheckForUpdates,
+              ),
+            ],
+          ),
+
           // ─── Advanced (pair + connect) ───────────────────────────
           const SizedBox(height: 24),
           Text(l.advanced, style: textTheme.titleLarge),
@@ -161,20 +186,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Expanded(
                       flex: 2,
-                      child: _QLTextField(
+                      child: QLTextField(
                         controller: _pairIpCtrl,
                         hint: 'IP:Port (e.g. 192.168.1.100:42831)',
                       ),
                     ),
                     const SizedBox(width: 8.0),
                     Expanded(
-                      child: _QLTextField(
+                      child: QLTextField(
                         controller: _pairCodeCtrl,
                         hint: 'Code',
                       ),
                     ),
                     const SizedBox(width: 8.0),
-                    _QLButton(
+                    QLButton(
                       label: l.pair,
                       loading: _pairing,
                       onPressed: _pairing ? null : _doPair,
@@ -190,13 +215,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                      child: _QLTextField(
+                      child: QLTextField(
                         controller: _connectIpCtrl,
                         hint: '192.168.1.100',
                       ),
                     ),
                     const SizedBox(width: 8.0),
-                    _QLButton(
+                    QLButton(
                       label: l.connect,
                       loading: _connecting,
                       onPressed: _connecting ? null : _doConnect,
@@ -213,32 +238,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Text(l.logs, style: textTheme.titleLarge),
               const Spacer(),
-              SizedBox(
-                height: 28,
-                child: TextButton.icon(
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(text: LogService.exportAll()),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l.logsCopied),
-                        backgroundColor: c.success,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  icon: Icon(Icons.copy, size: 14, color: c.textSecondary),
-                  label: Text(
-                    l.copy,
-                    style: TextStyle(color: c.textSecondary, fontSize: 12),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ),
+              QLButton(
+                label: l.copy,
+                icon: Icon(Icons.copy, size: 14, color: c.textSecondary),
+                onPressed: () {
+                  Clipboard.setData(
+                    ClipboardData(text: LogService.exportAll()),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l.logsCopied),
+                      backgroundColor: c.success,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -257,22 +271,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _infoRow(l.framework, _frameworkString()),
               const SizedBox(height: 4.0),
               _infoRow(l.platform, _platformString()),
-              const SizedBox(height: 4.0),
-              Divider(height: 20, color: c.cardBorder),
-              _SettingRow(
-                title: l.updateAutoCheck,
-                subtitle: '',
-                trailing: _QLSwitch(
-                  value: widget.updateAutoCheck,
-                  onChanged: (_) => widget.onToggleUpdateAutoCheck(),
-                ),
-              ),
-              const SizedBox(height: 8),
-              _QLButton(
-                label: l.updateCheck,
-                loading: false,
-                onPressed: widget.onCheckForUpdates,
-              ),
             ],
           ),
           const SizedBox(height: 32),
@@ -497,244 +495,6 @@ class _SettingRow extends StatelessWidget {
   }
 }
 
-// ─── QL Button (plastic, launcher-style) ──────────────────────────
-// Solid matte fill, tight border, no glow, no accent wash.
-// Slightly lifts on hover, flattens (pressed-in) on press.
-
-class _QLButton extends StatefulWidget {
-  final String label;
-  final bool loading;
-  final VoidCallback? onPressed;
-
-  const _QLButton({required this.label, this.loading = false, this.onPressed});
-
-  @override
-  State<_QLButton> createState() => _QLButtonState();
-}
-
-class _QLButtonState extends State<_QLButton> {
-  bool _hovered = false;
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.ql;
-    final enabled = widget.onPressed != null;
-
-    // Plastic shading: nudge the matte fill toward the text color.
-    Color plastic(Color base, double t) =>
-        Color.lerp(base, c.textPrimary, t)!;
-
-    final fill = !enabled
-        ? c.cardBorder.withValues(alpha: 0.35)
-        : _pressed
-        ? plastic(c.surfaceLight, 0.09)
-        : _hovered
-        ? plastic(c.surfaceLight, 0.05)
-        : c.surfaceLight;
-
-    // Raised-plastic depth: one tight bottom shadow. Flattens on press.
-    final shadow = !enabled
-        ? const <BoxShadow>[]
-        : _pressed
-        ? [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 1,
-              offset: const Offset(0, 0),
-            ),
-          ]
-        : [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: _hovered ? 0.22 : 0.15),
-              blurRadius: _hovered ? 5 : 4,
-              offset: Offset(0, _hovered ? 2 : 1),
-            ),
-          ];
-
-    return MouseRegion(
-      cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
-      onEnter: enabled ? (_) => setState(() => _hovered = true) : null,
-      onExit: enabled ? (_) => setState(() => _hovered = false) : null,
-      child: GestureDetector(
-        onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
-        onTapUp: enabled ? (_) => setState(() => _pressed = false) : null,
-        onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
-        onTap: enabled ? widget.onPressed : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: fill,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: c.cardBorder),
-            boxShadow: shadow,
-          ),
-          child: Center(
-            child: widget.loading
-                ? SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: c.textSecondary,
-                    ),
-                  )
-                : Text(
-                    widget.label,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: enabled ? c.textPrimary : c.textMuted,
-                    ),
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── QL TextField (skeuomorphic, launcher-style) ─────────────────
-
-class _QLTextField extends StatefulWidget {
-  final TextEditingController controller;
-  final String hint;
-  const _QLTextField({required this.controller, required this.hint});
-
-  @override
-  State<_QLTextField> createState() => _QLTextFieldState();
-}
-
-class _QLTextFieldState extends State<_QLTextField> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.ql;
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
-        decoration: BoxDecoration(
-          color: c.surface,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: _hovered ? c.accent.withValues(alpha: 0.4) : c.cardBorder,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: TextField(
-          controller: widget.controller,
-          style: TextStyle(color: c.textPrimary, fontSize: 13),
-          decoration: InputDecoration(
-            hintText: widget.hint,
-            hintStyle: TextStyle(
-              color: _hovered
-                  ? c.textMuted.withValues(alpha: 0.8)
-                  : c.textMuted,
-            ),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 10,
-            ),
-            isDense: true,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── QL Switch (skeuomorphic toggle) ─────────────────────────────
-
-class _QLSwitch extends StatefulWidget {
-  final bool value;
-  final ValueChanged<bool> onChanged;
-  const _QLSwitch({required this.value, required this.onChanged});
-
-  @override
-  State<_QLSwitch> createState() => _QLSwitchState();
-}
-
-class _QLSwitchState extends State<_QLSwitch> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.ql;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: () => widget.onChanged(!widget.value),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          width: 44,
-          height: 24,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: widget.value
-                ? c.accent.withValues(alpha: 0.3)
-                : c.cardBorder.withValues(alpha: 0.5),
-            border: Border.all(
-              color: widget.value
-                  ? c.accent.withValues(alpha: 0.4)
-                  : c.cardBorder,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutCubic,
-                left: widget.value ? 22 : 2,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOutCubic,
-                  width: _hovered ? 20 : 18,
-                  height: _hovered ? 20 : 18,
-                  decoration: BoxDecoration(
-                    color: c.textPrimary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 3,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ─── Log Box ─────────────────────────────────────────────────────
 
 class _LogBox extends StatelessWidget {
@@ -873,7 +633,7 @@ class _ThemeModeRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12.0),
-        _QLSegmented<String>(
+        QLSegmented<String>(
           options: [
             ('light', l.light),
             ('dark', l.dark),
@@ -883,96 +643,6 @@ class _ThemeModeRow extends StatelessWidget {
           onChanged: onChanged,
         ),
       ],
-    );
-  }
-}
-
-class _QLSegmented<T> extends StatelessWidget {
-  final List<(T, String)> options;
-  final T value;
-  final ValueChanged<T> onChanged;
-
-  const _QLSegmented({
-    required this.options,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.ql;
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: c.cardBorder),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final (option, label) in options)
-            _QLSegment(
-              label: label,
-              selected: option == value,
-              onTap: () => onChanged(option),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QLSegment extends StatefulWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _QLSegment({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  State<_QLSegment> createState() => _QLSegmentState();
-}
-
-class _QLSegmentState extends State<_QLSegment> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.ql;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: widget.selected
-                ? c.accent.withValues(alpha: 0.15)
-                : _hovered
-                ? c.surfaceLight
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            widget.label,
-            style: TextStyle(
-              color: widget.selected ? c.accent : c.textSecondary,
-              fontSize: 12,
-              fontWeight: widget.selected
-                  ? FontWeight.w600
-                  : FontWeight.normal,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -1263,31 +933,15 @@ class _ThemeGallerySearch extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       child: SizedBox(
         height: 38,
-        child: TextField(
+        child: QLTextField(
           controller: controller,
+          hint: AppLocalizations.of(context)!.searchThemes,
           autofocus: true,
           onChanged: onChanged,
-          style: TextStyle(color: c.textPrimary, fontSize: 13),
-          decoration: InputDecoration(
-            hintText: AppLocalizations.of(context)!.searchThemes,
-            hintStyle: TextStyle(color: c.textMuted, fontSize: 13),
-            prefixIcon: Icon(
-              Icons.search_rounded,
-              size: 17,
-              color: c.textMuted,
-            ),
-            filled: true,
-            fillColor: c.surface.withValues(alpha: 1),
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 10),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: c.cardBorder),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: c.accent.withValues(alpha: 0.45)),
-            ),
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            size: 17,
+            color: c.textMuted,
           ),
         ),
       ),

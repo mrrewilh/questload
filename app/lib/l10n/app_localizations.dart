@@ -814,6 +814,12 @@ abstract class AppLocalizations {
   /// **'Update failed. Please try again.'**
   String get updateFailed;
 
+  /// No description provided for @updates.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updates;
+
   /// No description provided for @updateCheck.
   ///
   /// In en, this message translates to:
