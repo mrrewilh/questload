@@ -5,6 +5,7 @@ build-windows:
   stage: build
   tags:
     - windows-vm
+  when: manual
   before_script:
     # Runner runs as SYSTEM; flutter's internal git rejects the user-owned
     # flutter checkout without this.
