@@ -78,6 +78,7 @@ class _QLButtonState extends State<QLButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOutCubic,
+          constraints: const BoxConstraints(minHeight: 38),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: fill,
