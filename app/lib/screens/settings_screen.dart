@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:silky_scroll/silky_scroll.dart';
 import '../l10n/app_localizations.dart';
 import '../services/adb_service.dart';
@@ -22,6 +23,9 @@ class SettingsScreen extends StatefulWidget {
   final ThemeService themes;
   final ValueChanged<String> onSelectTheme;
   final ValueChanged<String> onSelectThemeMode;
+  final bool updateAutoCheck;
+  final VoidCallback onToggleUpdateAutoCheck;
+  final VoidCallback onCheckForUpdates;
 
   const SettingsScreen({
     super.key,
@@ -35,6 +39,9 @@ class SettingsScreen extends StatefulWidget {
     required this.themes,
     required this.onSelectTheme,
     required this.onSelectThemeMode,
+    this.updateAutoCheck = true,
+    required this.onToggleUpdateAutoCheck,
+    required this.onCheckForUpdates,
   });
 
   @override
@@ -47,6 +54,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController _connectIpCtrl = TextEditingController();
   bool _pairing = false;
   bool _connecting = false;
+  String _appVersion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) setState(() => _appVersion = info.version);
+    } catch (_) {
+      // no package metadata (e.g. running raw) — leave blank
+    }
+  }
 
   @override
   void dispose() {
@@ -229,11 +252,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _SectionCard(
             c: c,
             children: [
-              _infoRow(l.version, _appVersion()),
+              _infoRow(l.version, _appVersion.isEmpty ? '—' : _appVersion),
               const SizedBox(height: 4.0),
               _infoRow(l.framework, _frameworkString()),
               const SizedBox(height: 4.0),
               _infoRow(l.platform, _platformString()),
+              const SizedBox(height: 4.0),
+              Divider(height: 20, color: c.cardBorder),
+              _SettingRow(
+                title: l.updateAutoCheck,
+                subtitle: '',
+                trailing: _QLSwitch(
+                  value: widget.updateAutoCheck,
+                  onChanged: (_) => widget.onToggleUpdateAutoCheck(),
+                ),
+              ),
+              const SizedBox(height: 8),
+              _QLButton(
+                label: l.updateCheck,
+                loading: false,
+                onPressed: widget.onCheckForUpdates,
+              ),
             ],
           ),
           const SizedBox(height: 32),
@@ -353,8 +392,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ],
     ),
   );
-
-  String _appVersion() => '0.1.0-dev';
 
   String _frameworkString() {
     final dartVersion = Platform.version.split(' ').first;

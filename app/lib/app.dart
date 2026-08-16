@@ -5,10 +5,13 @@ import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:window_manager/window_manager.dart';
+import 'screens/update_dialogs.dart';
 import 'services/log_service.dart';
 import 'services/theme_service.dart';
 import 'services/theme_brightness_service.dart';
+import 'services/update_service.dart';
 import 'l10n/app_localizations.dart';
 import 'services/adb_service.dart';
 import 'services/paths_service.dart';
@@ -25,12 +28,14 @@ import 'core/constants.dart';
 class _SettingsScreenParams {
   final bool isSidebarLayout;
   final bool smoothScroll;
+  final bool updateAutoCheck;
   final String themeId;
   final String themeMode;
 
   const _SettingsScreenParams({
     required this.isSidebarLayout,
     required this.smoothScroll,
+    required this.updateAutoCheck,
     required this.themeId,
     required this.themeMode,
   });
@@ -148,6 +153,9 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   String _themeId = 'questload';
   String _themeMode = 'auto';
   bool _smoothScroll = true;
+  bool _updateAutoCheck = true;
+  String _updateSkipVersion = '';
+  String _lastSeenVersion = '';
   bool _deviceConnected = false;
   ThemeData? _cachedThemeData;
 
@@ -204,6 +212,9 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         'theme_id': _themeId,
         'theme_mode': _themeMode,
         'smooth_scroll': _smoothScroll,
+        'update_auto_check': _updateAutoCheck,
+        'update_skip_version': _updateSkipVersion,
+        'last_seen_version': _lastSeenVersion,
       };
 
   Future<void> _loadSettings() async {
@@ -219,6 +230,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
           'theme_id': 'questload',
           'theme_mode': 'auto',
           'smooth_scroll': true,
+          'update_auto_check': true,
         };
       }
       if (!mounted) return;
@@ -228,7 +240,11 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       _themeId = (json['theme_id'] as String?) ?? 'questload';
       _themeMode = (json['theme_mode'] as String?) ?? 'auto';
       _smoothScroll = (json['smooth_scroll'] as bool?) ?? true;
+      _updateAutoCheck = (json['update_auto_check'] as bool?) ?? true;
+      _updateSkipVersion = (json['update_skip_version'] as String?) ?? '';
+      _lastSeenVersion = (json['last_seen_version'] as String?) ?? '';
       await _applyTheme(_themeId);
+      _runUpdateFlow();
     } catch (e) {
       LogService.error('Settings load failed: $e');
       if (mounted) _saveSettings();
@@ -297,6 +313,125 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     _saveSettings();
   }
 
+  void _toggleUpdateAutoCheck() {
+    setState(() {
+      _updateAutoCheck = !_updateAutoCheck;
+      _cachedSettings = null;
+    });
+    _saveSettings();
+  }
+
+  /// Launch flow: after-update changelog, pending apply, then the check.
+  Future<void> _runUpdateFlow() async {
+    await Future<void>.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
+    final info = await PackageInfo.fromPlatform();
+    final current = info.version;
+    if (current.isEmpty) return;
+
+    // after an update: changelog once
+    if (_lastSeenVersion != current) {
+      final body =
+          await UpdateService.embeddedChangelog(Platform.resolvedExecutable);
+      if (!mounted) return;
+      await showChangelogDialog(context, body: body);
+      _lastSeenVersion = current;
+      _saveSettings();
+    }
+
+    // windows: a downloaded update waiting to be applied
+    final hasStaged =
+        await UpdateService.hasStagedUpdate(current);
+    if (!mounted) return;
+    if (defaultTargetPlatform == TargetPlatform.windows && hasStaged) {
+      final apply = await showApplyUpdateDialog(context);
+      if (apply) {
+        await _applyStagedUpdate();
+        return;
+      }
+    }
+    if (!mounted) return;
+
+    if (_updateAutoCheck && _updateSkipVersion != current) {
+      await _checkForUpdates(showUpToDate: false);
+    }
+  }
+
+  /// Manual check from settings.
+  Future<void> _checkForUpdates({bool showUpToDate = true}) async {
+    final info = await PackageInfo.fromPlatform();
+    final current = info.version;
+    final update = await UpdateService.check(currentVersion: current);
+    if (!mounted) return;
+    if (update == null) {
+      if (showUpToDate) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.updateNoUpdates),
+            backgroundColor: context.ql.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+    if (update.version == _updateSkipVersion) return;
+
+    final canDownload = defaultTargetPlatform == TargetPlatform.windows;
+    final choice = await showDialog<Object>(
+      context: context,
+      builder: (ctx) => UpdateAvailableDialog(
+        newVersion: update.version,
+        currentVersion: current,
+        canDownload: canDownload,
+      ),
+    );
+    if (!mounted) return;
+    if (choice == 'skip') {
+      _updateSkipVersion = update.version;
+      _saveSettings();
+      return;
+    }
+    if (choice == UpdateChoice.download) {
+      final zip = await UpdateService.downloadAndVerify(update);
+      if (!mounted) return;
+      if (zip == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.updateFailed),
+            backgroundColor: context.ql.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+      await UpdateService.markPending(update.version, update.sha256);
+      // applied on next launch, when the popup asks
+    }
+  }
+
+  Future<void> _applyStagedUpdate() async {
+    final dir = await UpdateService.downloadsDir();
+    final pending = await UpdateService.pendingInfo();
+    if (pending == null) return;
+    final zip = File('${dir.path}/questload-${pending.version}.zip');
+    if (!await zip.exists()) return;
+    if (pending.sha256.isNotEmpty) {
+      final bytes = await zip.readAsBytes();
+      if (sha256Of(bytes) != pending.sha256.toLowerCase()) {
+        LogService.error('Staged update failed hash check');
+        return;
+      }
+    }
+    final extracted = await UpdateService.extract(zip);
+    if (extracted == null) return;
+    await UpdateService.applyStaged(
+        extracted, zip, Platform.resolvedExecutable);
+    await UpdateService.clearPending();
+    // the handoff waits for us to exit, swaps, then relaunches
+    exit(0);
+  }
+
   Widget _buildDeviceScreen() => DeviceScreen(
         adb: widget.adb,
         smoothScroll: _smoothScroll,
@@ -318,12 +453,14 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     final params = _SettingsScreenParams(
       isSidebarLayout: _layout == AppLayout.sidebar,
       smoothScroll: _smoothScroll,
+      updateAutoCheck: _updateAutoCheck,
       themeId: _themeId,
       themeMode: _themeMode,
     );
     final paramsSame = _lastSettingsParams != null &&
         _lastSettingsParams!.isSidebarLayout == params.isSidebarLayout &&
         _lastSettingsParams!.smoothScroll == params.smoothScroll &&
+        _lastSettingsParams!.updateAutoCheck == params.updateAutoCheck &&
         _lastSettingsParams!.themeId == params.themeId &&
         _lastSettingsParams!.themeMode == params.themeMode;
     _lastSettingsParams = params;
@@ -337,6 +474,9 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         themes: widget.themes,
         onToggleLayout: _toggleLayout,
         onToggleSmoothScroll: _toggleSmoothScroll,
+        updateAutoCheck: _updateAutoCheck,
+        onToggleUpdateAutoCheck: _toggleUpdateAutoCheck,
+        onCheckForUpdates: () => _checkForUpdates(),
         onSelectTheme: _selectTheme,
         onSelectThemeMode: _selectThemeMode,
       );

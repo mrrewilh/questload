@@ -395,4 +395,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateFailed => 'Update failed. Please try again.';
+
+  @override
+  String get updateCheck => 'Check for updates';
+
+  @override
+  String get updateChecking => 'Checking for updates...';
+
+  @override
+  String get updateNoUpdates => 'You\'re up to date';
+
+  @override
+  String get updateAutoCheck => 'Check for updates on launch';
+
+  @override
+  String get updateRemindNever => 'Don\'t remind me about this update';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateContinue => 'Continue';
+
+  @override
+  String get updateApplyTitle => 'Update ready';
+
+  @override
+  String get updateApplyText => 'Restart now to apply the update';
+
+  @override
+  String get updateRestartNow => 'Restart now';
+
+  @override
+  String get updateWhatNew => 'What\'s new';
+
+  @override
+  String get updateNoChangelog => 'No changelog for this version.';
 }

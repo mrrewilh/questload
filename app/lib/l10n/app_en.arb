@@ -130,5 +130,17 @@
   "updateDownload": "Download & install",
   "updateDownloading": "Downloading… {percent}%",
   "updateInstalling": "Installing update…",
-  "updateFailed": "Update failed. Please try again."
+  "updateFailed": "Update failed. Please try again.",
+  "updateCheck": "Check for updates",
+  "updateChecking": "Checking for updates...",
+  "updateNoUpdates": "You're up to date",
+  "updateAutoCheck": "Check for updates on launch",
+  "updateRemindNever": "Don't remind me about this update",
+  "updateLater": "Later",
+  "updateContinue": "Continue",
+  "updateApplyTitle": "Update ready",
+  "updateApplyText": "Restart now to apply the update",
+  "updateRestartNow": "Restart now",
+  "updateWhatNew": "What's new",
+  "updateNoChangelog": "No changelog for this version."
 }

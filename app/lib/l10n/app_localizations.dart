@@ -813,6 +813,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update failed. Please try again.'**
   String get updateFailed;
+
+  /// No description provided for @updateCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get updateCheck;
+
+  /// No description provided for @updateChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for updates...'**
+  String get updateChecking;
+
+  /// No description provided for @updateNoUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re up to date'**
+  String get updateNoUpdates;
+
+  /// No description provided for @updateAutoCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates on launch'**
+  String get updateAutoCheck;
+
+  /// No description provided for @updateRemindNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t remind me about this update'**
+  String get updateRemindNever;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
+  /// No description provided for @updateContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get updateContinue;
+
+  /// No description provided for @updateApplyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update ready'**
+  String get updateApplyTitle;
+
+  /// No description provided for @updateApplyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart now to apply the update'**
+  String get updateApplyText;
+
+  /// No description provided for @updateRestartNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart now'**
+  String get updateRestartNow;
+
+  /// No description provided for @updateWhatNew.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new'**
+  String get updateWhatNew;
+
+  /// No description provided for @updateNoChangelog.
+  ///
+  /// In en, this message translates to:
+  /// **'No changelog for this version.'**
+  String get updateNoChangelog;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
-# Windows builds run on the VM's self-hosted runner (tag: windows-vm).
-# No macOS — nothing to test on.
+# Windows build, run manually (play button) on the self-hosted runner.
+# Version comes from the build date: YY.M.D, plus -N when the day already
+# has builds. Nobody types a version anywhere.
 
 build-windows:
   stage: build
@@ -7,15 +8,42 @@ build-windows:
     - windows-vm
   when: manual
   before_script:
-    # Runner runs as SYSTEM; flutter's internal git rejects the user-owned
-    # flutter checkout without this.
     - git config --global --add safe.directory C:/Users/mstab/flutter
   script:
+    # version from date + count of today's tags
+    - $date = Get-Date -Format "yy.M.d"
+    - $todayCount = (git tag -l "$date*" | Measure-Object).Count
+    - $ver = if ($todayCount -eq 0) { $date } else { "$date-$todayCount" }
+    - $buildNum = if ($todayCount -eq 0) { 1 } else { $todayCount }
+    - Write-Host "version=$ver"
     - cd app
     - C:\Users\mstab\flutter\bin\flutter.bat pub get
-    - C:\Users\mstab\flutter\bin\flutter.bat build windows --release
+    - C:\Users\mstab\flutter\bin\flutter.bat build windows --release --build-name $ver --build-number $buildNum
+    - cd ..
+    # adb
+    - Invoke-WebRequest -Uri "https://dl.google.com/android/repository/platform-tools-latest-windows.zip" -OutFile platform-tools.zip
+    - Expand-Archive platform-tools.zip -DestinationPath platform-tools
+    - Copy-Item platform-tools\platform-tools\adb.exe, platform-tools\platform-tools\AdbWinApi.dll, platform-tools\platform-tools\AdbWinUsbApi.dll app\build\windows\x64\runner\Release\
+    # changelog for this version (public repo, no auth). Missing = no changelog, fine.
+    - try { Invoke-WebRequest -Uri "https://gitlab.com/api/v4/projects/qload%2Fquestload-changelog/repository/files/$([uri]::EscapeDataString('changelog/' + $ver + '.md'))/raw?ref=main" -OutFile app\build\windows\x64\runner\Release\changelog.md } catch { Write-Host "no changelog for $ver" }
+    # portable zip
+    - Compress-Archive -Path app\build\windows\x64\runner\Release\* -DestinationPath build\questload-$ver.zip
+    # installer
+    - Invoke-WebRequest -Uri "https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe" -OutFile innosetup.exe
+    - Start-Process -Wait -FilePath .\innosetup.exe -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART"
+    - $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+    - if (-not (Test-Path $iscc)) { $iscc = "C:\Program Files\Inno Setup 6\ISCC.exe" }
+    - & $iscc app\windows\QuestLoad.iss /DMyAppVersion=$ver
+    - Copy-Item app\Output\questload-setup-$ver.exe build\
+    # manifest for the update check (hosted with the release once the repo is public)
+    - $zipHash = (Get-FileHash build\questload-$ver.zip -Algorithm SHA256).Hash.ToLower()
+    - '{"version":"' + $ver + '","sha256":"' + $zipHash + '","zip":"questload-' + $ver + '.zip"}' | Set-Content build\manifest.json
+    # tag the build so the day counter works
+    - git tag $ver
+    - git push -q "https://oauth2:${CI_JOB_TOKEN}@gitlab.com/qload/questload.git" $ver 2>$null
+    - Write-Host "done $ver"
   artifacts:
     name: "questload-windows"
     paths:
-      - app/build/windows/x64/runner/Release/
+      - build/
     expire_in: 7 days
