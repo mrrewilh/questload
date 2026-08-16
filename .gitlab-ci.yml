@@ -10,7 +10,6 @@ build-windows:
   before_script:
     - git config --global --add safe.directory C:/Users/mstab/flutter
   script:
-    # version from date + count of today's tags
     - $date = Get-Date -Format "yy.M.d"
     - $todayCount = (git tag -l "$date*" | Measure-Object).Count
     - $ver = if ($todayCount -eq 0) { $date } else { "$date-$todayCount" }
@@ -20,27 +19,22 @@ build-windows:
     - C:\Users\mstab\flutter\bin\flutter.bat pub get
     - C:\Users\mstab\flutter\bin\flutter.bat build windows --release --build-name $ver --build-number $buildNum
     - cd ..
-    # adb
     - Invoke-WebRequest -Uri "https://dl.google.com/android/repository/platform-tools-latest-windows.zip" -OutFile platform-tools.zip
     - Expand-Archive platform-tools.zip -DestinationPath platform-tools
     - Copy-Item platform-tools\platform-tools\adb.exe, platform-tools\platform-tools\AdbWinApi.dll, platform-tools\platform-tools\AdbWinUsbApi.dll app\build\windows\x64\runner\Release\
-    # changelog + its images, pulled fresh from the public repo
     - git clone -q --depth 1 https://gitlab.com/qload/questload-changelog.git changelog-repo
     - Copy-Item changelog-repo\CHANGELOG.md app\build\windows\x64\runner\Release\
     - Copy-Item -Recurse changelog-repo\changelogassets app\build\windows\x64\runner\Release\
-    # portable zip
     - Compress-Archive -Path app\build\windows\x64\runner\Release\* -DestinationPath build\questload-$ver.zip
-    # installer
     - Invoke-WebRequest -Uri "https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe" -OutFile innosetup.exe
     - Start-Process -Wait -FilePath .\innosetup.exe -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART"
     - $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     - if (-not (Test-Path $iscc)) { $iscc = "C:\Program Files\Inno Setup 6\ISCC.exe" }
     - '& $iscc app\windows\QuestLoad.iss /DMyAppVersion=$ver'
     - Copy-Item app\Output\questload-setup-$ver.exe build\
-    # manifest for the update check (hosted with the release once the repo is public)
     - $zipHash = (Get-FileHash build\questload-$ver.zip -Algorithm SHA256).Hash.ToLower()
-    - '{"version":"' + $ver + '","sha256":"' + $zipHash + '","zip":"questload-' + $ver + '.zip"}' | Set-Content build\manifest.json
-    # tag the build so the day counter works
+    - $manifest = @{ version = $ver; sha256 = $zipHash; zip = "questload-$ver.zip" } | ConvertTo-Json
+    - Set-Content build\manifest.json $manifest
     - git tag $ver
     - git push -q "https://oauth2:${CI_JOB_TOKEN}@gitlab.com/qload/questload.git" $ver 2>$null
     - Write-Host "done $ver"
