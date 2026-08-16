@@ -17,8 +17,46 @@ class AdbService {
   MdnsScanner? _scanner;
   bool _checkedAdb = false;
   Completer<String>? _pendingFind;
+  bool _startedServer = false;
 
   bool get isOnDevice => false;
+
+  /// True when this instance started the adb server.
+  bool get startedServer => _startedServer;
+
+  /// Starts the adb server if it isn't already running, and remembers
+  /// whether we were the ones who started it — so we can clean it up on
+  /// exit without killing a server the user had before QuestLoad.
+  Future<void> ensureServer() async {
+    if (_startedServer) return;
+    final adb = await _findAdb();
+    if (adb.isEmpty) return;
+    try {
+      final up = await Process.run(adb, ['get-state'])
+          .timeout(kAdbConnectTimeout);
+      if (up.exitCode == 0) return; // already running, not ours
+      final start = await Process.run(adb, ['start-server'])
+          .timeout(kAdbCommandTimeout);
+      if (start.exitCode == 0) _startedServer = true;
+    } catch (e) {
+      LogService.warning('adb server check failed: $e');
+    }
+  }
+
+  /// Kills the adb server, but only if this instance started it.
+  /// Runs detached so it completes even while the app is shutting down.
+  Future<void> stopServer() async {
+    if (!_startedServer) return;
+    final adb = await _findAdb();
+    if (adb.isEmpty) return;
+    try {
+      await Process.start(adb, ['kill-server'],
+          mode: ProcessStartMode.detached);
+    } catch (e) {
+      LogService.warning('adb kill-server failed: $e');
+    }
+    _startedServer = false;
+  }
 
   //- Find bundled ADB ─
 

@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../core/constants.dart';
 import 'log_service.dart';
+import 'paths_service.dart';
 
 /// What a newer version looks like, from the release manifest.
 class UpdateInfo {
@@ -49,8 +49,8 @@ int compareVersions(String a, String b) {
 class UpdateService {
   /// Downloads directory (app data root, next to settings.json).
   static Future<Directory> downloadsDir() async {
-    final root = await getApplicationSupportDirectory();
-    final dir = Directory('${root.path}/downloads');
+    final root = await PathsService.root;
+    final dir = Directory('$root/downloads');
     if (!await dir.exists()) await dir.create(recursive: true);
     return dir;
   }
@@ -179,9 +179,14 @@ class UpdateService {
 \$src = "${extracted.path}"
 \$dest = "$installDir"
 while (Get-Process -Name questload -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 400 }
-Copy-Item -Recurse -Force "\$src\\*" "\$dest"
-Remove-Item -Recurse -Force "\$src"
-Start-Process "\$dest\\questload.exe"
+try {
+  Copy-Item -Recurse -Force (Join-Path \$src '*') \$dest -ErrorAction Stop
+  Remove-Item -Recurse -Force \$src
+  Start-Process (Join-Path \$dest 'questload.exe')
+} catch {
+  \$e = "Copy-Item -Recurse -Force (Join-Path '\$src' '*') '\$dest'; Remove-Item -Recurse -Force '\$src'; Start-Process (Join-Path '\$dest' 'questload.exe')"
+  Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -Command", \$e
+}
 ''';
     final scriptFile = File('${zip.parent.path}/apply.ps1');
     await scriptFile.writeAsString(script);

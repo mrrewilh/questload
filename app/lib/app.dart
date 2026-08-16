@@ -144,7 +144,7 @@ class AppShell extends StatefulWidget {
   State<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
+class _AppShellState extends State<AppShell> with WidgetsBindingObserver, WindowListener {
   late final Widget _home;
   Widget _device = const SizedBox.shrink();
   late final LibraryScreen _library;
@@ -169,6 +169,10 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    windowManager.addListener(this);
+    // Start adb server if it isn't already running; it gets killed on
+    // window close, only if we started it.
+    widget.adb.ensureServer();
     ThemeBrightnessService.instance.start();
     // Auto mode follows the OS brightness live.
     ThemeBrightnessService.instance.brightness.addListener(_onBrightness);
@@ -505,8 +509,15 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    windowManager.removeListener(this);
     ThemeBrightnessService.instance.brightness.removeListener(_onBrightness);
     _cachedSettings = null;
     super.dispose();
+  }
+
+  @override
+  void onWindowClose() {
+    // If QuestLoad started adb, shut it down with us.
+    widget.adb.stopServer();
   }
 }
