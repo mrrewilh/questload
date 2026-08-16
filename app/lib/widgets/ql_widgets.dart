@@ -172,6 +172,7 @@ class _QLTextFieldState extends State<QLTextField> {
           controller: widget.controller,
           autofocus: widget.autofocus,
           onChanged: widget.onChanged,
+          textAlignVertical: TextAlignVertical.center,
           style: TextStyle(color: c.textPrimary, fontSize: 13),
           decoration: InputDecoration(
             hintText: widget.hint,
@@ -186,7 +187,6 @@ class _QLTextFieldState extends State<QLTextField> {
               horizontal: 14,
               vertical: 10,
             ),
-            isDense: true,
           ),
         ),
       ),
