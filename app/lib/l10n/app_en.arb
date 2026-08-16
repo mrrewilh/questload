@@ -78,7 +78,6 @@
   "pair": "Pair",
   "darkMode": "Dark mode",
   "accentColor": "Accent color",
-  "cancel": "Cancel",
   "apply": "Apply",
 
   "adbConfig": "ADB Configuration",
@@ -144,9 +143,5 @@
   "updateApplyText": "Restart now to apply the update",
   "updateRestartNow": "Restart now",
   "updateWhatNew": "What's new",
-  "updateNoChangelog": "No changelog for this version.",
-  "deleteQuestLoad": "Delete QuestLoad",
-  "deleteQuestLoadConfirm": "This removes the app folder and everything in it. Are you sure?",
-  "deleteConfirm": "Delete",
-  "cancel": "Cancel"
+  "updateNoChangelog": "No changelog for this version."
 }

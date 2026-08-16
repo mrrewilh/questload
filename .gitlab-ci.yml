@@ -7,6 +7,7 @@ build-windows:
   tags:
     - windows-vm
   when: manual
+  allow_failure: false
   before_script:
     - git config --global --add safe.directory C:/Users/mstab/flutter
   script:

@@ -242,9 +242,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accentColor => 'Accent color';
 
   @override
-  String get cancel => 'Cancel';
-
-  @override
   String get apply => 'Apply';
 
   @override
@@ -437,14 +434,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateNoChangelog => 'No changelog for this version.';
-
-  @override
-  String get deleteQuestLoad => 'Delete QuestLoad';
-
-  @override
-  String get deleteQuestLoadConfirm =>
-      'This removes the app folder and everything in it. Are you sure?';
-
-  @override
-  String get deleteConfirm => 'Delete';
 }

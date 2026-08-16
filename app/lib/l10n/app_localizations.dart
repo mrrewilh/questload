@@ -526,12 +526,6 @@ abstract class AppLocalizations {
   /// **'Accent color'**
   String get accentColor;
 
-  /// No description provided for @cancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get cancel;
-
   /// No description provided for @apply.
   ///
   /// In en, this message translates to:
@@ -897,24 +891,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No changelog for this version.'**
   String get updateNoChangelog;
-
-  /// No description provided for @deleteQuestLoad.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete QuestLoad'**
-  String get deleteQuestLoad;
-
-  /// No description provided for @deleteQuestLoadConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'This removes the app folder and everything in it. Are you sure?'**
-  String get deleteQuestLoadConfirm;
-
-  /// No description provided for @deleteConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get deleteConfirm;
 }
 
 class _AppLocalizationsDelegate
