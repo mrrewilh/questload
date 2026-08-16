@@ -40,10 +40,13 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SvgPicture.asset(
-            'assets/update.svg',
-            width: 88,
-            height: 88,
-            colorFilter: ColorFilter.mode(c.accent, BlendMode.srcIn),
+            'assets/mascot/update.svg',
+            width: 140,
+            height: 140,
+            colorFilter: ColorFilter.mode(
+              c.textMuted.withValues(alpha: 0.3),
+              BlendMode.srcIn,
+            ),
           ),
           const SizedBox(height: 16),
           Text(

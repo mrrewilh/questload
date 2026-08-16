@@ -9,7 +9,7 @@
    id="svg1"
    xml:space="preserve"
    inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
-   sodipodi:docname="logoprodc.svg"
+   sodipodi:docname="logo.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -26,8 +26,8 @@
      inkscape:document-units="px"
      showguides="false"
      inkscape:zoom="8"
-     inkscape:cx="56.75"
-     inkscape:cy="61.6875"
+     inkscape:cx="66.3125"
+     inkscape:cy="55.9375"
      inkscape:window-width="2560"
      inkscape:window-height="1368"
      inkscape:window-x="0"
@@ -466,7 +466,16 @@
          k1="1"
          operator="arithmetic"
          k3="1"
-         result="composite2" /></filter></defs><g
+         result="composite2" /></filter><radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3"
+       id="radialGradient1"
+       cx="62"
+       cy="62"
+       fx="62"
+       fy="62"
+       r="56.914665"
+       gradientUnits="userSpaceOnUse" /></defs><g
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Katman 2"><rect
@@ -478,7 +487,7 @@
        y="5.0853348"
        rx="36.470566"
        ry="36.470566" /><rect
-       style="fill:url(#linearGradient4);stroke-width:1.63859"
+       style="fill:url(#radialGradient1);stroke-width:1.63859"
        id="rect35"
        width="113.82933"
        height="113.82933"

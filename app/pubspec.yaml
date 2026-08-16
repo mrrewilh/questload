@@ -32,8 +32,8 @@ flutter:
   generate: true
   assets:
     - assets/text.svg
-    - assets/update.svg
     - assets/themes/index.json
     - assets/themes/
     - assets/headsets/
     - assets/mascot/
+

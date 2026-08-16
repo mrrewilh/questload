@@ -148,18 +148,15 @@ class _QLTextFieldState extends State<QLTextField> {
   @override
   Widget build(BuildContext context) {
     final c = context.ql;
+    // The InputDecorator owns border, padding and text centering as one
+    // unit — no wrapper fighting it. Inter only for the text, so the
+    // balanced metrics center the glyphs on every OS.
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
+      child: Container(
         decoration: BoxDecoration(
-          color: c.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: _hovered ? c.accent.withValues(alpha: 0.4) : c.cardBorder,
-          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.2),
@@ -172,21 +169,34 @@ class _QLTextFieldState extends State<QLTextField> {
           controller: widget.controller,
           autofocus: widget.autofocus,
           onChanged: widget.onChanged,
-          style: TextStyle(color: c.textPrimary, fontSize: 13),
+          style: TextStyle(
+            color: c.textPrimary,
+            fontSize: 13,
+          ),
           decoration: InputDecoration(
             hintText: widget.hint,
-            hintStyle: TextStyle(
-              color: _hovered
-                  ? c.textMuted.withValues(alpha: 0.8)
-                  : c.textMuted,
-            ),
+            hintStyle: TextStyle(color: c.textMuted),
             prefixIcon: widget.prefixIcon,
-            border: InputBorder.none,
+            filled: true,
+            fillColor: c.surface,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 10,
             ),
-            isDense: true,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: _hovered
+                    ? c.accent.withValues(alpha: 0.4)
+                    : c.cardBorder,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: c.accent.withValues(alpha: 0.4),
+              ),
+            ),
           ),
         ),
       ),
