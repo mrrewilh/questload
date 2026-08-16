@@ -94,6 +94,10 @@ set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
 
+# App icon next to the executable (used as the window icon)
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../assets/logo/logo.png"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}" RENAME "icon.png" COMPONENT Runtime)
+
 # Bundle platform-tools (ADB binary) next to the executable
 set(PLATFORM_TOOLS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../platform-tools/platform-tools")
 if(EXISTS "${PLATFORM_TOOLS_DIR}/adb")

@@ -437,4 +437,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateNoChangelog => 'No changelog for this version.';
+
+  @override
+  String get deleteQuestLoad => 'Delete QuestLoad';
+
+  @override
+  String get deleteQuestLoadConfirm =>
+      'This removes the app folder and everything in it. Are you sure?';
+
+  @override
+  String get deleteConfirm => 'Delete';
 }

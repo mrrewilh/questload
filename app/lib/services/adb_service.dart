@@ -17,60 +17,8 @@ class AdbService {
   MdnsScanner? _scanner;
   bool _checkedAdb = false;
   Completer<String>? _pendingFind;
-  bool _startedServer = false;
 
   bool get isOnDevice => false;
-
-  /// True when this instance started the adb server.
-  bool get startedServer => _startedServer;
-
-  /// Is an adb server already listening on the port?
-  /// Can't use any adb command for this — every adb command auto-starts
-  /// the server, so it would always look "already running".
-  Future<bool> _serverListening() async {
-    final port = int.tryParse(
-            Platform.environment['ANDROID_ADB_SERVER_PORT'] ?? '') ??
-        5037;
-    try {
-      final sock = await Socket.connect('127.0.0.1', port,
-              timeout: const Duration(seconds: 1));
-      sock.destroy();
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  /// Starts the adb server if it isn't already running, and remembers
-  /// whether we were the ones who started it — so we can clean it up on
-  /// exit without killing a server the user had before QuestLoad.
-  Future<void> ensureServer() async {
-    if (_startedServer) return;
-    final adb = await _findAdb();
-    if (adb.isEmpty) return;
-    if (await _serverListening()) return; // already running, not ours
-    _startedServer = true;
-    try {
-      await Process.run(adb, ['start-server']).timeout(kAdbCommandTimeout);
-    } catch (e) {
-      LogService.warning('adb start-server failed: $e');
-    }
-  }
-
-  /// Kills the adb server, but only if this instance started it.
-  /// Runs detached so it completes even while the app is shutting down.
-  Future<void> stopServer() async {
-    if (!_startedServer) return;
-    final adb = await _findAdb();
-    if (adb.isEmpty) return;
-    try {
-      await Process.start(adb, ['kill-server'],
-          mode: ProcessStartMode.detached);
-    } catch (e) {
-      LogService.warning('adb kill-server failed: $e');
-    }
-    _startedServer = false;
-  }
 
   //- Find bundled ADB ─
 

@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io' show File, Directory, Platform, Process, ProcessStartMode, exit;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
@@ -10,6 +10,7 @@ import '../services/adb_service.dart';
 import '../services/log_service.dart';
 import '../core/app_theme.dart';
 import '../services/theme_service.dart';
+import '../services/paths_service.dart';
 import '../core/constants.dart';
 import '../widgets/ql_widgets.dart';
 
@@ -273,8 +274,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _infoRow(l.platform, _platformString()),
             ],
           ),
+
+          // ─── Danger zone ─────────────────────────────────────────
+          const SizedBox(height: 24),
+          Center(
+            child: QLButton(
+              label: l.deleteQuestLoad,
+              icon: Icon(Icons.delete_forever_rounded,
+                  size: 14, color: c.error),
+              onPressed: _deleteQuestLoad,
+            ),
+          ),
           const SizedBox(height: 32),
     ];
+  }
+
+  /// Deletes the app folder: stops adb running from it, then removes it.
+  /// The folder can't go while the exe runs, so a detached script waits
+  /// for us to exit first.
+  Future<void> _deleteQuestLoad() async {
+    final l = AppLocalizations.of(context)!;
+    final c = context.ql;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: c.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        title: Text(l.deleteQuestLoad),
+        content: Text(l.deleteQuestLoadConfirm),
+        actions: [
+          QLButton(
+            label: l.cancel,
+            onPressed: () => Navigator.of(ctx).pop(false),
+          ),
+          QLButton(
+            label: l.deleteConfirm,
+            icon: Icon(Icons.delete_forever_rounded,
+                size: 14, color: c.error),
+            onPressed: () => Navigator.of(ctx).pop(true),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final folder = await PathsService.root;
+    final scriptFile = File(
+        '${Directory.systemTemp.path}${Platform.pathSeparator}questload-delete.ps1');
+    final script = '''
+\$folder = "$folder"
+while (Get-Process -Name questload -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 400 }
+Get-Process -Name adb -ErrorAction SilentlyContinue | Where-Object { \$_.Path -like "\$folder*" } | Stop-Process -Force
+Start-Sleep -Milliseconds 300
+try {
+  Remove-Item -Recurse -Force "\$folder" -ErrorAction Stop
+} catch {
+  Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -Command", "Remove-Item -Recurse -Force '\$folder'"
+}
+Remove-Item -Force "\$PSCommandPath"
+''';
+    await scriptFile.writeAsString(script);
+    Process.start(
+      'powershell',
+      ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptFile.path],
+      mode: ProcessStartMode.detached,
+    );
+    exit(0);
   }
 
   Future<void> _doPair() async {
