@@ -252,6 +252,7 @@ class DeviceScreenState extends State<DeviceScreen>
         .where((i) => i.ipAddress != null)
         .map((i) => i.ipAddress)
         .toSet();
+    final scanIps = _scanResults.map((s) => s.ip).toSet();
 
     final newItems = <_GridItem>[];
     for (final scan in _scanResults) {
@@ -267,8 +268,26 @@ class DeviceScreenState extends State<DeviceScreen>
       );
     }
 
-    if (newItems.isNotEmpty) {
-      setState(() => _gridItems.addAll(newItems));
+    // Discovered devices that are no longer announced are gone. Their
+    // cached mDNS records expired, so they're absent from this scan —
+    // drop them. A live device never flickers: the persistent client's
+    // cache keeps it in results between announcements.
+    final stale = _gridItems
+        .where(
+          (i) =>
+              !i.isConnected &&
+              i.ipAddress != null &&
+              !scanIps.contains(i.ipAddress),
+        )
+        .toList();
+
+    if (newItems.isNotEmpty || stale.isNotEmpty) {
+      setState(() {
+        if (stale.isNotEmpty) {
+          _gridItems.removeWhere((i) => stale.contains(i));
+        }
+        _gridItems.addAll(newItems);
+      });
     }
   }
 
