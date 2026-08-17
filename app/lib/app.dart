@@ -137,8 +137,15 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   String _lastSeenVersion = '';
   bool _deviceConnected = false;
   ThemeData? _cachedThemeData;
+  BuildContext? _themedContext;
 
   ThemeData get _themeData => _cachedThemeData ?? AppTheme.dark();
+
+  /// A context under the nested selected Theme. Dialogs and toasts launched
+  /// from this state must use it — the state's own [context] sits above the
+  /// nested Theme and would resolve the app's base theme, not the selected
+  /// one. One rule for every popup, no special cases.
+  BuildContext get _uiContext => _themedContext ?? context;
 
   Future<String> get _settingsPath => PathsService.settingsPath;
 
@@ -295,7 +302,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         Platform.resolvedExecutable,
       );
       if (!mounted) return;
-      await showChangelogDialog(context, body: body);
+      await showChangelogDialog(_uiContext, body: body);
       _lastSeenVersion = current;
       _saveSettings();
     }
@@ -304,7 +311,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     final hasStaged = await UpdateService.hasStagedUpdate(current);
     if (!mounted) return;
     if (defaultTargetPlatform == TargetPlatform.windows && hasStaged) {
-      final apply = await showApplyUpdateDialog(context);
+      final apply = await showApplyUpdateDialog(_uiContext);
       if (apply) {
         await _applyStagedUpdate();
         return;
@@ -329,8 +336,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     if (!result.reachable) {
       if (showUpToDate) {
         QLToast.show(
-          context,
-          AppLocalizations.of(context)!.updateUnreachable,
+          _uiContext,
+          AppLocalizations.of(_uiContext)!.updateUnreachable,
           kind: QLToastKind.error,
         );
       }
@@ -340,8 +347,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     if (update == null) {
       if (showUpToDate) {
         QLToast.show(
-          context,
-          AppLocalizations.of(context)!.updateNoUpdates,
+          _uiContext,
+          AppLocalizations.of(_uiContext)!.updateNoUpdates,
           kind: QLToastKind.success,
         );
       }
@@ -351,11 +358,14 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
 
     final canDownload = defaultTargetPlatform == TargetPlatform.windows;
     final choice = await showDialog<UpdateChoice>(
-      context: context,
-      builder: (ctx) => UpdateAvailableDialog(
-        newVersion: update.version,
-        currentVersion: current,
-        canDownload: canDownload,
+      context: _uiContext,
+      builder: (ctx) => Theme(
+        data: _themeData,
+        child: UpdateAvailableDialog(
+          newVersion: update.version,
+          currentVersion: current,
+          canDownload: canDownload,
+        ),
       ),
     );
     if (!mounted) return;
@@ -371,8 +381,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       if (!mounted) return;
       if (zip == null) {
         QLToast.show(
-          context,
-          AppLocalizations.of(context)!.updateFailed,
+          _uiContext,
+          AppLocalizations.of(_uiContext)!.updateFailed,
           kind: QLToastKind.error,
         );
         return;
@@ -428,6 +438,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       data: _themeData,
       child: Builder(
         builder: (context) {
+          _themedContext = context;
           return LayoutShell(
             home: _home,
             library: _library,

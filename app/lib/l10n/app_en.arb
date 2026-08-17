@@ -119,7 +119,6 @@
   "updateDownloading": "Downloading… {percent}%",
   "updateInstalling": "Installing update…",
   "updateFailed": "Update failed. Please try again.",
-  "updates": "Update",
   "updateCheck": "Check for updates",
   "updateChecking": "Checking for updates...",
   "updateNoUpdates": "You're up to date",
@@ -174,5 +173,10 @@
     }
   },
   "connectNetworkError": "Network error while connecting.",
-  "connectError": "Failed to connect."
+  "connectError": "Failed to connect.",
+  "utility": "Utility",
+  "createShortcut": "Create desktop shortcut",
+  "deleteShortcut": "Delete desktop shortcut",
+  "shortcutCreated": "Desktop shortcut created",
+  "shortcutDeleted": "Desktop shortcut deleted"
 }

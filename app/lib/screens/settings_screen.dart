@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io' show File, Platform, Process;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
@@ -56,12 +56,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController _connectIpCtrl = TextEditingController();
   bool _pairing = false;
   bool _connecting = false;
+  bool? _shortcutExists; // null = still checking, Windows only
   String _appVersion = '';
 
   @override
   void initState() {
     super.initState();
     _loadVersion();
+    if (Platform.isWindows) _refreshShortcutState();
   }
 
   Future<void> _loadVersion() async {
@@ -70,6 +72,92 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) setState(() => _appVersion = info.version);
     } catch (_) {
       // no package metadata (e.g. running raw) — leave blank
+    }
+  }
+
+  // ─── Windows desktop shortcut ────────────────────────────────
+
+  Future<void> _refreshShortcutState() async {
+    final exists = await _shortcutExistsOnDesktop();
+    if (mounted) setState(() => _shortcutExists = exists);
+  }
+
+  Future<bool> _shortcutExistsOnDesktop() async {
+    try {
+      final r = await Process.run('powershell', [
+        '-NoProfile',
+        '-Command',
+        "Test-Path (Join-Path ([Environment]::GetFolderPath('Desktop')) 'QuestLoad.lnk')",
+      ]);
+      return (r.stdout as String).trim().toLowerCase() == 'true';
+    } catch (e) {
+      LogService.error('Shortcut check failed: $e');
+      return false;
+    }
+  }
+
+  Future<void> _toggleShortcut() async {
+    final exists = _shortcutExists ?? false;
+    final ok = exists ? await _deleteShortcut() : await _createShortcut();
+    if (!ok) return;
+    await _refreshShortcutState();
+    if (!mounted) return;
+    final l = AppLocalizations.of(context)!;
+    QLToast.show(
+      context,
+      exists ? l.shortcutDeleted : l.shortcutCreated,
+      kind: QLToastKind.success,
+    );
+  }
+
+  Future<bool> _createShortcut() async {
+    try {
+      final exe = Platform.resolvedExecutable;
+      final dir = File(exe).parent.path;
+      // Single-quoted PS literals: quotes/dollars in the path can't alter
+      // the script.
+      String ps(String s) => "'${s.replaceAll("'", "''")}'";
+      final script =
+          '''
+\$exe = ${ps(exe)}
+\$dir = ${ps(dir)}
+\$desktop = [Environment]::GetFolderPath('Desktop')
+\$lnk = Join-Path \$desktop 'QuestLoad.lnk'
+\$ws = New-Object -ComObject WScript.Shell
+\$s = \$ws.CreateShortcut(\$lnk)
+\$s.TargetPath = \$exe
+\$s.WorkingDirectory = \$dir
+\$s.IconLocation = "\$exe,0"
+\$s.Description = 'QuestLoad'
+\$s.Save()
+''';
+      final r = await Process.run('powershell', [
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-Command',
+        script,
+      ]);
+      return r.exitCode == 0;
+    } catch (e) {
+      LogService.error('Shortcut create failed: $e');
+      return false;
+    }
+  }
+
+  Future<bool> _deleteShortcut() async {
+    try {
+      final r = await Process.run('powershell', [
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-Command',
+        "\$lnk = Join-Path ([Environment]::GetFolderPath('Desktop')) 'QuestLoad.lnk'; if (Test-Path \$lnk) { Remove-Item \$lnk -Force }",
+      ]);
+      return r.exitCode == 0;
+    } catch (e) {
+      LogService.error('Shortcut delete failed: $e');
+      return false;
     }
   }
 
@@ -144,9 +232,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
 
-      // ─── Update ─────────────────────────────────────────────
+      // ─── Utility ────────────────────────────────────────────
       const SizedBox(height: 24),
-      Text(l.updates, style: textTheme.titleLarge),
+      Text(l.utility, style: textTheme.titleLarge),
       const SizedBox(height: 12.0),
       _SectionCard(
         c: c,
@@ -165,6 +253,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             loading: false,
             onPressed: widget.onCheckForUpdates,
           ),
+          if (Platform.isWindows) ...[
+            const SizedBox(height: 8),
+            QLButton(
+              label: (_shortcutExists ?? false)
+                  ? l.deleteShortcut
+                  : l.createShortcut,
+              loading: _shortcutExists == null,
+              onPressed: _shortcutExists == null ? null : _toggleShortcut,
+            ),
+          ],
         ],
       ),
 

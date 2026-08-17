@@ -808,12 +808,6 @@ abstract class AppLocalizations {
   /// **'Update failed. Please try again.'**
   String get updateFailed;
 
-  /// No description provided for @updates.
-  ///
-  /// In en, this message translates to:
-  /// **'Update'**
-  String get updates;
-
   /// No description provided for @updateCheck.
   ///
   /// In en, this message translates to:
@@ -1017,6 +1011,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to connect.'**
   String get connectError;
+
+  /// No description provided for @utility.
+  ///
+  /// In en, this message translates to:
+  /// **'Utility'**
+  String get utility;
+
+  /// No description provided for @createShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Create desktop shortcut'**
+  String get createShortcut;
+
+  /// No description provided for @deleteShortcut.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete desktop shortcut'**
+  String get deleteShortcut;
+
+  /// No description provided for @shortcutCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop shortcut created'**
+  String get shortcutCreated;
+
+  /// No description provided for @shortcutDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop shortcut deleted'**
+  String get shortcutDeleted;
 }
 
 class _AppLocalizationsDelegate

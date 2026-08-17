@@ -394,9 +394,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateFailed => 'Update failed. Please try again.';
 
   @override
-  String get updates => 'Update';
-
-  @override
   String get updateCheck => 'Check for updates';
 
   @override
@@ -507,4 +504,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connectError => 'Failed to connect.';
+
+  @override
+  String get utility => 'Utility';
+
+  @override
+  String get createShortcut => 'Create desktop shortcut';
+
+  @override
+  String get deleteShortcut => 'Delete desktop shortcut';
+
+  @override
+  String get shortcutCreated => 'Desktop shortcut created';
+
+  @override
+  String get shortcutDeleted => 'Desktop shortcut deleted';
 }
