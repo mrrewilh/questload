@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../core/app_theme.dart';
@@ -444,6 +446,197 @@ class _QLSegmentState extends State<_QLSegment> {
                 fontWeight: widget.selected
                     ? FontWeight.w600
                     : FontWeight.normal,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── QL Toast ──────────────────────────────────────────────────────
+// Bottom-right matte cards, the plastic look, auto-dismiss. Replaces
+// SnackBars everywhere — one look, matches the theme.
+
+enum QLToastKind { info, success, error, warning }
+
+class QLToast {
+  QLToast._();
+
+  /// Most toasts allowed on screen at once — older ones fall off the top.
+  static const int maxToasts = 3;
+
+  // Live toasts, oldest first. Each carries an offset notifier so its
+  // position in the stack can be updated as the stack changes.
+  static final List<_ToastEntry> _active = [];
+
+  static void show(
+    BuildContext context,
+    String message, {
+    QLToastKind kind = QLToastKind.info,
+  }) {
+    // Grab the colors and text style here — the overlay sits outside the
+    // app's nested Theme, so the card can't resolve the selected theme.
+    final colors = context.ql;
+    final textStyle = Theme.of(context).textTheme.bodyLarge;
+    final overlay = Overlay.of(context, rootOverlay: true);
+    final offset = ValueNotifier<int>(0);
+    late final OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => _QLToastCard(
+        colors: colors,
+        textStyle: textStyle,
+        message: message,
+        kind: kind,
+        offset: offset,
+        onDismissed: () {
+          entry.remove();
+          _active.removeWhere((e) => e.overlay == entry);
+          _relayout();
+        },
+      ),
+    );
+    _active.add(_ToastEntry(entry, offset));
+    overlay.insert(entry);
+    // New toast sits at the bottom; drop the topmost when the stack is full.
+    if (_active.length > maxToasts) {
+      _active.removeAt(0).overlay.remove();
+    }
+    _relayout();
+  }
+
+  // Bottom-most toast gets offset 0, each one above gets +1.
+  static void _relayout() {
+    final n = _active.length;
+    for (var i = 0; i < n; i++) {
+      _active[i].offset.value = n - 1 - i;
+    }
+  }
+}
+
+class _ToastEntry {
+  final OverlayEntry overlay;
+  final ValueNotifier<int> offset;
+
+  _ToastEntry(this.overlay, this.offset);
+}
+
+class _QLToastCard extends StatefulWidget {
+  final QuestLoadColors colors;
+  final TextStyle? textStyle;
+  final String message;
+  final QLToastKind kind;
+  final ValueNotifier<int> offset;
+  final VoidCallback onDismissed;
+
+  const _QLToastCard({
+    required this.colors,
+    required this.textStyle,
+    required this.message,
+    required this.kind,
+    required this.offset,
+    required this.onDismissed,
+  });
+
+  @override
+  State<_QLToastCard> createState() => _QLToastCardState();
+}
+
+class _QLToastCardState extends State<_QLToastCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _anim;
+  Timer? _timer;
+  bool _dismissing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+    );
+    _anim = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+    _controller.forward();
+    _timer = Timer(const Duration(milliseconds: 3500), _dismiss);
+  }
+
+  Future<void> _dismiss() async {
+    if (_dismissing) return;
+    _dismissing = true;
+    await _controller.reverse();
+    widget.onDismissed();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.colors;
+    // Art only for the special ones — neutral theme color, never success/
+    // error red/green. Normal toasts are just text.
+    final icon = switch (widget.kind) {
+      QLToastKind.error => Icons.error_outline_rounded,
+      QLToastKind.warning => Icons.warning_amber_rounded,
+      _ => null,
+    };
+
+    return IgnorePointer(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: ValueListenableBuilder<int>(
+          valueListenable: widget.offset,
+          builder: (context, off, _) => AnimatedPadding(
+            duration: const Duration(milliseconds: 240),
+            curve: Curves.easeOutCubic,
+            padding: EdgeInsets.only(bottom: 24 + off * 64.0),
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(_anim),
+              child: FadeTransition(
+                opacity: _anim,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: c.card,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: c.cardBorder),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        if (icon != null) ...[
+                          Icon(icon, size: 20, color: c.textSecondary),
+                          const SizedBox(width: 12),
+                        ],
+                        Flexible(
+                          child: Text(widget.message, style: widget.textStyle),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

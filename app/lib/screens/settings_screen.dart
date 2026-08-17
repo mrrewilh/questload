@@ -242,13 +242,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icon(Icons.copy, size: 14, color: c.textSecondary),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: LogService.exportAll()));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l.logsCopied),
-                  backgroundColor: c.success,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+              QLToast.show(context, l.logsCopied, kind: QLToastKind.success);
             },
           ),
         ],
@@ -281,17 +275,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (ipPort.isEmpty || code.isEmpty) return;
 
     final l = AppLocalizations.of(context)!;
-    final c = context.ql;
 
     if (!ipPort.contains(':') || ipPort.split(':').length != 2) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l.invalidPairAddress),
-          backgroundColor: c.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      QLToast.show(context, l.invalidPairAddress, kind: QLToastKind.error);
       return;
     }
     final parts = ipPort.split(':');
@@ -299,13 +286,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final port = int.tryParse(parts[1].trim());
     if (port == null || ip.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l.invalidPairAddress),
-          backgroundColor: c.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      QLToast.show(context, l.invalidPairAddress, kind: QLToastKind.error);
       return;
     }
 
@@ -314,25 +295,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (!mounted) return;
     setState(() => _pairing = false);
 
-    ScaffoldMessenger.of(context).clearSnackBars();
     if (result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l.pairedSuccessfully),
-          backgroundColor: c.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      QLToast.show(context, l.pairedSuccessfully, kind: QLToastKind.success);
       _connectIpCtrl.text = ip;
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            adbErrorMessage(l, result.error ?? 'pair_failed', ip: ip),
-          ),
-          backgroundColor: c.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      QLToast.show(
+        context,
+        adbErrorMessage(l, result.error ?? 'pair_failed', ip: ip),
+        kind: QLToastKind.error,
       );
     }
   }
@@ -355,25 +325,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => _connecting = false);
 
     final l = AppLocalizations.of(context)!;
-    final c = context.ql;
-    ScaffoldMessenger.of(context).clearSnackBars();
     if (result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$ip ${l.connected}'),
-          backgroundColor: c.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      QLToast.show(context, '$ip ${l.connected}', kind: QLToastKind.success);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            adbErrorMessage(l, result.error ?? 'connect_failed', ip: ip),
-          ),
-          backgroundColor: c.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      QLToast.show(
+        context,
+        adbErrorMessage(l, result.error ?? 'connect_failed', ip: ip),
+        kind: QLToastKind.error,
       );
     }
   }

@@ -8,6 +8,7 @@ import '../services/adb_service.dart';
 import '../services/log_service.dart';
 import '../core/app_theme.dart';
 import '../core/constants.dart';
+import '../widgets/ql_widgets.dart';
 
 /// Maps a device model name to the matching headset SVG asset.
 String _svgForModel(String? model) {
@@ -209,26 +210,14 @@ class DeviceScreenState extends State<DeviceScreen>
   Future<void> _connectToIp(String ip, int port) async {
     final result = await widget.adb.connect(ip, port: port);
     if (!mounted) return;
-    final c = context.ql;
     final l = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).clearSnackBars();
     if (result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$ip ${l.connected}'),
-          backgroundColor: c.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      QLToast.show(context, '$ip ${l.connected}', kind: QLToastKind.success);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            adbErrorMessage(l, result.error ?? 'connect_failed', ip: ip),
-          ),
-          backgroundColor: c.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      QLToast.show(
+        context,
+        adbErrorMessage(l, result.error ?? 'connect_failed', ip: ip),
+        kind: QLToastKind.error,
       );
     }
     _refresh();

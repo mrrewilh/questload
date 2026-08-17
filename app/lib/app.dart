@@ -22,6 +22,7 @@ import 'screens/device_screen.dart';
 import 'screens/downloads_screen.dart';
 import 'screens/settings_screen.dart';
 import 'core/app_theme.dart';
+import 'widgets/ql_widgets.dart';
 
 class QuestLoadApp extends StatefulWidget {
   final AdbService adb;
@@ -327,12 +328,10 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     if (!mounted) return;
     if (!result.reachable) {
       if (showUpToDate) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.updateUnreachable),
-            backgroundColor: context.ql.error,
-            behavior: SnackBarBehavior.floating,
-          ),
+        QLToast.show(
+          context,
+          AppLocalizations.of(context)!.updateUnreachable,
+          kind: QLToastKind.error,
         );
       }
       return;
@@ -340,12 +339,10 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     final update = result.info;
     if (update == null) {
       if (showUpToDate) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.updateNoUpdates),
-            backgroundColor: context.ql.success,
-            behavior: SnackBarBehavior.floating,
-          ),
+        QLToast.show(
+          context,
+          AppLocalizations.of(context)!.updateNoUpdates,
+          kind: QLToastKind.success,
         );
       }
       return;
@@ -373,12 +370,10 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       final zip = await UpdateService.downloadAndVerify(update);
       if (!mounted) return;
       if (zip == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.updateFailed),
-            backgroundColor: context.ql.error,
-            behavior: SnackBarBehavior.floating,
-          ),
+        QLToast.show(
+          context,
+          AppLocalizations.of(context)!.updateFailed,
+          kind: QLToastKind.error,
         );
         return;
       }
