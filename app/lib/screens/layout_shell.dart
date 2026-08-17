@@ -7,9 +7,11 @@ import '../l10n/app_localizations.dart';
 import '../core/app_theme.dart';
 
 enum AppLayout { sidebar, compact }
+
 enum AppPage { home, library, device, downloads, settings }
 
-bool _isDesktopPlatform() => Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+bool _isDesktopPlatform() =>
+    Platform.isLinux || Platform.isWindows || Platform.isMacOS;
 
 class LayoutShell extends StatefulWidget {
   final Widget home, library, device, downloads, settings;
@@ -20,8 +22,12 @@ class LayoutShell extends StatefulWidget {
   final VoidCallback onToggleLayout;
 
   const LayoutShell({
-    super.key, required this.home, required this.library,
-    required this.device, required this.downloads, required this.settings,
+    super.key,
+    required this.home,
+    required this.library,
+    required this.device,
+    required this.downloads,
+    required this.settings,
     this.showDeviceTab = true,
     this.deviceConnected = false,
     this.layout = AppLayout.sidebar,
@@ -33,7 +39,8 @@ class LayoutShell extends StatefulWidget {
   State<LayoutShell> createState() => LayoutShellState();
 }
 
-class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin {
+class LayoutShellState extends State<LayoutShell>
+    with TickerProviderStateMixin {
   AppPage _currentPage = AppPage.home;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   static const double _break = 700.0;
@@ -58,12 +65,12 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
   }
 
   Widget _buildCurrentPage() => switch (_currentPage) {
-        AppPage.home => widget.home,
-        AppPage.library => widget.library,
-        AppPage.device => widget.device,
-        AppPage.downloads => widget.downloads,
-        AppPage.settings => widget.settings,
-      };
+    AppPage.home => widget.home,
+    AppPage.library => widget.library,
+    AppPage.device => widget.device,
+    AppPage.downloads => widget.downloads,
+    AppPage.settings => widget.settings,
+  };
 
   @override
   void initState() {
@@ -88,11 +95,19 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
           Positioned.fill(child: ColoredBox(color: c.navBg)),
           Row(
             children: [
-              SidebarOrSpacer(layout: widget.layout, pages: pages, parent: this),
+              SidebarOrSpacer(
+                layout: widget.layout,
+                pages: pages,
+                parent: this,
+              ),
               Expanded(
                 child: Column(
                   children: [
-                    _BarSection(layout: widget.layout, pages: pages, parent: this),
+                    _BarSection(
+                      layout: widget.layout,
+                      pages: pages,
+                      parent: this,
+                    ),
                     Expanded(
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
@@ -104,7 +119,11 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
                         ),
                       ),
                     ),
-                    _BottomNavBuilder(layout: widget.layout, pages: pages, parent: this),
+                    _BottomNavBuilder(
+                      layout: widget.layout,
+                      pages: pages,
+                      parent: this,
+                    ),
                   ],
                 ),
               ),
@@ -134,14 +153,20 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
       height: _barHeight,
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       decoration: showBorder
-          ? BoxDecoration(border: Border(bottom: BorderSide(color: c.cardBorder)))
+          ? BoxDecoration(
+              border: Border(bottom: BorderSide(color: c.cardBorder)),
+            )
           : null,
       alignment: Alignment.centerLeft,
       child: _logoSvg(c),
     );
   }
 
-  Widget _logoSvg(QuestLoadColors c, {double logoWidth = 90, double logoHeight = 28}) {
+  Widget _logoSvg(
+    QuestLoadColors c, {
+    double logoWidth = 90,
+    double logoHeight = 28,
+  }) {
     final l = AppLocalizations.of(context)!;
     return Semantics(
       image: true,
@@ -149,29 +174,30 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
       child: IgnorePointer(
         child: SvgPicture.asset(
           'assets/text.svg',
-          colorFilter: ColorFilter.mode(
-              c.textPrimary,
-              BlendMode.srcIn),
+          colorFilter: ColorFilter.mode(c.textPrimary, BlendMode.srcIn),
           width: logoWidth,
           height: logoHeight,
-          placeholderBuilder: (_) => Text(l.logoAlt,
-              style: TextStyle(
-                  color: c.textPrimary,
-                  fontSize: logoHeight * 0.6,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.3)),
+          placeholderBuilder: (_) => Text(
+            l.logoAlt,
+            style: TextStyle(
+              color: c.textPrimary,
+              fontSize: logoHeight * 0.6,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.3,
+            ),
+          ),
         ),
       ),
     );
   }
 
   String _pageTitle(AppLocalizations l) => switch (_currentPage) {
-        AppPage.home => l.home,
-        AppPage.library => l.library,
-        AppPage.device => l.device,
-        AppPage.downloads => l.downloads,
-        AppPage.settings => l.settings,
-      };
+    AppPage.home => l.home,
+    AppPage.library => l.library,
+    AppPage.device => l.device,
+    AppPage.downloads => l.downloads,
+    AppPage.settings => l.settings,
+  };
 
   // ─── WINDOW BUTTONS (theme-aware) ─────────────────────────────
   Widget _windowButtons(QuestLoadColors c) {
@@ -181,28 +207,46 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _circleBtn(Icons.horizontal_rule_rounded, () async {
-            if (await windowManager.isMaximized()) await windowManager.restore();
-            await windowManager.minimize();
-          },
-              c.textSecondary, c.navActiveBg),
-          _circleBtn(Icons.crop_square_rounded, () async {
-            if (await windowManager.isMaximized()) {
-              await windowManager.restore();
-            } else {
-              await windowManager.maximize();
-            }
-          },
-              c.textSecondary, c.navActiveBg),
-          _circleBtn(Icons.close, () => windowManager.close(),
-              c.textSecondary, c.navActiveBg),
+          _circleBtn(
+            Icons.horizontal_rule_rounded,
+            () async {
+              if (await windowManager.isMaximized()) {
+                await windowManager.restore();
+              }
+              await windowManager.minimize();
+            },
+            c.textSecondary,
+            c.navActiveBg,
+          ),
+          _circleBtn(
+            Icons.crop_square_rounded,
+            () async {
+              if (await windowManager.isMaximized()) {
+                await windowManager.restore();
+              } else {
+                await windowManager.maximize();
+              }
+            },
+            c.textSecondary,
+            c.navActiveBg,
+          ),
+          _circleBtn(
+            Icons.close,
+            () => windowManager.close(),
+            c.textSecondary,
+            c.navActiveBg,
+          ),
         ],
       ),
     );
   }
 
   Widget _circleBtn(
-      IconData icon, VoidCallback onPressed, Color iconColor, Color hoverBg) {
+    IconData icon,
+    VoidCallback onPressed,
+    Color iconColor,
+    Color hoverBg,
+  ) {
     return Semantics(
       button: true,
       child: SizedBox(
@@ -215,9 +259,7 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
             customBorder: const CircleBorder(),
             onTap: _isDesktop ? onPressed : null,
             hoverColor: hoverBg.withValues(alpha: 0.5),
-            child: Center(
-              child: Icon(icon, size: 12, color: iconColor),
-            ),
+            child: Center(child: Icon(icon, size: 12, color: iconColor)),
           ),
         ),
       ),
@@ -260,20 +302,30 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
             onTap: () => navigate(page),
             hoverColor: c.navActiveBg.withValues(alpha: 0.5),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 10,
+              ),
               child: Row(
                 children: [
                   _maybeDeviceBadge(
-                    Icon(icon, size: 20,
-                        color: isActive ? c.textPrimary : c.textMuted),
+                    Icon(
+                      icon,
+                      size: 20,
+                      color: isActive ? c.textPrimary : c.textMuted,
+                    ),
                     page,
                   ),
                   const SizedBox(width: 12.0),
-                  Text(label,
-                      style: textTheme.titleMedium?.copyWith(
-                          color: isActive ? c.textPrimary : c.textSecondary,
-                          fontWeight:
-                              isActive ? FontWeight.w500 : FontWeight.normal)),
+                  Text(
+                    label,
+                    style: textTheme.titleMedium?.copyWith(
+                      color: isActive ? c.textPrimary : c.textSecondary,
+                      fontWeight: isActive
+                          ? FontWeight.w500
+                          : FontWeight.normal,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -313,15 +365,19 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
           return Stack(
             children: [
               Positioned.fill(child: _moveWindow(Container())),
-              Positioned(
-                left: 0, top: 0, bottom: 0,
-                child: _logoWidget()),
+              Positioned(left: 0, top: 0, bottom: 0, child: _logoWidget()),
               Center(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ...pages.map((p) => _ctab(_iconFor(p), _labelFor(p, l), p,
-                        compact: !useSideBySide)),
+                    ...pages.map(
+                      (p) => _ctab(
+                        _iconFor(p),
+                        _labelFor(p, l),
+                        p,
+                        compact: !useSideBySide,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -332,8 +388,12 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
     );
   }
 
-  Widget _ctab(IconData icon, String label, AppPage page,
-      {bool compact = false}) {
+  Widget _ctab(
+    IconData icon,
+    String label,
+    AppPage page, {
+    bool compact = false,
+  }) {
     final c = context.ql;
     final isActive = page == _currentPage;
     return Semantics(
@@ -353,43 +413,54 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
               padding: compact
                   ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0)
                   : const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration:
-                  BoxDecoration(borderRadius: BorderRadius.circular(6)),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
               child: compact
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _maybeDeviceBadge(
-                          Icon(icon, size: 18,
-                              color: isActive ? c.textPrimary : c.textMuted),
+                          Icon(
+                            icon,
+                            size: 18,
+                            color: isActive ? c.textPrimary : c.textMuted,
+                          ),
                           page,
                         ),
                         const SizedBox(height: 2),
-                        Text(label,
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: isActive ? c.textPrimary : c.textMuted,
-                                fontWeight: isActive
-                                    ? FontWeight.w500
-                                    : FontWeight.normal)),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isActive ? c.textPrimary : c.textMuted,
+                            fontWeight: isActive
+                                ? FontWeight.w500
+                                : FontWeight.normal,
+                          ),
+                        ),
                       ],
                     )
                   : Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _maybeDeviceBadge(
-                          Icon(icon, size: 16,
-                              color: isActive ? c.textPrimary : c.textMuted),
+                          Icon(
+                            icon,
+                            size: 16,
+                            color: isActive ? c.textPrimary : c.textMuted,
+                          ),
                           page,
                         ),
                         const SizedBox(width: 5),
-                        Text(label,
-                            style: TextStyle(
-                                color: isActive ? c.textPrimary : c.textMuted,
-                                fontSize: 13,
-                                fontWeight: isActive
-                                    ? FontWeight.w500
-                                    : FontWeight.normal)),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            color: isActive ? c.textPrimary : c.textMuted,
+                            fontSize: 13,
+                            fontWeight: isActive
+                                ? FontWeight.w500
+                                : FontWeight.normal,
+                          ),
+                        ),
                       ],
                     ),
             ),
@@ -402,14 +473,16 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
   // ─── COMPACT NARROW TITLE BAR ───────────────────────────────────
   Widget _compactNarrowTitleBar() {
     final c = context.ql;
-    return _moveWindow(Container(
-      height: _barHeight,
-      decoration: BoxDecoration(
-        color: c.navBg,
-        border: Border(bottom: BorderSide(color: c.cardBorder)),
+    return _moveWindow(
+      Container(
+        height: _barHeight,
+        decoration: BoxDecoration(
+          color: c.navBg,
+          border: Border(bottom: BorderSide(color: c.cardBorder)),
+        ),
+        child: Row(children: [_logoWidget(), const Spacer()]),
       ),
-      child: Row(children: [_logoWidget(), const Spacer()]),
-    ));
+    );
   }
 
   // ─── MOBILE TOP BAR ─────────────────────────────────────────────
@@ -462,7 +535,9 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [...pages.map((p) => _navItem(_iconFor(p), _labelFor(p, l), p))],
+        children: [
+          ...pages.map((p) => _navItem(_iconFor(p), _labelFor(p, l), p)),
+        ],
       ),
     );
   }
@@ -474,7 +549,9 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
       button: true,
       selected: isActive,
       child: Material(
-        color: isActive ? c.navActiveBg.withValues(alpha: 0.3) : Colors.transparent,
+        color: isActive
+            ? c.navActiveBg.withValues(alpha: 0.3)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
@@ -487,15 +564,21 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _maybeDeviceBadge(
-                  Icon(icon, size: 22,
-                      color: isActive ? c.textPrimary : c.textMuted),
+                  Icon(
+                    icon,
+                    size: 22,
+                    color: isActive ? c.textPrimary : c.textMuted,
+                  ),
                   page,
                 ),
                 const SizedBox(height: 2),
-                Text(label,
-                    style: TextStyle(
-                        fontSize: 9,
-                        color: isActive ? c.textPrimary : c.textMuted)),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: isActive ? c.textPrimary : c.textMuted,
+                  ),
+                ),
               ],
             ),
           ),
@@ -537,10 +620,13 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
         Icon(icon, color: isActive ? c.textPrimary : c.textMuted),
         page,
       ),
-      title: Text(label,
-          style: TextStyle(
-              color: isActive ? c.textPrimary : c.textSecondary,
-              fontWeight: isActive ? FontWeight.w500 : FontWeight.normal)),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: isActive ? c.textPrimary : c.textSecondary,
+          fontWeight: isActive ? FontWeight.w500 : FontWeight.normal,
+        ),
+      ),
       selected: isActive,
       selectedTileColor: c.navActiveBg,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -587,20 +673,20 @@ class LayoutShellState extends State<LayoutShell> with TickerProviderStateMixin 
   }
 
   IconData _iconFor(AppPage page) => switch (page) {
-        AppPage.home => Icons.home_rounded,
-        AppPage.library => Icons.grid_view_rounded,
-        AppPage.device => Icons.tablet_rounded,
-        AppPage.downloads => Icons.download_rounded,
-        AppPage.settings => Icons.settings_rounded,
-      };
+    AppPage.home => Icons.home_rounded,
+    AppPage.library => Icons.grid_view_rounded,
+    AppPage.device => Icons.tablet_rounded,
+    AppPage.downloads => Icons.download_rounded,
+    AppPage.settings => Icons.settings_rounded,
+  };
 
   String _labelFor(AppPage page, AppLocalizations l) => switch (page) {
-        AppPage.home => l.home,
-        AppPage.library => l.library,
-        AppPage.device => l.device,
-        AppPage.downloads => l.downloads,
-        AppPage.settings => l.settings,
-      };
+    AppPage.home => l.home,
+    AppPage.library => l.library,
+    AppPage.device => l.device,
+    AppPage.downloads => l.downloads,
+    AppPage.settings => l.settings,
+  };
 }
 
 // ─── Layout-aware widgets ─────────────────────────────────────

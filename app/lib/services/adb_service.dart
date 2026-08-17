@@ -5,6 +5,7 @@ import 'device_service.dart';
 import 'log_service.dart';
 import 'mdns_scanner.dart';
 import '../core/constants.dart';
+import '../l10n/app_localizations.dart';
 
 /// ADB service using the bundled ADB binary.
 ///
@@ -12,6 +13,9 @@ import '../core/constants.dart';
 /// as `platform-tools/adb`). No system ADB is needed, no PATH lookup.
 ///
 /// On first run the binary is verified; if missing the app shows an error.
+///
+/// Error reporting: controlled failures return a short error *code*
+/// (see [adbErrorMessage]); raw adb output passes through unchanged.
 class AdbService {
   String? _adbPath;
   MdnsScanner? _scanner;
@@ -22,14 +26,8 @@ class AdbService {
 
   //- Find bundled ADB ─
 
-  /// Locate the ADB binary — system PATH on Linux, bundled+bundled fallback
-  /// on other platforms.
-  ///
-  /// 
-  /// 
-  /// Linux System PATH only (distro dependency via `android-tools` / `adb`) 
-  /// | Windows Bundled `platform-tools/adb.exe`, fallback to PATH 
-  /// | macOS Bundled `platform-tools/adb`, fallback to PATH 
+  /// Locate the ADB binary — system PATH on Linux, bundled platform-tools
+  /// on Windows/macOS with a PATH fallback.
   ///
   /// Uses a [Completer] so concurrent callers wait for the first result
   /// instead of racing and getting an empty string.
@@ -43,8 +41,9 @@ class AdbService {
     if (Platform.isLinux) {
       // Linux: system ADB only, bundled from distro
       try {
-        final result = await Process.run('adb', ['--version'])
-            .timeout(kAdbCommandTimeout);
+        final result = await Process.run('adb', [
+          '--version',
+        ]).timeout(kAdbCommandTimeout);
         if (result.exitCode == 0) {
           LogService.info('ADB found on system PATH');
           return _completeFind('adb');
@@ -94,8 +93,9 @@ class AdbService {
       try {
         final file = File(adbPath);
         if (await file.exists()) {
-          final result = await Process.run(adbPath, ['--version'])
-              .timeout(kAdbCommandTimeout);
+          final result = await Process.run(adbPath, [
+            '--version',
+          ]).timeout(kAdbCommandTimeout);
           if (result.exitCode == 0) {
             LogService.info('ADB found at $adbPath');
             return _completeFind(adbPath);
@@ -110,8 +110,9 @@ class AdbService {
 
     // Fallback: system PATH
     try {
-      final result = await Process.run('adb', ['--version'])
-          .timeout(kAdbCommandTimeout);
+      final result = await Process.run('adb', [
+        '--version',
+      ]).timeout(kAdbCommandTimeout);
       if (result.exitCode == 0) {
         LogService.info('ADB found on system PATH');
         return _completeFind('adb');
@@ -144,22 +145,20 @@ class AdbService {
   Future<AdbPairResult> pair(String ip, int port, String code) async {
     final adb = await _findAdb();
     if (adb.isEmpty) {
-      return const AdbPairResult(
-        success: false,
-        error: 'Bundled ADB not found.',
-      );
+      return const AdbPairResult(success: false, error: 'adb_missing');
     }
 
     LogService.info('Pairing with $ip:$port');
 
     try {
-      final result = await Process.run(
-        adb,
-        ['pair', '$ip:$port', code],
-      ).timeout(kAdbCommandTimeout);
+      final result = await Process.run(adb, [
+        'pair',
+        '$ip:$port',
+        code,
+      ]).timeout(kAdbCommandTimeout);
 
-      final output = (result.stdout?.toString() ?? '') +
-          (result.stderr?.toString() ?? '');
+      final output =
+          (result.stdout?.toString() ?? '') + (result.stderr?.toString() ?? '');
 
       if (output.contains('Successfully paired') ||
           output.contains('already paired')) {
@@ -168,54 +167,42 @@ class AdbService {
         return AdbPairResult(success: true);
       }
 
-      if (output.contains('wrong code') ||
-          output.contains('incorrect')) {
-        return const AdbPairResult(
-          success: false,
-          error: 'Wrong pairing code. Check the code on your Quest.',
-        );
+      if (output.contains('wrong code') || output.contains('incorrect')) {
+        return const AdbPairResult(success: false, error: 'pair_wrong_code');
       }
 
       if (output.contains('refused')) {
-        return AdbPairResult(
-          success: false,
-          error: 'Pairing refused. Make sure the Quest is showing the '
-              'pairing code screen (Settings → Developer → '
-              'Wireless Debugging → Pair using pairing code).',
-        );
+        return const AdbPairResult(success: false, error: 'pair_refused');
       }
 
       return AdbPairResult(
         success: false,
-        error: output.isNotEmpty ? output.trim() : 'Pairing failed.',
+        error: output.isNotEmpty ? output.trim() : 'pair_failed',
       );
     } on TimeoutException {
-      return AdbPairResult(
-        success: false,
-        error: 'Pairing timed out. Is $ip reachable?',
-      );
+      return const AdbPairResult(success: false, error: 'pair_timeout');
     } catch (e) {
-      return AdbPairResult(
-        success: false,
-        error: 'Pairing error: $e',
-      );
+      LogService.error('Pairing failed: $e');
+      return const AdbPairResult(success: false, error: 'pair_error');
     }
   }
 
   // ─── Connection ──────────────────────────────────────────────────
 
-  Future<AdbConnectResult> connect(String ip, {int port = kDefaultAdbPort}) async {
+  Future<AdbConnectResult> connect(
+    String ip, {
+    int port = kDefaultAdbPort,
+  }) async {
     final adb = await _findAdb();
     if (adb.isEmpty) {
-      return const AdbConnectResult(
-        success: false,
-        error: 'Bundled ADB not found. The app installation may be corrupted.',
-      );
+      return const AdbConnectResult(success: false, error: 'adb_corrupted');
     }
 
     try {
-      final result = await Process.run(adb, ['connect', '$ip:$port'])
-          .timeout(kAdbCommandTimeout);
+      final result = await Process.run(adb, [
+        'connect',
+        '$ip:$port',
+      ]).timeout(kAdbCommandTimeout);
 
       // Only check stdout — stderr may contain noise even on success.
       final stdout = (result.stdout?.toString() ?? '').trim();
@@ -224,10 +211,13 @@ class AdbService {
           stdout.contains('already connected')) {
         await refreshDevices();
 
-        final serialResult = await Process.run(
-          adb,
-          ['-s', '$ip:$port', 'shell', 'getprop', 'ro.serialno'],
-        ).timeout(kAdbShellTimeout);
+        final serialResult = await Process.run(adb, [
+          '-s',
+          '$ip:$port',
+          'shell',
+          'getprop',
+          'ro.serialno',
+        ]).timeout(kAdbShellTimeout);
         final serial = (serialResult.stdout?.toString() ?? '').trim();
         final deviceSerial = serial.isNotEmpty ? serial : '$ip:$port';
 
@@ -243,33 +233,22 @@ class AdbService {
       final full = '$stdout\n$stderr';
 
       if (full.contains('refused') || full.contains('unable to connect')) {
-        return AdbConnectResult(
-          success: false,
-          error: 'Connection refused. Make sure wireless debugging is enabled '
-              'on the Quest (Developer Options → Wireless Debugging).',
-        );
+        return const AdbConnectResult(success: false, error: 'connect_refused');
       }
 
       final msg = [stdout, stderr].where((s) => s.isNotEmpty).join('\n');
       return AdbConnectResult(
         success: false,
-        error: msg.isNotEmpty ? msg.trim() : 'Connection failed.',
+        error: msg.isNotEmpty ? msg.trim() : 'connect_failed',
       );
     } on TimeoutException {
-      return AdbConnectResult(
-        success: false,
-        error: 'Connection timed out. Is $ip reachable on the network?',
-      );
+      return const AdbConnectResult(success: false, error: 'connect_timeout');
     } on SocketException catch (e) {
-      return AdbConnectResult(
-        success: false,
-        error: 'Network error: ${e.message}',
-      );
+      LogService.error('Network error while connecting: $e');
+      return const AdbConnectResult(success: false, error: 'network_error');
     } catch (e) {
-      return AdbConnectResult(
-        success: false,
-        error: 'Failed to connect: $e',
-      );
+      LogService.error('Connect failed: $e');
+      return const AdbConnectResult(success: false, error: 'connect_error');
     }
   }
 
@@ -278,8 +257,10 @@ class AdbService {
     if (adb.isEmpty) return false;
 
     try {
-      final result = await Process.run(adb, ['disconnect', serial])
-          .timeout(kAdbConnectTimeout);
+      final result = await Process.run(adb, [
+        'disconnect',
+        serial,
+      ]).timeout(kAdbConnectTimeout);
       _cachedSerials.remove(serial);
       return result.exitCode == 0;
     } catch (_) {
@@ -306,8 +287,9 @@ class AdbService {
     _cachedSerials.clear();
 
     try {
-      final result = await Process.run(adb, ['devices'])
-          .timeout(kAdbConnectTimeout);
+      final result = await Process.run(adb, [
+        'devices',
+      ]).timeout(kAdbConnectTimeout);
       final lines = (result.stdout?.toString() ?? '').split('\n');
 
       for (final line in lines) {
@@ -332,8 +314,12 @@ class AdbService {
     if (adb.isEmpty) return '';
 
     try {
-      final result = await Process.run(adb, ['-s', serial, 'shell', command])
-          .timeout(kAdbShellTimeout);
+      final result = await Process.run(adb, [
+        '-s',
+        serial,
+        'shell',
+        command,
+      ]).timeout(kAdbShellTimeout);
       return result.stdout?.toString() ?? '';
     } catch (e) {
       LogService.error('ADB shell error: $e');
@@ -383,10 +369,14 @@ class AdbService {
     if (adb.isEmpty) return false;
 
     try {
-      final result = await Process.run(
-        adb,
-        ['-s', serial, 'install', '-r', '-d', apkPath],
-      ).timeout(kAdbInstallTimeout);
+      final result = await Process.run(adb, [
+        '-s',
+        serial,
+        'install',
+        '-r',
+        '-d',
+        apkPath,
+      ]).timeout(kAdbInstallTimeout);
       return (result.stdout?.toString() ?? '').contains('Success');
     } catch (e) {
       LogService.error('ADB install error: $e');
@@ -399,10 +389,12 @@ class AdbService {
     if (adb.isEmpty) return false;
 
     try {
-      final result = await Process.run(
-        adb,
-        ['-s', serial, 'uninstall', packageName],
-      ).timeout(kAdbUninstallTimeout);
+      final result = await Process.run(adb, [
+        '-s',
+        serial,
+        'uninstall',
+        packageName,
+      ]).timeout(kAdbUninstallTimeout);
       final output = result.stdout?.toString() ?? '';
       return output.contains('Success') || output.contains('Deleted');
     } catch (e) {
@@ -413,7 +405,9 @@ class AdbService {
 
   // ─── Discovery ───────────────────────────────────────────────────
 
-  Future<List<MdnsDiscoveredDevice>> scan({int timeoutSeconds = kMdnsTimeoutSeconds}) async {
+  Future<List<MdnsDiscoveredDevice>> scan({
+    int timeoutSeconds = kMdnsTimeoutSeconds,
+  }) async {
     _scanner ??= MdnsScanner();
     return await _scanner!.scan(timeoutSeconds: timeoutSeconds);
   }
@@ -432,4 +426,24 @@ class AdbService {
   Future<void> dispose() async {
     stopScan();
   }
+}
+
+/// Maps an [AdbService] error code to a localized message. Unknown codes
+/// (raw adb output) pass through unchanged.
+String adbErrorMessage(AppLocalizations l, String code, {String? ip}) {
+  return switch (code) {
+    'adb_missing' => l.adbMissingShort,
+    'adb_corrupted' => l.adbCorrupted,
+    'pair_wrong_code' => l.pairWrongCode,
+    'pair_refused' => l.pairRefused,
+    'pair_failed' => l.pairingFailed,
+    'pair_timeout' => l.pairTimeout(ip ?? ''),
+    'pair_error' => l.pairError,
+    'connect_refused' => l.connectRefused,
+    'connect_failed' => l.connectionFailed,
+    'connect_timeout' => l.connectTimeout(ip ?? ''),
+    'network_error' => l.connectNetworkError,
+    'connect_error' => l.connectError,
+    _ => code,
+  };
 }

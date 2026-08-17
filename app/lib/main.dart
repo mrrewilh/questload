@@ -7,7 +7,6 @@ import 'services/log_service.dart';
 import 'services/theme_service.dart';
 import 'services/adb_service.dart';
 import 'app.dart';
-import 'core/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,9 +30,12 @@ void main() async {
   await windowManager.ensureInitialized();
   await Window.initialize();
 
+  const initialSize = Size(900, 600);
+  const minSize = Size(480, 360);
+
   final windowOptions = WindowOptions(
-    size: kWindowInitialSize,
-    minimumSize: kWindowMinSize,
+    size: initialSize,
+    minimumSize: minSize,
     center: true,
     title: 'QuestLoad',
     titleBarStyle: TitleBarStyle.hidden,

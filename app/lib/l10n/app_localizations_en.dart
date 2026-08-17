@@ -434,4 +434,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateNoChangelog => 'No changelog for this version.';
+
+  @override
+  String aboutFlutterDart(String dartVersion) {
+    return 'Flutter • Dart $dartVersion';
+  }
+
+  @override
+  String get aboutVrAndroid => 'VR (Android)';
+
+  @override
+  String get aboutAndroid => 'Android';
+
+  @override
+  String get aboutMobileIos => 'Mobile (iOS)';
+
+  @override
+  String get aboutLinuxDesktop => 'Linux (Desktop)';
+
+  @override
+  String get aboutWindowsDesktop => 'Windows (Desktop)';
+
+  @override
+  String get aboutMacOsDesktop => 'macOS (Desktop)';
+
+  @override
+  String get aboutUnknown => 'Unknown';
+
+  @override
+  String get pairIpHint => 'IP:Port (e.g. 192.168.1.100:42831)';
+
+  @override
+  String get pairCodeHint => 'Code';
+
+  @override
+  String get connectIpHint => '192.168.1.100';
+
+  @override
+  String get adbMissingShort => 'Bundled ADB not found.';
+
+  @override
+  String get adbCorrupted =>
+      'Bundled ADB not found. The app installation may be corrupted.';
+
+  @override
+  String get pairWrongCode =>
+      'Wrong pairing code. Check the code on your Quest.';
+
+  @override
+  String get pairRefused =>
+      'Pairing refused. Make sure the Quest is showing the pairing code screen (Settings → Developer → Wireless Debugging → Pair using pairing code).';
+
+  @override
+  String pairTimeout(String ip) {
+    return 'Pairing timed out. Is $ip reachable?';
+  }
+
+  @override
+  String get pairError => 'Pairing error.';
+
+  @override
+  String get connectRefused =>
+      'Connection refused. Make sure wireless debugging is enabled on the Quest (Developer Options → Wireless Debugging).';
+
+  @override
+  String connectTimeout(String ip) {
+    return 'Connection timed out. Is $ip reachable on the network?';
+  }
+
+  @override
+  String get connectNetworkError => 'Network error while connecting.';
+
+  @override
+  String get connectError => 'Failed to connect.';
 }

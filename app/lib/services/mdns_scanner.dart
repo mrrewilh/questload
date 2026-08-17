@@ -14,7 +14,6 @@ import '../core/constants.dart';
 /// 1. [`multicast_dns`] Dart package — pure mDNS, no ADB server, works everywhere
 /// 2. `avahi-browse` on Linux (fallback if mDNS fails)
 class MdnsScanner {
-
   /// Scan for Quest VR devices on the local network.
   Future<List<MdnsDiscoveredDevice>> scan({
     int timeoutSeconds = kMdnsTimeoutSeconds,
@@ -59,48 +58,54 @@ class MdnsScanner {
       await client.start();
       final serviceName = '_adb-tls-connect._tcp.local';
 
-      await for (final ptr in client
-          .lookup<PtrResourceRecord>(
-            ResourceRecordQuery.serverPointer(serviceName),
-          )
-          .timeout(Duration(seconds: timeoutSeconds))) {
+      await for (final ptr
+          in client
+              .lookup<PtrResourceRecord>(
+                ResourceRecordQuery.serverPointer(serviceName),
+              )
+              .timeout(Duration(seconds: timeoutSeconds))) {
         // Resolve SRV record to get port and target hostname
         try {
-          await for (final srv in client
-              .lookup<SrvResourceRecord>(
-                ResourceRecordQuery.service(ptr.domainName),
-              )
-              .timeout(Duration(seconds: timeoutSeconds ~/ 2))) {
+          await for (final srv
+              in client
+                  .lookup<SrvResourceRecord>(
+                    ResourceRecordQuery.service(ptr.domainName),
+                  )
+                  .timeout(Duration(seconds: timeoutSeconds ~/ 2))) {
             // Resolve IPv4 address
             String? ip;
 
-            await for (final addr in client
-                .lookup<IPAddressResourceRecord>(
-                  ResourceRecordQuery.addressIPv4(srv.target),
-                )
-                .timeout(Duration(seconds: timeoutSeconds ~/ 2))) {
+            await for (final addr
+                in client
+                    .lookup<IPAddressResourceRecord>(
+                      ResourceRecordQuery.addressIPv4(srv.target),
+                    )
+                    .timeout(Duration(seconds: timeoutSeconds ~/ 2))) {
               ip = addr.address.address;
               break;
             }
 
             // Fallback: try IPv6 if IPv4 not found
             if (ip == null) {
-              await for (final addr in client
-                  .lookup<IPAddressResourceRecord>(
-                    ResourceRecordQuery.addressIPv6(srv.target),
-                  )
-                  .timeout(Duration(seconds: timeoutSeconds ~/ 2))) {
+              await for (final addr
+                  in client
+                      .lookup<IPAddressResourceRecord>(
+                        ResourceRecordQuery.addressIPv6(srv.target),
+                      )
+                      .timeout(Duration(seconds: timeoutSeconds ~/ 2))) {
                 ip = addr.address.address;
                 break;
               }
             }
 
             if (ip != null) {
-              results.add(MdnsDiscoveredDevice(
-                ip: ip,
-                port: srv.port,
-                name: ptr.domainName,
-              ));
+              results.add(
+                MdnsDiscoveredDevice(
+                  ip: ip,
+                  port: srv.port,
+                  name: ptr.domainName,
+                ),
+              );
             }
           }
         } on TimeoutException {
@@ -128,31 +133,28 @@ class MdnsScanner {
       '--terminate',
       '-p',
     ]);
+    // kill in finally so a timeout can't leak the process
+    try {
+      final lines = await process.stdout
+          .transform(const SystemEncoding().decoder)
+          .transform(const LineSplitter())
+          .where((line) => line.startsWith('='))
+          .toList()
+          .timeout(Duration(seconds: timeoutSeconds + 2));
 
-    final lines = await process.stdout
-        .transform(const SystemEncoding().decoder)
-        .transform(const LineSplitter())
-        .where((line) => line.startsWith('='))
-        .toList()
-        .timeout(Duration(seconds: timeoutSeconds + 2));
-
-    process.kill();
-
-    for (final line in lines) {
-      // =;interface;protocol;name;type;domain;hostname;ip;port;txt
-      final parts = line.split(';');
-      if (parts.length >= 9) {
-        final ip = parts[7];
-        final port = int.tryParse(parts[8]) ?? kDefaultAdbPort;
-        results.add(MdnsDiscoveredDevice(
-          ip: ip,
-          port: port,
-          name: parts[3],
-        ));
+      for (final line in lines) {
+        // =;interface;protocol;name;type;domain;hostname;ip;port;txt
+        final parts = line.split(';');
+        if (parts.length >= 9) {
+          final ip = parts[7];
+          final port = int.tryParse(parts[8]) ?? kDefaultAdbPort;
+          results.add(MdnsDiscoveredDevice(ip: ip, port: port, name: parts[3]));
+        }
       }
+      return results;
+    } finally {
+      process.kill();
     }
-
-    return results;
   }
 
   void stop() {

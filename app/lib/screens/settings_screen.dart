@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:silky_scroll/silky_scroll.dart';
 import '../l10n/app_localizations.dart';
 import '../services/adb_service.dart';
+import '../services/theme_brightness_service.dart';
 import '../services/log_service.dart';
 import '../core/app_theme.dart';
 import '../services/theme_service.dart';
@@ -89,10 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               padding: const EdgeInsets.all(24),
               children: _content(),
             )
-          : ListView(
-              padding: const EdgeInsets.all(24),
-              children: _content(),
-            ),
+          : ListView(padding: const EdgeInsets.all(24), children: _content()),
     );
   }
 
@@ -102,179 +100,178 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return [
-          // ─── Appearance ──────────────────────────────────────────
-          Text(l.appearance, style: textTheme.titleLarge),
-          const SizedBox(height: 12.0),
-          _SectionCard(
-            c: c,
-            children: [
-              _SettingRow(
-                title: l.toggleLayout,
-                subtitle: widget.isSidebarLayout ? l.sidebar : l.compactMode,
-                trailing: QLSwitch(
-                  value: widget.isSidebarLayout,
-                  onChanged: (_) => widget.onToggleLayout(),
+      // ─── Appearance ──────────────────────────────────────────
+      Text(l.appearance, style: textTheme.titleLarge),
+      const SizedBox(height: 12.0),
+      _SectionCard(
+        c: c,
+        children: [
+          _SettingRow(
+            title: l.toggleLayout,
+            subtitle: widget.isSidebarLayout ? l.sidebar : l.compactMode,
+            trailing: QLSwitch(
+              value: widget.isSidebarLayout,
+              onChanged: (_) => widget.onToggleLayout(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _SettingRow(
+            title: l.smoothScroll,
+            subtitle: widget.smoothScroll
+                ? l.smoothScrollOn
+                : l.smoothScrollOff,
+            trailing: QLSwitch(
+              value: widget.smoothScroll,
+              onChanged: (_) => widget.onToggleSmoothScroll(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _ThemePicker(
+            themes: widget.themes,
+            selectedId: widget.themeId,
+            themeMode: widget.themeMode,
+            isSidebarLayout: widget.isSidebarLayout,
+            smoothScroll: widget.smoothScroll,
+            onSelect: widget.onSelectTheme,
+          ),
+          if (widget.themeId == 'questload') ...[
+            const SizedBox(height: 12),
+            _ThemeModeRow(
+              mode: widget.themeMode,
+              onChanged: widget.onSelectThemeMode,
+            ),
+          ],
+        ],
+      ),
+
+      // ─── Update ─────────────────────────────────────────────
+      const SizedBox(height: 24),
+      Text(l.updates, style: textTheme.titleLarge),
+      const SizedBox(height: 12.0),
+      _SectionCard(
+        c: c,
+        children: [
+          _SettingRow(
+            title: l.updateAutoCheck,
+            subtitle: '',
+            trailing: QLSwitch(
+              value: widget.updateAutoCheck,
+              onChanged: (_) => widget.onToggleUpdateAutoCheck(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          QLButton(
+            label: l.updateCheck,
+            loading: false,
+            onPressed: widget.onCheckForUpdates,
+          ),
+        ],
+      ),
+
+      // ─── Advanced (pair + connect) ───────────────────────────
+      const SizedBox(height: 24),
+      Text(l.advanced, style: textTheme.titleLarge),
+      const SizedBox(height: 12.0),
+      _SectionCard(
+        c: c,
+        children: [
+          Text(l.pairWithCode, style: textTheme.bodyLarge),
+          const SizedBox(height: 8.0),
+          Text(l.pairWithCodeInstructions, style: textTheme.bodySmall),
+          const SizedBox(height: 10),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: QLTextField(
+                    controller: _pairIpCtrl,
+                    hint: l.pairIpHint,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              _SettingRow(
-                title: l.smoothScroll,
-                subtitle: widget.smoothScroll
-                    ? l.smoothScrollOn
-                    : l.smoothScrollOff,
-                trailing: QLSwitch(
-                  value: widget.smoothScroll,
-                  onChanged: (_) => widget.onToggleSmoothScroll(),
+                const SizedBox(width: 8.0),
+                Expanded(
+                  child: QLTextField(
+                    controller: _pairCodeCtrl,
+                    hint: l.pairCodeHint,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              _ThemePicker(
-                themes: widget.themes,
-                selectedId: widget.themeId,
-                isSidebarLayout: widget.isSidebarLayout,
-                smoothScroll: widget.smoothScroll,
-                onSelect: widget.onSelectTheme,
-              ),
-              if (widget.themeId == 'questload') ...[
-                const SizedBox(height: 12),
-                _ThemeModeRow(
-                  mode: widget.themeMode,
-                  onChanged: widget.onSelectThemeMode,
+                const SizedBox(width: 8.0),
+                QLButton(
+                  label: l.pair,
+                  loading: _pairing,
+                  onPressed: _pairing ? null : _doPair,
                 ),
               ],
-            ],
+            ),
           ),
-
-          // ─── Update ─────────────────────────────────────────────
-          const SizedBox(height: 24),
-          Text(l.updates, style: textTheme.titleLarge),
-          const SizedBox(height: 12.0),
-          _SectionCard(
-            c: c,
-            children: [
-              _SettingRow(
-                title: l.updateAutoCheck,
-                subtitle: '',
-                trailing: QLSwitch(
-                  value: widget.updateAutoCheck,
-                  onChanged: (_) => widget.onToggleUpdateAutoCheck(),
+          Divider(height: 24, color: c.cardBorder),
+          Text(l.connectDevice, style: textTheme.bodyLarge),
+          const SizedBox(height: 8.0),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: QLTextField(
+                    controller: _connectIpCtrl,
+                    hint: l.connectIpHint,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              QLButton(
-                label: l.updateCheck,
-                loading: false,
-                onPressed: widget.onCheckForUpdates,
-              ),
-            ],
-          ),
-
-          // ─── Advanced (pair + connect) ───────────────────────────
-          const SizedBox(height: 24),
-          Text(l.advanced, style: textTheme.titleLarge),
-          const SizedBox(height: 12.0),
-          _SectionCard(
-            c: c,
-            children: [
-              Text(l.pairWithCode, style: textTheme.bodyLarge),
-              const SizedBox(height: 8.0),
-              Text(l.pairWithCodeInstructions, style: textTheme.bodySmall),
-              const SizedBox(height: 10),
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: QLTextField(
-                        controller: _pairIpCtrl,
-                        hint: 'IP:Port (e.g. 192.168.1.100:42831)',
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: QLTextField(
-                        controller: _pairCodeCtrl,
-                        hint: 'Code',
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    QLButton(
-                      label: l.pair,
-                      loading: _pairing,
-                      onPressed: _pairing ? null : _doPair,
-                    ),
-                  ],
+                const SizedBox(width: 8.0),
+                QLButton(
+                  label: l.connect,
+                  loading: _connecting,
+                  onPressed: _connecting ? null : _doConnect,
                 ),
-              ),
-              Divider(height: 24, color: c.cardBorder),
-              Text(l.connectDevice, style: textTheme.bodyLarge),
-              const SizedBox(height: 8.0),
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: QLTextField(
-                        controller: _connectIpCtrl,
-                        hint: '192.168.1.100',
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    QLButton(
-                      label: l.connect,
-                      loading: _connecting,
-                      onPressed: _connecting ? null : _doConnect,
-                    ),
-                  ],
+              ],
+            ),
+          ),
+        ],
+      ),
+
+      // ─── Logs ───────────────────────────────────────────────
+      const SizedBox(height: 24),
+      Row(
+        children: [
+          Text(l.logs, style: textTheme.titleLarge),
+          const Spacer(),
+          QLButton(
+            label: l.copy,
+            icon: Icon(Icons.copy, size: 14, color: c.textSecondary),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: LogService.exportAll()));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l.logsCopied),
+                  backgroundColor: c.success,
+                  behavior: SnackBarBehavior.floating,
                 ),
-              ),
-            ],
+              );
+            },
           ),
+        ],
+      ),
+      const SizedBox(height: 12.0),
+      _LogBox(c: c, textTheme: textTheme, l: l),
 
-          // ─── Logs ───────────────────────────────────────────────
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Text(l.logs, style: textTheme.titleLarge),
-              const Spacer(),
-              QLButton(
-                label: l.copy,
-                icon: Icon(Icons.copy, size: 14, color: c.textSecondary),
-                onPressed: () {
-                  Clipboard.setData(
-                    ClipboardData(text: LogService.exportAll()),
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(l.logsCopied),
-                      backgroundColor: c.success,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 12.0),
-          _LogBox(c: c, textTheme: textTheme, l: l),
+      // ─── About ───────────────────────────────────────────────
+      const SizedBox(height: 24),
+      Text(l.about, style: textTheme.titleLarge),
+      const SizedBox(height: 12.0),
+      _SectionCard(
+        c: c,
+        children: [
+          _infoRow(l.version, _appVersion.isEmpty ? '—' : _appVersion),
+          const SizedBox(height: 4.0),
+          _infoRow(l.framework, _frameworkString()),
+          const SizedBox(height: 4.0),
+          _infoRow(l.platform, _platformString()),
+        ],
+      ),
 
-          // ─── About ───────────────────────────────────────────────
-          const SizedBox(height: 24),
-          Text(l.about, style: textTheme.titleLarge),
-          const SizedBox(height: 12.0),
-          _SectionCard(
-            c: c,
-            children: [
-              _infoRow(l.version, _appVersion.isEmpty ? '—' : _appVersion),
-              const SizedBox(height: 4.0),
-              _infoRow(l.framework, _frameworkString()),
-              const SizedBox(height: 4.0),
-              _infoRow(l.platform, _platformString()),
-            ],
-          ),
-
-          const SizedBox(height: 32),
+      const SizedBox(height: 32),
     ];
   }
 
@@ -330,7 +327,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.error ?? l.pairingFailed),
+          content: Text(
+            adbErrorMessage(l, result.error ?? 'pair_failed', ip: ip),
+          ),
           backgroundColor: c.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -369,7 +368,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.error ?? l.connectionFailed),
+          content: Text(
+            adbErrorMessage(l, result.error ?? 'connect_failed', ip: ip),
+          ),
           backgroundColor: c.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -394,24 +395,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _frameworkString() {
     final dartVersion = Platform.version.split(' ').first;
-    return 'Flutter • Dart $dartVersion';
+    return AppLocalizations.of(context)!.aboutFlutterDart(dartVersion);
   }
 
   String _platformString() {
-    if (widget.adb.isOnDevice) return 'VR (Android)';
+    final l = AppLocalizations.of(context)!;
+    if (widget.adb.isOnDevice) return l.aboutVrAndroid;
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return 'Android';
+        return l.aboutAndroid;
       case TargetPlatform.iOS:
-        return 'Mobile (iOS)';
+        return l.aboutMobileIos;
       case TargetPlatform.linux:
-        return 'Linux (Desktop)';
+        return l.aboutLinuxDesktop;
       case TargetPlatform.windows:
-        return 'Windows (Desktop)';
+        return l.aboutWindowsDesktop;
       case TargetPlatform.macOS:
-        return 'macOS (Desktop)';
+        return l.aboutMacOsDesktop;
       default:
-        return 'Unknown';
+        return l.aboutUnknown;
     }
   }
 }
@@ -562,6 +564,7 @@ class _LogBox extends StatelessWidget {
 class _ThemePicker extends StatelessWidget {
   final ThemeService themes;
   final String selectedId;
+  final String themeMode;
   final ValueChanged<String> onSelect;
   final bool isSidebarLayout;
   final bool smoothScroll;
@@ -569,6 +572,7 @@ class _ThemePicker extends StatelessWidget {
   const _ThemePicker({
     required this.themes,
     required this.selectedId,
+    required this.themeMode,
     required this.onSelect,
     required this.isSidebarLayout,
     required this.smoothScroll,
@@ -595,6 +599,7 @@ class _ThemePicker extends StatelessWidget {
         _ThemeLauncherButton(
           themes: themes,
           selectedId: selectedId,
+          themeMode: themeMode,
           isSidebarLayout: isSidebarLayout,
           smoothScroll: smoothScroll,
           onSelect: onSelect,
@@ -622,24 +627,17 @@ class _ThemeModeRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(l.themeMode, style: Theme.of(context).textTheme.bodyLarge),
-              Text(
-                switch (mode) {
-                  'light' => l.themeModeHintLight,
-                  'dark' => l.themeModeHintDark,
-                  _ => l.themeModeHint,
-                },
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(switch (mode) {
+                'light' => l.themeModeHintLight,
+                'dark' => l.themeModeHintDark,
+                _ => l.themeModeHint,
+              }, style: Theme.of(context).textTheme.bodySmall),
             ],
           ),
         ),
         const SizedBox(width: 12.0),
         QLSegmented<String>(
-          options: [
-            ('light', l.light),
-            ('dark', l.dark),
-            ('auto', l.auto),
-          ],
+          options: [('light', l.light), ('dark', l.dark), ('auto', l.auto)],
           value: mode,
           onChanged: onChanged,
         ),
@@ -651,6 +649,7 @@ class _ThemeModeRow extends StatelessWidget {
 class _ThemeLauncherButton extends StatefulWidget {
   final ThemeService themes;
   final String selectedId;
+  final String themeMode;
   final bool isSidebarLayout;
   final bool smoothScroll;
   final ValueChanged<String> onSelect;
@@ -658,6 +657,7 @@ class _ThemeLauncherButton extends StatefulWidget {
   const _ThemeLauncherButton({
     required this.themes,
     required this.selectedId,
+    required this.themeMode,
     required this.isSidebarLayout,
     required this.smoothScroll,
     required this.onSelect,
@@ -693,9 +693,7 @@ class _ThemeLauncherButtonState extends State<_ThemeLauncherButton> {
             color: c.card,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: _hovered
-                  ? c.accent.withValues(alpha: 0.4)
-                  : c.cardBorder,
+              color: _hovered ? c.accent.withValues(alpha: 0.4) : c.cardBorder,
             ),
           ),
           child: Row(
@@ -734,6 +732,7 @@ class _ThemeLauncherButtonState extends State<_ThemeLauncherButton> {
       pageBuilder: (ctx, anim, _) => _ThemeGalleryDialog(
         themes: widget.themes,
         selectedId: widget.selectedId,
+        themeMode: widget.themeMode,
         isSidebarLayout: widget.isSidebarLayout,
         smoothScroll: widget.smoothScroll,
         onSelect: widget.onSelect,
@@ -746,6 +745,7 @@ class _ThemeLauncherButtonState extends State<_ThemeLauncherButton> {
 class _ThemeGalleryDialog extends StatefulWidget {
   final ThemeService themes;
   final String selectedId;
+  final String themeMode;
   final bool isSidebarLayout;
   final bool smoothScroll;
   final ValueChanged<String> onSelect;
@@ -754,6 +754,7 @@ class _ThemeGalleryDialog extends StatefulWidget {
   const _ThemeGalleryDialog({
     required this.themes,
     required this.selectedId,
+    required this.themeMode,
     required this.isSidebarLayout,
     required this.smoothScroll,
     required this.onSelect,
@@ -779,7 +780,16 @@ class _ThemeGalleryDialogState extends State<_ThemeGalleryDialog> {
   /// dialog route sits outside the app's nested Theme, so grab the
   /// selected theme's data here.
   Future<ThemeData> _loadShellTheme() async {
-    if (widget.selectedId == 'questload') return AppTheme.dark();
+    if (widget.selectedId == 'questload') {
+      return switch (widget.themeMode) {
+        'light' => AppTheme.light(),
+        'dark' => AppTheme.dark(),
+        _ =>
+          ThemeBrightnessService.instance.brightness.value == Brightness.dark
+              ? AppTheme.dark()
+              : AppTheme.light(),
+      };
+    }
     final theme = await widget.themes.loadTheme(widget.selectedId);
     return theme?.buildThemeData() ?? AppTheme.dark();
   }
@@ -829,7 +839,7 @@ class _ThemeGalleryDialogState extends State<_ThemeGalleryDialog> {
                             maxHeight: 620,
                           ),
                           child: Material(
-                            color: c.card.withValues(alpha: 1),
+                            color: c.card,
                             elevation: 24,
                             shadowColor: Colors.black54,
                             borderRadius: BorderRadius.circular(16),
@@ -939,11 +949,7 @@ class _ThemeGallerySearch extends StatelessWidget {
           hint: AppLocalizations.of(context)!.searchThemes,
           autofocus: true,
           onChanged: onChanged,
-          prefixIcon: Icon(
-            Icons.search_rounded,
-            size: 17,
-            color: c.textMuted,
-          ),
+          prefixIcon: Icon(Icons.search_rounded, size: 17, color: c.textMuted),
         ),
       ),
     );
@@ -982,10 +988,15 @@ class _ThemeCardState extends State<_ThemeCard> {
 
   /// Lazy: only cards that are actually built (visible in the grid)
   /// pull their theme file. Loaded themes are cached by [ThemeService].
+  /// The questload theme lives in AppTheme, not in a theme file.
   void _loadPreview() {
-    _previewData = widget.themes
-        .loadTheme(widget.meta.id)
-        .then((d) => d?.buildThemeData());
+    if (widget.meta.id == 'questload') {
+      _previewData = Future.value(AppTheme.dark());
+    } else {
+      _previewData = widget.themes
+          .loadTheme(widget.meta.id)
+          .then((d) => d?.buildThemeData());
+    }
   }
 
   @override
@@ -1005,7 +1016,7 @@ class _ThemeCardState extends State<_ThemeCard> {
             duration: const Duration(milliseconds: 150),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: c.card.withValues(alpha: 1),
+              color: c.card,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _hovered
@@ -1072,7 +1083,7 @@ class _ThemeCardState extends State<_ThemeCard> {
   Widget _previewPlaceholder(QuestLoadColors c) {
     return Container(
       decoration: BoxDecoration(
-        color: c.surface.withValues(alpha: 1),
+        color: c.surface,
         borderRadius: BorderRadius.circular(8),
       ),
     );
@@ -1124,7 +1135,7 @@ class _MiniPreview extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: ColoredBox(
-        color: c.scaffoldBg.withValues(alpha: 1),
+        color: c.scaffoldBg,
         child: isSidebarLayout ? _sidebarPreview(c) : _compactPreview(c),
       ),
     );

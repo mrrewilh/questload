@@ -7,30 +7,43 @@ import 'package:flutter/material.dart';
 class QuestLoadColors extends ThemeExtension<QuestLoadColors> {
   /// Navigation background (sidebar, compact bar, bottom nav, drawer)
   final Color navBg;
+
   /// Active/hover state for nav items
   final Color navActiveBg;
+
   /// Card / panel backgrounds
   final Color card;
+
   /// Card / panel / input backgrounds
   final Color surface;
+
   /// Lighter surface for input fields, secondary panels
   final Color surfaceLight;
+
   /// Card / panel borders
   final Color cardBorder;
+
   /// Highlight accent
   final Color accent;
+
   /// Primary text
   final Color textPrimary;
+
   /// Secondary text
   final Color textSecondary;
+
   /// Muted / hint text
   final Color textMuted;
+
   /// Error states
   final Color error;
+
   /// Success states
   final Color success;
+
   /// Warning states
   final Color warning;
+
   /// Scaffold / page background
   final Color scaffoldBg;
 
@@ -67,23 +80,22 @@ class QuestLoadColors extends ThemeExtension<QuestLoadColors> {
     Color? success,
     Color? warning,
     Color? scaffoldBg,
-  }) =>
-      QuestLoadColors(
-        navBg: navBg ?? this.navBg,
-        navActiveBg: navActiveBg ?? this.navActiveBg,
-        card: card ?? this.card,
-        surface: surface ?? this.surface,
-        surfaceLight: surfaceLight ?? this.surfaceLight,
-        cardBorder: cardBorder ?? this.cardBorder,
-        accent: accent ?? this.accent,
-        textPrimary: textPrimary ?? this.textPrimary,
-        textSecondary: textSecondary ?? this.textSecondary,
-        textMuted: textMuted ?? this.textMuted,
-        error: error ?? this.error,
-        success: success ?? this.success,
-        warning: warning ?? this.warning,
-        scaffoldBg: scaffoldBg ?? this.scaffoldBg,
-      );
+  }) => QuestLoadColors(
+    navBg: navBg ?? this.navBg,
+    navActiveBg: navActiveBg ?? this.navActiveBg,
+    card: card ?? this.card,
+    surface: surface ?? this.surface,
+    surfaceLight: surfaceLight ?? this.surfaceLight,
+    cardBorder: cardBorder ?? this.cardBorder,
+    accent: accent ?? this.accent,
+    textPrimary: textPrimary ?? this.textPrimary,
+    textSecondary: textSecondary ?? this.textSecondary,
+    textMuted: textMuted ?? this.textMuted,
+    error: error ?? this.error,
+    success: success ?? this.success,
+    warning: warning ?? this.warning,
+    scaffoldBg: scaffoldBg ?? this.scaffoldBg,
+  );
 
   @override
   QuestLoadColors lerp(ThemeExtension<QuestLoadColors>? other, double t) {
@@ -164,41 +176,54 @@ class AppTheme {
   );
 
   static ThemeData dark() => ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: _darkQL.scaffoldBg,
-        colorScheme: ColorScheme.dark(
-          surface: _darkQL.surface,
-          primary: _darkQL.accent,
-          secondary: _darkQL.accent,
-          error: _darkQL.error,
-        ),
-        extensions: [_darkQL],
-        cardColor: _darkQL.card,
-        dividerColor: _darkQL.cardBorder,
-        textTheme: textTheme(_darkQL.textPrimary, _darkQL.textSecondary, _darkQL.textMuted),
-        iconTheme: IconThemeData(color: _darkQL.textSecondary),
-        useMaterial3: true,
-      );
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: _darkQL.scaffoldBg,
+    colorScheme: ColorScheme.dark(
+      surface: _darkQL.surface,
+      primary: _darkQL.accent,
+      secondary: _darkQL.accent,
+      error: _darkQL.error,
+    ),
+    extensions: [_darkQL],
+    cardColor: _darkQL.card,
+    dividerColor: _darkQL.cardBorder,
+    textTheme: textTheme(
+      _darkQL.textPrimary,
+      _darkQL.textSecondary,
+      _darkQL.textMuted,
+    ),
+    iconTheme: IconThemeData(color: _darkQL.textSecondary),
+    useMaterial3: true,
+  );
 
   static ThemeData light() => ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: _lightQL.scaffoldBg,
-        colorScheme: ColorScheme.light(
-          surface: _lightQL.surface,
-          primary: _lightQL.accent,
-          secondary: _lightQL.accent,
-          error: _lightQL.error,
-        ),
-        extensions: [_lightQL],
-        cardColor: _lightQL.card,
-        dividerColor: _lightQL.cardBorder,
-        textTheme: textTheme(_lightQL.textPrimary, _lightQL.textSecondary, _lightQL.textMuted),
-        iconTheme: IconThemeData(color: _lightQL.textSecondary),
-        useMaterial3: true,
-      );
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: _lightQL.scaffoldBg,
+    colorScheme: ColorScheme.light(
+      surface: _lightQL.surface,
+      primary: _lightQL.accent,
+      secondary: _lightQL.accent,
+      error: _lightQL.error,
+    ),
+    extensions: [_lightQL],
+    cardColor: _lightQL.card,
+    dividerColor: _lightQL.cardBorder,
+    textTheme: textTheme(
+      _lightQL.textPrimary,
+      _lightQL.textSecondary,
+      _lightQL.textMuted,
+    ),
+    iconTheme: IconThemeData(color: _lightQL.textSecondary),
+    useMaterial3: true,
+  );
 
-  static TextTheme textTheme(Color primary, Color secondary, Color muted) => TextTheme(
-        headlineLarge: TextStyle(color: primary, fontWeight: FontWeight.w700, letterSpacing: -0.5),
+  static TextTheme textTheme(Color primary, Color secondary, Color muted) =>
+      TextTheme(
+        headlineLarge: TextStyle(
+          color: primary,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.5,
+        ),
         headlineMedium: TextStyle(color: primary, fontWeight: FontWeight.w600),
         titleLarge: TextStyle(color: primary, fontWeight: FontWeight.w600),
         titleMedium: TextStyle(color: primary, fontWeight: FontWeight.w500),

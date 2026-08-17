@@ -891,6 +891,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No changelog for this version.'**
   String get updateNoChangelog;
+
+  /// No description provided for @aboutFlutterDart.
+  ///
+  /// In en, this message translates to:
+  /// **'Flutter • Dart {dartVersion}'**
+  String aboutFlutterDart(String dartVersion);
+
+  /// No description provided for @aboutVrAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'VR (Android)'**
+  String get aboutVrAndroid;
+
+  /// No description provided for @aboutAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Android'**
+  String get aboutAndroid;
+
+  /// No description provided for @aboutMobileIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile (iOS)'**
+  String get aboutMobileIos;
+
+  /// No description provided for @aboutLinuxDesktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux (Desktop)'**
+  String get aboutLinuxDesktop;
+
+  /// No description provided for @aboutWindowsDesktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows (Desktop)'**
+  String get aboutWindowsDesktop;
+
+  /// No description provided for @aboutMacOsDesktop.
+  ///
+  /// In en, this message translates to:
+  /// **'macOS (Desktop)'**
+  String get aboutMacOsDesktop;
+
+  /// No description provided for @aboutUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get aboutUnknown;
+
+  /// No description provided for @pairIpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'IP:Port (e.g. 192.168.1.100:42831)'**
+  String get pairIpHint;
+
+  /// No description provided for @pairCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get pairCodeHint;
+
+  /// No description provided for @connectIpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'192.168.1.100'**
+  String get connectIpHint;
+
+  /// No description provided for @adbMissingShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundled ADB not found.'**
+  String get adbMissingShort;
+
+  /// No description provided for @adbCorrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundled ADB not found. The app installation may be corrupted.'**
+  String get adbCorrupted;
+
+  /// No description provided for @pairWrongCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong pairing code. Check the code on your Quest.'**
+  String get pairWrongCode;
+
+  /// No description provided for @pairRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing refused. Make sure the Quest is showing the pairing code screen (Settings → Developer → Wireless Debugging → Pair using pairing code).'**
+  String get pairRefused;
+
+  /// No description provided for @pairTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing timed out. Is {ip} reachable?'**
+  String pairTimeout(String ip);
+
+  /// No description provided for @pairError.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing error.'**
+  String get pairError;
+
+  /// No description provided for @connectRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection refused. Make sure wireless debugging is enabled on the Quest (Developer Options → Wireless Debugging).'**
+  String get connectRefused;
+
+  /// No description provided for @connectTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection timed out. Is {ip} reachable on the network?'**
+  String connectTimeout(String ip);
+
+  /// No description provided for @connectNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Network error while connecting.'**
+  String get connectNetworkError;
+
+  /// No description provided for @connectError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to connect.'**
+  String get connectError;
 }
 
 class _AppLocalizationsDelegate

@@ -37,10 +37,7 @@ class LibraryScreen extends StatelessWidget {
             SizedBox(
               height: 36.0,
               child: Center(
-                child: Text(
-                  l.emptyLibrarySubtitle,
-                  style: textTheme.bodySmall,
-                ),
+                child: Text(l.emptyLibrarySubtitle, style: textTheme.bodySmall),
               ),
             ),
           ],

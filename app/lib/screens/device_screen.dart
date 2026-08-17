@@ -22,11 +22,13 @@ String _svgForModel(String? model) {
   if (m.contains('quest pro') || m.contains('questpro')) {
     return 'assets/headsets/metaquestpro.svg';
   }
-  if (m.contains('quest 2') || m.contains('quest2') ||
+  if (m.contains('quest 2') ||
+      m.contains('quest2') ||
       m.contains('oculus quest 2')) {
     return 'assets/headsets/oculusquest2.svg';
   }
-  if (m.contains('quest 1') || m.contains('quest1') ||
+  if (m.contains('quest 1') ||
+      m.contains('quest1') ||
       m.contains('oculus quest')) {
     return 'assets/headsets/oculusquest1.svg';
   }
@@ -123,48 +125,50 @@ class DeviceScreenState extends State<DeviceScreen>
     _syncing = true;
     try {
       await widget.adb.refreshDevices();
-    final serials = widget.adb.connectedSerials;
-    final connectedItems = <_GridItem>[];
+      final serials = widget.adb.connectedSerials;
+      final connectedItems = <_GridItem>[];
 
-    for (final serial in serials) {
-      final props = await widget.adb.getProperties(serial);
-      final battery = await widget.adb.getBattery(serial);
-      final ip = await widget.adb.getIpAddress(serial);
-      final model = props['ro.product.model'] ?? 'Quest';
-      connectedItems.add(_GridItem.connected(
-        serial: serial,
-        model: model,
-        battery: battery,
-        ipAddress: ip,
-      ));
-    }
+      for (final serial in serials) {
+        final props = await widget.adb.getProperties(serial);
+        final battery = await widget.adb.getBattery(serial);
+        final ip = await widget.adb.getIpAddress(serial);
+        final model = props['ro.product.model'] ?? 'Quest';
+        connectedItems.add(
+          _GridItem.connected(
+            serial: serial,
+            model: model,
+            battery: battery,
+            ipAddress: ip,
+          ),
+        );
+      }
 
-    if (mounted) {
-      final connectedSerials = connectedItems.map((i) => i.serial).toSet();
-      final connectedIps = connectedItems
-          .where((i) => i.ipAddress != null)
-          .map((i) => i.ipAddress!)
-          .toSet();
+      if (mounted) {
+        final connectedSerials = connectedItems.map((i) => i.serial).toSet();
+        final connectedIps = connectedItems
+            .where((i) => i.ipAddress != null)
+            .map((i) => i.ipAddress!)
+            .toSet();
 
-      final preserved = _gridItems.where((i) {
-        if (i.isConnected) return false;
-        if (connectedSerials.contains(i.serial)) return false;
-        if (i.ipAddress != null && connectedIps.contains(i.ipAddress)) {
-          return false;
-        }
-        return true;
-      }).toList();
+        final preserved = _gridItems.where((i) {
+          if (i.isConnected) return false;
+          if (connectedSerials.contains(i.serial)) return false;
+          if (i.ipAddress != null && connectedIps.contains(i.ipAddress)) {
+            return false;
+          }
+          return true;
+        }).toList();
 
-      setState(() => _gridItems = [...connectedItems, ...preserved]);
-      _managePing();
-      widget.onConnectionChanged?.call();
-    }
+        setState(() => _gridItems = [...connectedItems, ...preserved]);
+        _managePing();
+        widget.onConnectionChanged?.call();
+      }
 
-    // Start scan AFTER setState so connected devices are in the grid
-    // when _mergeScanResults checks for duplicates.
-    if (triggerScan && !_scanning) {
-      _startScan();
-    }
+      // Start scan AFTER setState so connected devices are in the grid
+      // when _mergeScanResults checks for duplicates.
+      if (triggerScan && !_scanning) {
+        _startScan();
+      }
     } finally {
       _syncing = false;
     }
@@ -209,17 +213,23 @@ class DeviceScreenState extends State<DeviceScreen>
     final l = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).clearSnackBars();
     if (result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('$ip ${l.connected}'),
-        backgroundColor: c.success,
-        behavior: SnackBarBehavior.floating,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$ip ${l.connected}'),
+          backgroundColor: c.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(result.error ?? l.connectionFailed),
-        backgroundColor: c.error,
-        behavior: SnackBarBehavior.floating,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            adbErrorMessage(l, result.error ?? 'connect_failed', ip: ip),
+          ),
+          backgroundColor: c.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
     _refresh();
   }
@@ -228,7 +238,9 @@ class DeviceScreenState extends State<DeviceScreen>
     setState(() => _scanning = true);
 
     try {
-      final results = await widget.adb.scan(timeoutSeconds: kMdnsTimeoutSeconds);
+      final results = await widget.adb.scan(
+        timeoutSeconds: kMdnsTimeoutSeconds,
+      );
       if (mounted) {
         setState(() {
           _scanResults = results;
@@ -257,11 +269,13 @@ class DeviceScreenState extends State<DeviceScreen>
       if (connectedSerials.any((s) => s.contains(scan.ip))) continue;
       if (existingIps.contains(scan.ip)) continue;
 
-      newItems.add(_GridItem.discovered(
-        serial: '${scan.ip}:${scan.port}',
-        ipAddress: scan.ip,
-        port: scan.port,
-      ));
+      newItems.add(
+        _GridItem.discovered(
+          serial: '${scan.ip}:${scan.port}',
+          ipAddress: scan.ip,
+          port: scan.port,
+        ),
+      );
     }
 
     if (newItems.isNotEmpty) {
@@ -286,33 +300,39 @@ class DeviceScreenState extends State<DeviceScreen>
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: _gridItems.isEmpty
-          ? _noAdb ? _adbMissingLayout(l, c, textTheme) : _emptyLayout(l, c, textTheme)
+          ? _noAdb
+                ? _adbMissingLayout(l, c, textTheme)
+                : _emptyLayout(l, c, textTheme)
           : scroller(
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 200.0,
-                        mainAxisExtent: 200.0,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) =>
-                            _gridCard(_gridItems[index], l, c, textTheme),
-                        childCount: _gridItems.length,
-                      ),
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  sliver: SliverGrid(
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200.0,
+                      mainAxisExtent: 200.0,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) =>
+                          _gridCard(_gridItems[index], l, c, textTheme),
+                      childCount: _gridItems.length,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
     );
   }
 
   // ─── Empty state — centered mascot + fixed-height text area ────
 
-  Widget _emptyLayout(AppLocalizations l, QuestLoadColors c, TextTheme textTheme) {
+  Widget _emptyLayout(
+    AppLocalizations l,
+    QuestLoadColors c,
+    TextTheme textTheme,
+  ) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -331,8 +351,7 @@ class DeviceScreenState extends State<DeviceScreen>
                       height: 140.0 * _pingScale.value,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: c.accent
-                            .withValues(alpha: _pingOpacity.value),
+                        color: c.accent.withValues(alpha: _pingOpacity.value),
                       ),
                     ),
                     SvgPicture.asset(
@@ -376,7 +395,10 @@ class DeviceScreenState extends State<DeviceScreen>
   // ─── ADB missing state ────────────────────────────────────────────
 
   Widget _adbMissingLayout(
-      AppLocalizations l, QuestLoadColors c, TextTheme textTheme) {
+    AppLocalizations l,
+    QuestLoadColors c,
+    TextTheme textTheme,
+  ) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -411,10 +433,15 @@ class DeviceScreenState extends State<DeviceScreen>
   // ─── Grid card ───────────────────────────────────────────────────
 
   Widget _gridCard(
-      _GridItem item, AppLocalizations l, QuestLoadColors c, TextTheme textTheme) {
+    _GridItem item,
+    AppLocalizations l,
+    QuestLoadColors c,
+    TextTheme textTheme,
+  ) {
     final isConnected = item.isConnected;
-    final svgPath =
-        isConnected ? _svgForModel(item.model) : 'assets/headsets/unknown.svg';
+    final svgPath = isConnected
+        ? _svgForModel(item.model)
+        : 'assets/headsets/unknown.svg';
 
     return Container(
       decoration: BoxDecoration(
@@ -428,8 +455,8 @@ class DeviceScreenState extends State<DeviceScreen>
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: isConnected
-            ? null
-            : () => _connectToIp(
+              ? null
+              : () => _connectToIp(
                   item.ipAddress ?? item.serial,
                   item.port ?? kDefaultAdbPort,
                 ),
@@ -445,7 +472,10 @@ class DeviceScreenState extends State<DeviceScreen>
                         _BatteryIndicator(battery: item.battery!, color: c),
                       const Spacer(),
                       if (isConnected)
-                        _DisconnectButton(item: item, onDisconnect: () => _disconnect(item.serial)),
+                        _DisconnectButton(
+                          item: item,
+                          onDisconnect: () => _disconnect(item.serial),
+                        ),
                     ],
                   ),
                 ),
@@ -508,26 +538,24 @@ class _GridItem {
     String? model,
     String? battery,
     String? ipAddress,
-  }) =>
-      _GridItem(
-        serial: serial,
-        isConnected: true,
-        model: model,
-        battery: battery,
-        ipAddress: ipAddress,
-      );
+  }) => _GridItem(
+    serial: serial,
+    isConnected: true,
+    model: model,
+    battery: battery,
+    ipAddress: ipAddress,
+  );
 
   factory _GridItem.discovered({
     required String serial,
     String? ipAddress,
     int? port,
-  }) =>
-      _GridItem(
-        serial: serial,
-        isConnected: false,
-        ipAddress: ipAddress,
-        port: port,
-      );
+  }) => _GridItem(
+    serial: serial,
+    isConnected: false,
+    ipAddress: ipAddress,
+    port: port,
+  );
 }
 
 /// Battery indicator: shows charging icon and battery percentage.
@@ -546,10 +574,7 @@ class _BatteryIndicator extends StatelessWidget {
           'assets/headsets/charging.svg',
           width: 12.0,
           height: 12.0,
-          colorFilter: ColorFilter.mode(
-            color.textSecondary,
-            BlendMode.srcIn,
-          ),
+          colorFilter: ColorFilter.mode(color.textSecondary, BlendMode.srcIn),
         ),
         const SizedBox(width: 3),
         Text(
@@ -572,10 +597,7 @@ class _DisconnectButton extends StatelessWidget {
   final _GridItem item;
   final VoidCallback onDisconnect;
 
-  const _DisconnectButton({
-    required this.item,
-    required this.onDisconnect,
-  });
+  const _DisconnectButton({required this.item, required this.onDisconnect});
 
   @override
   Widget build(BuildContext context) {
@@ -597,7 +619,9 @@ class _DisconnectButton extends StatelessWidget {
           child: InkWell(
             customBorder: const CircleBorder(),
             onTap: isUsb ? null : onDisconnect,
-            hoverColor: isUsb ? Colors.transparent : c.error.withValues(alpha: 0.15),
+            hoverColor: isUsb
+                ? Colors.transparent
+                : c.error.withValues(alpha: 0.15),
             child: isUsb
                 ? SvgPicture.asset(
                     'assets/headsets/usb.svg',
@@ -608,11 +632,7 @@ class _DisconnectButton extends StatelessWidget {
                       BlendMode.srcIn,
                     ),
                   )
-                : Icon(
-                    Icons.link_off_rounded,
-                    size: 13,
-                    color: c.textMuted,
-                  ),
+                : Icon(Icons.link_off_rounded, size: 13, color: c.textMuted),
           ),
         ),
       ),

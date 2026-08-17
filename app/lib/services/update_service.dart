@@ -66,8 +66,9 @@ class UpdateService {
   }
 
   /// Asks the release manifest whether a newer version exists.
-  static Future<UpdateCheckResult> check(
-      {required String currentVersion}) async {
+  static Future<UpdateCheckResult> check({
+    required String currentVersion,
+  }) async {
     try {
       final client = HttpClient();
       final req = await client.getUrl(Uri.parse(kUpdateManifestUrl));
@@ -98,8 +99,13 @@ class UpdateService {
 
   /// Downloads the update zip and verifies its sha256.
   /// Returns the verified zip path, or null on failure.
+  /// The manifest must include a sha256 — unverified zips are rejected.
   static Future<File?> downloadAndVerify(UpdateInfo info) async {
     try {
+      if (info.sha256.isEmpty) {
+        LogService.error('Update manifest missing sha256');
+        return null;
+      }
       final dir = await downloadsDir();
       final zip = File('${dir.path}/${info.zipName}');
       if (info.zipUrl.isNotEmpty) {
@@ -111,14 +117,12 @@ class UpdateService {
         await res.pipe(sink);
         await sink.close();
       }
-      if (info.sha256.isNotEmpty) {
-        final bytes = await zip.readAsBytes();
-        final digest = sha256Of(bytes);
-        if (digest != info.sha256.toLowerCase()) {
-          LogService.error('Update zip hash mismatch');
-          await zip.delete();
-          return null;
-        }
+      final bytes = await zip.readAsBytes();
+      final digest = sha256Of(bytes);
+      if (digest != info.sha256.toLowerCase()) {
+        LogService.error('Update zip hash mismatch');
+        await zip.delete();
+        return null;
       }
       return zip;
     } catch (e) {
@@ -128,16 +132,25 @@ class UpdateService {
   }
 
   /// Extracts the zip next to itself and returns the folder.
+  /// Entries must be relative paths without `..` — anything else is skipped.
   static Future<Directory?> extract(File zip) async {
     try {
       final bytes = await zip.readAsBytes();
       final archive = ZipDecoder().decodeBytes(bytes);
-      final out = Directory('${zip.parent.path}/${zip.uri.pathSegments.last}_extracted');
+      final out = Directory(
+        '${zip.parent.path}/${zip.uri.pathSegments.last}_extracted',
+      );
       if (await out.exists()) await out.delete(recursive: true);
       await out.create(recursive: true);
       for (final entry in archive) {
-        final dest = File('${out.path}/${entry.name}');
+        final name = entry.name.replaceAll('\\', '/');
+        final parts = name.split('/');
+        if (name.startsWith('/') || parts.contains('..') || parts.isEmpty) {
+          LogService.error('Skipping unsafe zip entry: ${entry.name}');
+          continue;
+        }
         if (entry.isFile) {
+          final dest = File('${out.path}/$name');
           await dest.create(recursive: true);
           await dest.writeAsBytes(entry.content as List<int>);
         }
@@ -172,7 +185,9 @@ class UpdateService {
   /// Marks an update as pending so the next launch asks to apply it.
   static Future<void> markPending(String version, String sha256) async {
     final dir = await downloadsDir();
-    await File('${dir.path}/pending-version').writeAsString('$version\n$sha256');
+    await File(
+      '${dir.path}/pending-version',
+    ).writeAsString('$version\n$sha256');
   }
 
   /// Removes the pending marker after the swap handoff is spawned.
@@ -184,43 +199,63 @@ class UpdateService {
 
   /// Spawns the handoff that swaps the new files in and relaunches.
   /// Only the app's restart click calls this — never app close.
-  static Future<void> applyStaged(
-      Directory extracted, File zip, String currentExePath) async {
+  /// Returns false when the handoff couldn't launch — the caller must
+  /// NOT exit the app in that case.
+  static Future<bool> applyStaged(
+    Directory extracted,
+    File zip,
+    String currentExePath,
+  ) async {
     // The zip ships a questload/ folder — swap from inside it.
-    final inner =
-        Directory('${extracted.path}${Platform.pathSeparator}questload');
+    final inner = Directory(
+      '${extracted.path}${Platform.pathSeparator}questload',
+    );
     final src = await inner.exists() ? inner.path : extracted.path;
-    final newExe = File('$src${Platform.pathSeparator}questload.exe');
     final installDir = File(currentExePath).parent.path;
-    final script = '''
-\$exe = "$currentExePath"
-\$new = "$newExe"
-\$src = "$src"
-\$dest = "$installDir"
+    // Paths sit in single-quoted PS literals: a quote or dollar in the
+    // install dir can't alter the script. If the swap hits a permission
+    // wall the script re-runs itself elevated (UAC) — no string building.
+    String psLiteral(String s) => "'${s.replaceAll("'", "''")}'";
+    final script =
+        '''
+\$src = ${psLiteral(src)}
+\$dest = ${psLiteral(installDir)}
+\$script = \$PSCommandPath
 while (Get-Process -Name questload -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 400 }
 try {
   Copy-Item -Recurse -Force (Join-Path \$src '*') \$dest -ErrorAction Stop
   Remove-Item -Recurse -Force \$src
   Start-Process (Join-Path \$dest 'questload.exe')
 } catch {
-  \$e = "Copy-Item -Recurse -Force (Join-Path '\$src' '*') '\$dest'; Remove-Item -Recurse -Force '\$src'; Start-Process (Join-Path '\$dest' 'questload.exe')"
-  Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -Command", \$e
+  Remove-Item -Recurse -Force \$src
+  Start-Process powershell -Verb RunAs -ArgumentList ('-NoProfile -ExecutionPolicy Bypass -File "' + \$script + '"')
 }
 ''';
     final scriptFile = File('${zip.parent.path}/apply.ps1');
     await scriptFile.writeAsString(script);
-    // Detached: the app exits right after, the script keeps running.
-    Process.start(
-      'powershell',
-      ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptFile.path],
-      mode: ProcessStartMode.detached,
-    );
+    // Await the spawn — exiting before it finishes kills the handoff
+    // before it ever runs.
+    try {
+      await Process.start('powershell', [
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-File',
+        scriptFile.path,
+      ], mode: ProcessStartMode.detached);
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      return true;
+    } catch (e) {
+      LogService.error('Update handoff failed to start: $e');
+      return false;
+    }
   }
 
   /// Reads the embedded changelog shipped with this build.
   static Future<String> embeddedChangelog(String currentExePath) async {
     final file = File(
-        '${File(currentExePath).parent.path}${Platform.pathSeparator}$kChangelogFileName');
+      '${File(currentExePath).parent.path}${Platform.pathSeparator}$kChangelogFileName',
+    );
     if (!await file.exists()) return '';
     return file.readAsString();
   }

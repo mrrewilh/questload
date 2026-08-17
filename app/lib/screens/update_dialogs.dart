@@ -6,7 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/ql_widgets.dart';
 
 /// Result of the update-available dialog.
-enum UpdateChoice { download, later }
+enum UpdateChoice { download, later, skip }
 
 /// Update available popup: update.svg + skip checkbox + action.
 /// No changelog here — that only shows after an update is applied.
@@ -75,13 +75,9 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
         ),
         QLButton(
           label: widget.canDownload ? l.updateDownload : l.updateContinue,
-          onPressed: () {
-            if (_skip) {
-              Navigator.of(context).pop('skip');
-            } else {
-              Navigator.of(context).pop(UpdateChoice.download);
-            }
-          },
+          onPressed: () => Navigator.of(
+            context,
+          ).pop(_skip ? UpdateChoice.skip : UpdateChoice.download),
         ),
       ],
     );
@@ -137,10 +133,7 @@ Future<void> showChangelogDialog(
         ),
       ),
       actions: [
-        QLButton(
-          label: l.close,
-          onPressed: () => Navigator.of(ctx).pop(),
-        ),
+        QLButton(label: l.close, onPressed: () => Navigator.of(ctx).pop()),
       ],
     ),
   );

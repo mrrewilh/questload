@@ -16,7 +16,8 @@ class LogEntry {
 
   @override
   String toString() {
-    final time = '${timestamp.hour.toString().padLeft(2, '0')}:'
+    final time =
+        '${timestamp.hour.toString().padLeft(2, '0')}:'
         '${timestamp.minute.toString().padLeft(2, '0')}:'
         '${timestamp.second.toString().padLeft(2, '0')}';
     final tag = level.name.toUpperCase().padRight(7);
@@ -44,11 +45,9 @@ class LogService {
   }
 
   static void _add(LogLevel level, String message) {
-    _entries.add(LogEntry(
-      level: level,
-      message: message,
-      timestamp: DateTime.now(),
-    ));
+    _entries.add(
+      LogEntry(level: level, message: message, timestamp: DateTime.now()),
+    );
     if (_entries.length > _maxEntries) {
       _entries.removeRange(0, _entries.length - _maxEntries);
     }

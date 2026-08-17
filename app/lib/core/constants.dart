@@ -1,14 +1,7 @@
-import 'dart:ui';
-
-// ─── Window ──────────────────────────────────────────────────────────
-const kWindowInitialSize = Size(900, 600);
-const kWindowMinSize = Size(480, 360);
-
 // ─── Polling intervals ───────────────────────────────────────────────
 const kDevicePollInterval = Duration(seconds: 3);
 const kScanInterval = Duration(seconds: 30);
 const kThemeBrightnessPoll = Duration(seconds: 3);
-
 
 // ─── ADB ─────────────────────────────────────────────────────────────
 const kDefaultAdbPort = 5555;

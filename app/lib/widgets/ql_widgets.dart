@@ -37,8 +37,7 @@ class _QLButtonState extends State<QLButton> {
     final c = context.ql;
     final enabled = widget.onPressed != null;
 
-    Color plastic(Color base, double t) =>
-        Color.lerp(base, c.textPrimary, t)!;
+    Color plastic(Color base, double t) => Color.lerp(base, c.textPrimary, t)!;
 
     final fill = !enabled
         ? c.cardBorder.withValues(alpha: 0.35)
@@ -66,53 +65,58 @@ class _QLButtonState extends State<QLButton> {
             ),
           ];
 
-    return MouseRegion(
-      cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
-      onEnter: enabled ? (_) => setState(() => _hovered = true) : null,
-      onExit: enabled ? (_) => setState(() => _hovered = false) : null,
-      child: GestureDetector(
-        onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
-        onTapUp: enabled ? (_) => setState(() => _pressed = false) : null,
-        onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
-        onTap: enabled ? widget.onPressed : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOutCubic,
-          constraints: const BoxConstraints(minHeight: 38),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: fill,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: c.cardBorder),
-            boxShadow: shadow,
-          ),
-          child: Center(
-            child: widget.loading
-                ? SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: c.textSecondary,
-                    ),
-                  )
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.icon != null) ...[
-                        widget.icon!,
-                        const SizedBox(width: 6),
-                      ],
-                      Text(
-                        widget.label,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: enabled ? c.textPrimary : c.textMuted,
-                        ),
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: widget.label,
+      child: MouseRegion(
+        cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
+        onEnter: enabled ? (_) => setState(() => _hovered = true) : null,
+        onExit: enabled ? (_) => setState(() => _hovered = false) : null,
+        child: GestureDetector(
+          onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
+          onTapUp: enabled ? (_) => setState(() => _pressed = false) : null,
+          onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
+          onTap: enabled ? widget.onPressed : null,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOutCubic,
+            constraints: const BoxConstraints(minHeight: 38),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: fill,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: c.cardBorder),
+              boxShadow: shadow,
+            ),
+            child: Center(
+              child: widget.loading
+                  ? SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: c.textSecondary,
                       ),
-                    ],
-                  ),
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (widget.icon != null) ...[
+                          widget.icon!,
+                          const SizedBox(width: 6),
+                        ],
+                        Text(
+                          widget.label,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: enabled ? c.textPrimary : c.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
           ),
         ),
       ),
@@ -169,10 +173,7 @@ class _QLTextFieldState extends State<QLTextField> {
           controller: widget.controller,
           autofocus: widget.autofocus,
           onChanged: widget.onChanged,
-          style: TextStyle(
-            color: c.textPrimary,
-            fontSize: 13,
-          ),
+          style: TextStyle(color: c.textPrimary, fontSize: 13),
           decoration: InputDecoration(
             hintText: widget.hint,
             hintStyle: TextStyle(color: c.textMuted),
@@ -193,9 +194,7 @@ class _QLTextFieldState extends State<QLTextField> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: c.accent.withValues(alpha: 0.4),
-              ),
+              borderSide: BorderSide(color: c.accent.withValues(alpha: 0.4)),
             ),
           ),
         ),
@@ -221,61 +220,65 @@ class _QLSwitchState extends State<QLSwitch> {
   @override
   Widget build(BuildContext context) {
     final c = context.ql;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: () => widget.onChanged(!widget.value),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          width: 44,
-          height: 24,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: widget.value
-                ? c.accent.withValues(alpha: 0.3)
-                : c.cardBorder.withValues(alpha: 0.5),
-            border: Border.all(
+    return Semantics(
+      button: true,
+      toggled: widget.value,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          onTap: () => widget.onChanged(!widget.value),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            width: 44,
+            height: 24,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
               color: widget.value
-                  ? c.accent.withValues(alpha: 0.4)
-                  : c.cardBorder,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
+                  ? c.accent.withValues(alpha: 0.3)
+                  : c.cardBorder.withValues(alpha: 0.5),
+              border: Border.all(
+                color: widget.value
+                    ? c.accent.withValues(alpha: 0.4)
+                    : c.cardBorder,
               ),
-            ],
-          ),
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutCubic,
-                left: widget.value ? 22 : 2,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 250),
                   curve: Curves.easeOutCubic,
-                  width: _hovered ? 20 : 18,
-                  height: _hovered ? 20 : 18,
-                  decoration: BoxDecoration(
-                    color: c.textPrimary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 3,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
+                  left: widget.value ? 22 : 2,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOutCubic,
+                    width: _hovered ? 20 : 18,
+                    height: _hovered ? 20 : 18,
+                    decoration: BoxDecoration(
+                      color: c.textPrimary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -302,49 +305,50 @@ class QLCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.ql;
-    final box = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => onChanged(!value),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOutCubic,
-        width: 18,
-        height: 18,
-        decoration: BoxDecoration(
-          color: value
-              ? c.accent.withValues(alpha: 0.3)
-              : c.surfaceLight,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: value ? c.accent.withValues(alpha: 0.4) : c.cardBorder,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 3,
-              offset: const Offset(0, 1),
+    final box = Semantics(
+      button: true,
+      checked: value,
+      label: label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onChanged(!value),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutCubic,
+          width: 18,
+          height: 18,
+          decoration: BoxDecoration(
+            color: value ? c.accent.withValues(alpha: 0.3) : c.surfaceLight,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: value ? c.accent.withValues(alpha: 0.4) : c.cardBorder,
             ),
-          ],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: value
+              ? Icon(Icons.check_rounded, size: 14, color: c.textPrimary)
+              : null,
         ),
-        child: value
-            ? Icon(Icons.check_rounded, size: 14, color: c.textPrimary)
-            : null,
       ),
     );
 
     if (label == null) return box;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => onChanged(!value),
+    return Semantics(
+      button: true,
+      checked: value,
+      label: label,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           box,
           const SizedBox(width: 8),
-          Text(
-            label!,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          Text(label!, style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
     );
@@ -411,31 +415,36 @@ class _QLSegmentState extends State<_QLSegment> {
   @override
   Widget build(BuildContext context) {
     final c = context.ql;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: widget.selected
-                ? c.accent.withValues(alpha: 0.15)
-                : _hovered
-                ? c.surfaceLight
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            widget.label,
-            style: TextStyle(
-              color: widget.selected ? c.accent : c.textSecondary,
-              fontSize: 12,
-              fontWeight: widget.selected
-                  ? FontWeight.w600
-                  : FontWeight.normal,
+    return Semantics(
+      button: true,
+      selected: widget.selected,
+      label: widget.label,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: widget.selected
+                  ? c.accent.withValues(alpha: 0.15)
+                  : _hovered
+                  ? c.surfaceLight
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              widget.label,
+              style: TextStyle(
+                color: widget.selected ? c.accent : c.textSecondary,
+                fontSize: 12,
+                fontWeight: widget.selected
+                    ? FontWeight.w600
+                    : FontWeight.normal,
+              ),
             ),
           ),
         ),

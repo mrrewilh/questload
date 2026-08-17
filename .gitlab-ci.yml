@@ -9,8 +9,10 @@ build-windows:
   when: manual
   allow_failure: false
   before_script:
-    - git config --global --add safe.directory C:/Users/mstab/flutter
+    - git config --global --add safe.directory "C:/Users/$env:USERNAME/flutter"
   script:
+    - $flutter = "C:\Users\$env:USERNAME\flutter\bin\flutter.bat"
+    - $dart = "C:\Users\$env:USERNAME\flutter\bin\dart.bat"
     - $date = Get-Date -Format "yy.M.d"
     - $today = (Get-Date).ToString("yyyy-MM-dd")
     - $headers = @{ Authorization = "Bearer $CI_JOB_TOKEN" }
@@ -20,8 +22,10 @@ build-windows:
     - $buildNum = if ($todayCount -eq 0) { 1 } else { $todayCount }
     - Write-Host "version=$ver"
     - cd app
-    - C:\Users\mstab\flutter\bin\flutter.bat pub get
-    - C:\Users\mstab\flutter\bin\flutter.bat build windows --release --build-name $ver --build-number $buildNum
+    - & $flutter pub get
+    - & $flutter analyze
+    - & $dart format --output=none --set-exit-if-changed lib
+    - & $flutter build windows --release --build-name $ver --build-number $buildNum
     - cd ..
     - Invoke-WebRequest -Uri "https://dl.google.com/android/repository/platform-tools-latest-windows.zip" -OutFile platform-tools.zip
     - Expand-Archive platform-tools.zip -DestinationPath platform-tools

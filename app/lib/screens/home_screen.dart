@@ -35,10 +35,7 @@ class HomeScreen extends StatelessWidget {
             SizedBox(
               height: 36.0,
               child: Center(
-                child: Text(
-                  l.connectQuestToStart,
-                  style: textTheme.bodySmall,
-                ),
+                child: Text(l.connectQuestToStart, style: textTheme.bodySmall),
               ),
             ),
           ],

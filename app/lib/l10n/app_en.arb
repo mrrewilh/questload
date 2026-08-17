@@ -1,7 +1,6 @@
 {
   "@@locale": "en",
   "appTitle": "QuestLoad",
-
   "home": "Home",
   "library": "Library",
   "device": "Device",
@@ -16,7 +15,6 @@
   "refresh": "Refresh",
   "retry": "Retry",
   "close": "Close",
-
   "welcome": "Welcome",
   "ready": "QuestLoad is ready",
   "noDevice": "No device connected",
@@ -27,12 +25,10 @@
   "recentGames": "Recent Games",
   "seeAll": "See All",
   "noGamesDb": "No games in database yet",
-
   "searchGames": "Search games...",
   "all": "All",
   "gamesInCat": "{count} games in {category}",
   "noGamesFound": "No games found",
-
   "connectDevice": "Connect Device",
   "connecting": "Connecting...",
   "connect": "Connect",
@@ -54,7 +50,6 @@
   "download": "Download {size}",
   "addedToDownloads": "{name} added to downloads",
   "refreshHome": "Refresh home",
-
   "noDownloads": "No downloads yet",
   "addFromLibrary": "Add games from Library",
   "pending": "Pending",
@@ -63,7 +58,6 @@
   "failed": "Failed",
   "clearAll": "Clear All",
   "tasksCount": "{count,plural, =0{No tasks} =1{{count} task} other{{count} tasks}}",
-
   "appearance": "Appearance",
   "theme": "Theme",
   "themeMode": "Color mode",
@@ -79,7 +73,6 @@
   "darkMode": "Dark mode",
   "accentColor": "Accent color",
   "apply": "Apply",
-
   "adbConfig": "ADB Configuration",
   "adbPath": "ADB Path",
   "adbFound": "ADB found at {path}",
@@ -101,13 +94,11 @@
   "pairWithCodeInstructions": "On your Quest: Settings → System → Developer → Wireless Debugging → Pair using pairing code",
   "windowControls": "Window controls",
   "copied": "Copied",
-
   "about": "About",
   "framework": "Framework",
   "platform": "Platform",
   "database": "Database",
   "supportedPlatforms": "Desktop / Android / VR",
-
   "selectTheme": "Select Theme",
   "searchThemes": "Search themes",
   "noThemesFound": "No themes found",
@@ -118,11 +109,9 @@
   "somethingWentWrong": "Something went wrong",
   "errorDetails": "{details}",
   "logoAlt": "QuestLoad",
-
   "scanNetwork": "Scan Network",
   "scanning": "Scanning…",
   "unknownDevice": "Unknown Device",
-
   "updateTitle": "Update available",
   "updateSubtitle": "QuestLoad {version} is here — you're on {current}.",
   "updateSkip": "Skip this version",
@@ -143,5 +132,47 @@
   "updateApplyText": "Restart now to apply the update",
   "updateRestartNow": "Restart now",
   "updateWhatNew": "What's new",
-  "updateNoChangelog": "No changelog for this version."
+  "updateNoChangelog": "No changelog for this version.",
+  "aboutFlutterDart": "Flutter • Dart {dartVersion}",
+  "@aboutFlutterDart": {
+    "placeholders": {
+      "dartVersion": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutVrAndroid": "VR (Android)",
+  "aboutAndroid": "Android",
+  "aboutMobileIos": "Mobile (iOS)",
+  "aboutLinuxDesktop": "Linux (Desktop)",
+  "aboutWindowsDesktop": "Windows (Desktop)",
+  "aboutMacOsDesktop": "macOS (Desktop)",
+  "aboutUnknown": "Unknown",
+  "pairIpHint": "IP:Port (e.g. 192.168.1.100:42831)",
+  "pairCodeHint": "Code",
+  "connectIpHint": "192.168.1.100",
+  "adbMissingShort": "Bundled ADB not found.",
+  "adbCorrupted": "Bundled ADB not found. The app installation may be corrupted.",
+  "pairWrongCode": "Wrong pairing code. Check the code on your Quest.",
+  "pairRefused": "Pairing refused. Make sure the Quest is showing the pairing code screen (Settings → Developer → Wireless Debugging → Pair using pairing code).",
+  "pairTimeout": "Pairing timed out. Is {ip} reachable?",
+  "@pairTimeout": {
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "pairError": "Pairing error.",
+  "connectRefused": "Connection refused. Make sure wireless debugging is enabled on the Quest (Developer Options → Wireless Debugging).",
+  "connectTimeout": "Connection timed out. Is {ip} reachable on the network?",
+  "@connectTimeout": {
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "connectNetworkError": "Network error while connecting.",
+  "connectError": "Failed to connect."
 }

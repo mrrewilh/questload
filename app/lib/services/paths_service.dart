@@ -35,6 +35,5 @@ class PathsService {
   }
 
   /// Full path to `settings.json`.
-  static Future<String> get settingsPath async =>
-      "${await root}/settings.json";
+  static Future<String> get settingsPath async => "${await root}/settings.json";
 }

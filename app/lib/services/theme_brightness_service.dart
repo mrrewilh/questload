@@ -27,8 +27,9 @@ class ThemeBrightnessService {
   /// Whether we read from the Linux portal instead of the engine.
   final bool usesPortal = Platform.isLinux;
 
-  final ValueNotifier<Brightness> brightness =
-      ValueNotifier<Brightness>(_engineBrightness);
+  final ValueNotifier<Brightness> brightness = ValueNotifier<Brightness>(
+    _engineBrightness,
+  );
 
   DBusClient? _client;
   Timer? _pollTimer;

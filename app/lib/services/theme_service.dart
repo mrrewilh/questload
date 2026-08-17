@@ -21,11 +21,11 @@ class ThemeMeta {
   });
 
   factory ThemeMeta.fromJson(Map<String, dynamic> json) => ThemeMeta(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        family: json['family'] as String? ?? '',
-        isDark: json['isDark'] as bool? ?? true,
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    family: json['family'] as String? ?? '',
+    isDark: json['isDark'] as bool? ?? true,
+  );
 }
 
 /// A fully loaded theme (metadata + colors).
@@ -40,7 +40,8 @@ class ThemeDefinition extends ThemeMeta {
     required this.colors,
   });
 
-  factory ThemeDefinition.fromJson(Map<String, dynamic> json) => ThemeDefinition(
+  factory ThemeDefinition.fromJson(Map<String, dynamic> json) =>
+      ThemeDefinition(
         id: json['id'] as String,
         name: json['name'] as String,
         family: json['family'] as String? ?? '',
@@ -49,14 +50,22 @@ class ThemeDefinition extends ThemeMeta {
       );
 
   QuestLoadColors buildColors() {
+    // 'card' ships with a 50% alpha in the theme files (a blending artifact)
+    // — floating dialogs on top of other content end up see-through. Card
+    // must be opaque; every other key keeps its alpha.
+    const opaqueKeys = {'card'};
     Color c(String key) {
       final hex = colors[key];
       if (hex == null) return Colors.transparent;
       final raw = hex.startsWith('#') ? hex.substring(1) : hex;
       final buffer = StringBuffer('0x');
       if (raw.length == 8) {
-        // #RRGGBBAA → we need 0xAARRGGBB for Dart's Color()
-        buffer.write('${raw.substring(6, 8)}${raw.substring(0, 6)}');
+        if (opaqueKeys.contains(key)) {
+          buffer.write('FF${raw.substring(0, 6)}');
+        } else {
+          // #RRGGBBAA → we need 0xAARRGGBB for Dart's Color()
+          buffer.write('${raw.substring(6, 8)}${raw.substring(0, 6)}');
+        }
       } else if (raw.length == 6) {
         // RRGGBB → treat as FFRRGGBB
         buffer.write('FF$raw');
@@ -109,7 +118,11 @@ class ThemeDefinition extends ThemeMeta {
       extensions: [ql],
       cardColor: ql.card,
       dividerColor: ql.cardBorder,
-      textTheme: AppTheme.textTheme(ql.textPrimary, ql.textSecondary, ql.textMuted),
+      textTheme: AppTheme.textTheme(
+        ql.textPrimary,
+        ql.textSecondary,
+        ql.textMuted,
+      ),
       iconTheme: IconThemeData(color: ql.textSecondary),
       useMaterial3: true,
     );
@@ -135,7 +148,9 @@ class ThemeService {
     try {
       final json = await rootBundle.loadString('assets/themes/index.json');
       final list = jsonDecode(json) as List<dynamic>;
-      _index = list.map((e) => ThemeMeta.fromJson(e as Map<String, dynamic>)).toList();
+      _index = list
+          .map((e) => ThemeMeta.fromJson(e as Map<String, dynamic>))
+          .toList();
       _loaded = true;
     } catch (e) {
       LogService.error('Failed to load theme index: $e');
@@ -149,7 +164,9 @@ class ThemeService {
     if (_cache.containsKey(id)) return _cache[id];
     try {
       final json = await rootBundle.loadString('assets/themes/$id.json');
-      final def = ThemeDefinition.fromJson(jsonDecode(json) as Map<String, dynamic>);
+      final def = ThemeDefinition.fromJson(
+        jsonDecode(json) as Map<String, dynamic>,
+      );
       _cache[id] = def;
       return def;
     } catch (e) {
