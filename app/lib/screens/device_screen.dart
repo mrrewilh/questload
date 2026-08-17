@@ -296,6 +296,35 @@ class DeviceScreenState extends State<DeviceScreen>
     _refresh();
   }
 
+  /// Right-click menu on a device card.
+  /// Right-click menu on a device card.
+  void _showDeviceMenu(Offset globalPosition, _GridItem item) {
+    final l = AppLocalizations.of(context)!;
+    final items = <QLContextMenuItem>[];
+    if (item.isConnected) {
+      // USB is a physical link — no disconnect; more actions come later.
+      if (item.serial.contains(':')) {
+        items.add(
+          QLContextMenuItem(
+            label: l.disconnect,
+            onTap: () => _disconnect(item.serial),
+          ),
+        );
+      }
+    } else {
+      items.add(
+        QLContextMenuItem(
+          label: l.connect,
+          onTap: () => _connectToIp(
+            item.ipAddress ?? item.serial,
+            item.port ?? kDefaultAdbPort,
+          ),
+        ),
+      );
+    }
+    showQLContextMenu(context, globalPosition, items: items);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -468,6 +497,8 @@ class DeviceScreenState extends State<DeviceScreen>
                   item.ipAddress ?? item.serial,
                   item.port ?? kDefaultAdbPort,
                 ),
+          onSecondaryTapUp: (details) =>
+              _showDeviceMenu(details.globalPosition, item),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -627,9 +658,7 @@ class _DisconnectButton extends StatelessWidget {
           child: InkWell(
             customBorder: const CircleBorder(),
             onTap: isUsb ? null : onDisconnect,
-            hoverColor: isUsb
-                ? Colors.transparent
-                : c.error.withValues(alpha: 0.15),
+            hoverColor: isUsb ? Colors.transparent : c.surfaceLight,
             child: isUsb
                 ? SvgPicture.asset(
                     'assets/headsets/usb.svg',

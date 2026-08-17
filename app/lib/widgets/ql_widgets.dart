@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../core/app_theme.dart';
 
@@ -638,6 +639,180 @@ class _QLToastCardState extends State<_QLToastCard>
                   ),
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── QL Context Menu ─────────────────────────────────────────────
+// Desktop context menu in the style of Flutter's text selection toolbar:
+// 222px card, 7px radius, 1px elevation, left-aligned 36px items.
+
+class QLContextMenuItem {
+  final String label;
+  final VoidCallback onTap;
+
+  const QLContextMenuItem({required this.label, required this.onTap});
+}
+
+/// Shows a desktop-style context menu at [globalPosition].
+void showQLContextMenu(
+  BuildContext context,
+  Offset globalPosition, {
+  required List<QLContextMenuItem> items,
+}) {
+  if (items.isEmpty) return;
+  final colors = context.ql;
+  final overlay = Overlay.of(context, rootOverlay: true);
+  late final OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (_) => _QLContextMenu(
+      colors: colors,
+      items: items,
+      position: globalPosition,
+      onDismiss: () => entry.remove(),
+    ),
+  );
+  overlay.insert(entry);
+}
+
+class _QLContextMenu extends StatefulWidget {
+  final QuestLoadColors colors;
+  final List<QLContextMenuItem> items;
+  final Offset position;
+  final VoidCallback onDismiss;
+
+  const _QLContextMenu({
+    required this.colors,
+    required this.items,
+    required this.position,
+    required this.onDismiss,
+  });
+
+  @override
+  State<_QLContextMenu> createState() => _QLContextMenuState();
+}
+
+class _QLContextMenuState extends State<_QLContextMenu>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 290),
+    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const double width = 222.0;
+    const double itemHeight = 36.0;
+    final size = MediaQuery.sizeOf(context);
+    final height = widget.items.length * itemHeight;
+    final left = widget.position.dx.clamp(8.0, size.width - width - 8.0);
+    final top = widget.position.dy.clamp(8.0, size.height - height - 8.0);
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: widget.onDismiss,
+          ),
+        ),
+        Positioned(
+          left: left,
+          top: top,
+          child: FadeTransition(
+            opacity: _opacity,
+            child: Focus(
+              autofocus: true,
+              onKeyEvent: (node, event) {
+                if (event is KeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.escape) {
+                  widget.onDismiss();
+                  return KeyEventResult.handled;
+                }
+                return KeyEventResult.ignored;
+              },
+              child: Material(
+                color: widget.colors.card,
+                borderRadius: BorderRadius.circular(7),
+                elevation: 1,
+                clipBehavior: Clip.antiAlias,
+                child: SizedBox(
+                  width: width,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final item in widget.items)
+                        _QLContextMenuItemButton(
+                          label: item.label,
+                          colors: widget.colors,
+                          onTap: () {
+                            item.onTap();
+                            widget.onDismiss();
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _QLContextMenuItemButton extends StatelessWidget {
+  final String label;
+  final QuestLoadColors colors;
+  final VoidCallback onTap;
+
+  const _QLContextMenuItemButton({
+    required this.label,
+    required this.colors,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = colors;
+    return MouseRegion(
+      cursor: SystemMouseCursors.basic,
+      child: InkWell(
+        onTap: onTap,
+        hoverColor: c.textPrimary.withValues(alpha: 0.06),
+        child: Container(
+          width: double.infinity,
+          height: 36,
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 3),
+          child: Text(
+            label,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14,
+              letterSpacing: -0.15,
+              fontWeight: FontWeight.w400,
+              color: c.textPrimary,
             ),
           ),
         ),
