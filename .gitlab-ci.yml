@@ -22,10 +22,10 @@ build-windows:
     - $buildNum = if ($todayCount -eq 0) { 1 } else { $todayCount }
     - Write-Host "version=$ver"
     - cd app
-    - & $flutter pub get
-    - & $flutter analyze
-    - & $dart format --output=none --set-exit-if-changed lib
-    - & $flutter build windows --release --build-name $ver --build-number $buildNum
+    - "& $flutter pub get"
+    - "& $flutter analyze"
+    - "& $dart format --output=none --set-exit-if-changed lib"
+    - "& $flutter build windows --release --build-name $ver --build-number $buildNum"
     - cd ..
     - Invoke-WebRequest -Uri "https://dl.google.com/android/repository/platform-tools-latest-windows.zip" -OutFile platform-tools.zip
     - Expand-Archive platform-tools.zip -DestinationPath platform-tools
