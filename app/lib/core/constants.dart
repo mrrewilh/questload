@@ -13,7 +13,7 @@ const kAdbInstallTimeout = Duration(seconds: 120);
 const kAdbUninstallTimeout = Duration(seconds: 30);
 
 // ─── mDNS ────────────────────────────────────────────────────────────
-const kMdnsTimeoutSeconds = 5;
+const kMdnsTimeoutSeconds = 3;
 
 // ─── Log ─────────────────────────────────────────────────────────────
 const kLogMaxEntries = 500;

@@ -14,19 +14,26 @@ import '../core/constants.dart';
 /// 1. [`multicast_dns`] Dart package — pure mDNS, no ADB server, works everywhere
 /// 2. `avahi-browse` on Linux (fallback if mDNS fails)
 class MdnsScanner {
+  MDnsClient? _client;
+
   /// Scan for Quest VR devices on the local network.
   Future<List<MdnsDiscoveredDevice>> scan({
     int timeoutSeconds = kMdnsTimeoutSeconds,
   }) async {
-    // Strategy 1: pure Dart mDNS (no ADB server, no auto-connect)
+    // Strategy 1: pure Dart mDNS over a persistent client — it stays alive
+    // across scans so its cache warms up from the devices' own announcements
+    // and repeat scans return instantly instead of re-querying cold.
     try {
-      final devices = await _scanWithMDns(timeoutSeconds);
-      if (devices.isNotEmpty) return devices;
-    } on TimeoutException {
-      // Expected when no devices respond — not an error
-      LogService.info('mDNS: no devices found within timeout');
+      final client = await _ensureClient();
+      if (client != null) {
+        final devices = await _scanWithMDns(client, timeoutSeconds);
+        if (devices.isNotEmpty) return devices;
+      }
     } catch (e) {
       LogService.error('mDNS scan failed: $e');
+      // Sockets are likely stale (network change) — drop the client so the
+      // next scan starts a fresh one.
+      stop();
     }
 
     // Strategy 2: avahi-browse on Linux (fallback)
@@ -45,77 +52,76 @@ class MdnsScanner {
     return [];
   }
 
-  /// Pure Dart mDNS discovery using the [`multicast_dns`] package.
-  ///
-  /// Queries for `_adb-tls-connect._tcp.local` — the service type Quest
-  /// wireless debugging advertises. No ADB server is involved so there is
-  /// no risk of auto-connecting to discovered devices.
-  Future<List<MdnsDiscoveredDevice>> _scanWithMDns(int timeoutSeconds) async {
-    final results = <MdnsDiscoveredDevice>[];
+  /// Starts the mDNS client once and keeps it alive. Null when it can't
+  /// start (e.g. no network interface).
+  Future<MDnsClient?> _ensureClient() async {
+    if (_client != null) return _client;
     final client = MDnsClient();
-
     try {
       await client.start();
-      final serviceName = '_adb-tls-connect._tcp.local';
+      _client = client;
+    } catch (e) {
+      LogService.error('mDNS client start failed: $e');
+    }
+    return _client;
+  }
 
-      await for (final ptr
-          in client
-              .lookup<PtrResourceRecord>(
-                ResourceRecordQuery.serverPointer(serviceName),
-              )
-              .timeout(Duration(seconds: timeoutSeconds))) {
-        // Resolve SRV record to get port and target hostname
-        try {
-          await for (final srv
-              in client
-                  .lookup<SrvResourceRecord>(
-                    ResourceRecordQuery.service(ptr.domainName),
-                  )
-                  .timeout(Duration(seconds: timeoutSeconds ~/ 2))) {
-            // Resolve IPv4 address
-            String? ip;
+  /// Pure Dart mDNS discovery using the [`multicast_dns`] package.
+  /// [client] must already be started — it's kept alive between scans.
+  Future<List<MdnsDiscoveredDevice>> _scanWithMDns(
+    MDnsClient client,
+    int timeoutSeconds,
+  ) async {
+    final results = <MdnsDiscoveredDevice>[];
+    final serviceName = '_adb-tls-connect._tcp.local';
 
-            await for (final addr
-                in client
-                    .lookup<IPAddressResourceRecord>(
-                      ResourceRecordQuery.addressIPv4(srv.target),
-                    )
-                    .timeout(Duration(seconds: timeoutSeconds ~/ 2))) {
+    await for (final ptr in client.lookup<PtrResourceRecord>(
+      ResourceRecordQuery.serverPointer(serviceName),
+      timeout: Duration(seconds: timeoutSeconds),
+    )) {
+      // Resolve SRV record to get port and target hostname
+      try {
+        await for (final srv in client.lookup<SrvResourceRecord>(
+          ResourceRecordQuery.service(ptr.domainName),
+          timeout: Duration(seconds: timeoutSeconds ~/ 2),
+        )) {
+          // Resolve IPv4 address
+          String? ip;
+
+          await for (final addr in client.lookup<IPAddressResourceRecord>(
+            ResourceRecordQuery.addressIPv4(srv.target),
+            timeout: Duration(seconds: timeoutSeconds ~/ 2),
+          )) {
+            ip = addr.address.address;
+            break;
+          }
+
+          // Fallback: try IPv6 if IPv4 not found
+          if (ip == null) {
+            await for (final addr in client.lookup<IPAddressResourceRecord>(
+              ResourceRecordQuery.addressIPv6(srv.target),
+              timeout: Duration(seconds: timeoutSeconds ~/ 2),
+            )) {
               ip = addr.address.address;
               break;
             }
-
-            // Fallback: try IPv6 if IPv4 not found
-            if (ip == null) {
-              await for (final addr
-                  in client
-                      .lookup<IPAddressResourceRecord>(
-                        ResourceRecordQuery.addressIPv6(srv.target),
-                      )
-                      .timeout(Duration(seconds: timeoutSeconds ~/ 2))) {
-                ip = addr.address.address;
-                break;
-              }
-            }
-
-            if (ip != null) {
-              results.add(
-                MdnsDiscoveredDevice(
-                  ip: ip,
-                  port: srv.port,
-                  name: ptr.domainName,
-                ),
-              );
-            }
           }
-        } on TimeoutException {
-          // Skip if SRV resolution times out for this entry
-        } catch (e) {
-          LogService.error('mDNS: unexpected SRV error: $e');
+
+          if (ip != null) {
+            results.add(
+              MdnsDiscoveredDevice(
+                ip: ip,
+                port: srv.port,
+                name: ptr.domainName,
+              ),
+            );
+            // Resolved — don't sit waiting for a second SRV record.
+            break;
+          }
         }
+      } catch (e) {
+        LogService.error('mDNS: unexpected SRV error: $e');
       }
-    } finally {
-      client.stop();
     }
 
     // Deduplicate by IP — same device can appear via multiple PTR records
@@ -157,7 +163,9 @@ class MdnsScanner {
     }
   }
 
+  /// Stops the persistent client, if any.
   void stop() {
-    // nothing to stop
+    _client?.stop();
+    _client = null;
   }
 }
