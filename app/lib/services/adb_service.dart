@@ -198,6 +198,8 @@ class AdbService {
       return const AdbConnectResult(success: false, error: 'adb_corrupted');
     }
 
+    LogService.info('Connecting to $ip:$port');
+
     try {
       final result = await Process.run(adb, [
         'connect',
@@ -209,6 +211,7 @@ class AdbService {
 
       if (stdout.contains('connected to') ||
           stdout.contains('already connected')) {
+        LogService.info('Connected to $ip:$port');
         await refreshDevices();
 
         final serialResult = await Process.run(adb, [
@@ -233,15 +236,20 @@ class AdbService {
       final full = '$stdout\n$stderr';
 
       if (full.contains('refused') || full.contains('unable to connect')) {
+        LogService.warning('Connect to $ip:$port failed: $full');
         return const AdbConnectResult(success: false, error: 'connect_refused');
       }
 
       final msg = [stdout, stderr].where((s) => s.isNotEmpty).join('\n');
+      LogService.warning(
+        'Connect to $ip:$port failed: ${msg.isEmpty ? '(no output)' : msg}',
+      );
       return AdbConnectResult(
         success: false,
         error: msg.isNotEmpty ? msg.trim() : 'connect_failed',
       );
     } on TimeoutException {
+      LogService.warning('Connect to $ip:$port timed out');
       return const AdbConnectResult(success: false, error: 'connect_timeout');
     } on SocketException catch (e) {
       LogService.error('Network error while connecting: $e');
