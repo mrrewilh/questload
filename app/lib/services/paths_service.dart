@@ -4,10 +4,10 @@ import 'package:path_provider/path_provider.dart';
 
 /// Single source of truth for all QuestLoad data paths.
 ///
-/// Windows/macOS: portable model — everything lives next to the
-/// executable, so deleting the app folder removes the app and its data.
-/// Linux: the exe dir is a read-only AppImage mount or a system folder,
-/// so data goes to the standard user data dir instead.
+/// Windows/macOS: portable model — data lives in a `userdata/` folder next
+/// to the executable, so deleting the app folder removes the app and its
+/// data. Linux: the exe dir is a read-only AppImage mount or a system
+/// folder, so data goes to the standard user data dir instead.
 /// The only leftover anywhere is adb's own adbkey, which adb writes to
 /// the user home by itself.
 class PathsService {
@@ -25,8 +25,10 @@ class PathsService {
       _cachedRoot = dir.path;
       return _cachedRoot!;
     }
+    // Portable: data in a userdata/ folder next to the executable, so the
+    // app files and user files don't mix in one folder.
     final execPath = Platform.resolvedExecutable;
-    final dir = Directory(execPath).parent;
+    final dir = Directory('${Directory(execPath).parent.path}/userdata');
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
