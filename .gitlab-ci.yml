@@ -9,10 +9,10 @@ build-windows:
   when: manual
   allow_failure: false
   before_script:
-    - git config --global --add safe.directory "C:/Users/$env:USERNAME/flutter"
+    - git config --global --add safe.directory C:/Users/mstab/flutter
   script:
-    - $flutter = "C:\Users\$env:USERNAME\flutter\bin\flutter.bat"
-    - $dart = "C:\Users\$env:USERNAME\flutter\bin\dart.bat"
+    - $flutter = "C:\Users\mstab\flutter\bin\flutter.bat"
+    - $dart = "C:\Users\mstab\flutter\bin\dart.bat"
     - $date = Get-Date -Format "yy.M.d"
     - $today = (Get-Date).ToString("yyyy-MM-dd")
     - $headers = @{ Authorization = "Bearer $CI_JOB_TOKEN" }
