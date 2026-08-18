@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="app/assets/header/threetext.png" width="500" alt="Questload header">
+  <img src="repo/image/header/threetext.png" width="500" alt="Questload header">
 </p>
 
 A desktop app to manage your Meta Quest device.
 
 <p align="center">
-  <img src="app/assets/window.png" width="600" alt="Questload window">
+  <img src="repo/image/window.png" width="600" alt="Questload window">
 </p>
 
 ### Why?
