@@ -1041,6 +1041,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Desktop shortcut deleted'**
   String get shortcutDeleted;
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
+
+  /// No description provided for @info.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get info;
+
+  /// No description provided for @wireless.
+  ///
+  /// In en, this message translates to:
+  /// **'Wireless'**
+  String get wireless;
+
+  /// No description provided for @infoModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get infoModel;
+
+  /// No description provided for @infoSerial.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial'**
+  String get infoSerial;
+
+  /// No description provided for @infoIp.
+  ///
+  /// In en, this message translates to:
+  /// **'IP address'**
+  String get infoIp;
+
+  /// No description provided for @infoPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Port'**
+  String get infoPort;
+
+  /// No description provided for @connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection'**
+  String get connection;
 }
 
 class _AppLocalizationsDelegate

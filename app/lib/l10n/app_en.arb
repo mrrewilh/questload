@@ -178,5 +178,13 @@
   "createShortcut": "Create desktop shortcut",
   "deleteShortcut": "Delete desktop shortcut",
   "shortcutCreated": "Desktop shortcut created",
-  "shortcutDeleted": "Desktop shortcut deleted"
+  "shortcutDeleted": "Desktop shortcut deleted",
+  "open": "Open",
+  "info": "Info",
+  "wireless": "Wireless",
+  "infoModel": "Model",
+  "infoSerial": "Serial",
+  "infoIp": "IP address",
+  "infoPort": "Port",
+  "connection": "Connection"
 }

@@ -9,32 +9,8 @@ import '../services/log_service.dart';
 import '../core/app_theme.dart';
 import '../core/constants.dart';
 import '../widgets/ql_widgets.dart';
-
-/// Maps a device model name to the matching headset SVG asset.
-String _svgForModel(String? model) {
-  if (model == null) return 'assets/headsets/unknown.svg';
-  final m = model.toLowerCase();
-  if (m.contains('quest 3s') || m.contains('quest3s')) {
-    return 'assets/headsets/metaquest3s.svg';
-  }
-  if (m.contains('quest 3') || m.contains('quest3')) {
-    return 'assets/headsets/metaquest3.svg';
-  }
-  if (m.contains('quest pro') || m.contains('questpro')) {
-    return 'assets/headsets/metaquestpro.svg';
-  }
-  if (m.contains('quest 2') ||
-      m.contains('quest2') ||
-      m.contains('oculus quest 2')) {
-    return 'assets/headsets/oculusquest2.svg';
-  }
-  if (m.contains('quest 1') ||
-      m.contains('quest1') ||
-      m.contains('oculus quest')) {
-    return 'assets/headsets/oculusquest1.svg';
-  }
-  return 'assets/headsets/unknown.svg';
-}
+import '../widgets/device_art.dart';
+import '../widgets/device_widget.dart';
 
 class DeviceScreen extends StatefulWidget {
   final AdbService adb;
@@ -54,6 +30,7 @@ class DeviceScreen extends StatefulWidget {
 class DeviceScreenState extends State<DeviceScreen>
     with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   List<_GridItem> _gridItems = [];
+  _GridItem? _viewing;
   List<MdnsDiscoveredDevice> _scanResults = [];
   bool _scanning = false;
   bool _syncing = false;
@@ -297,12 +274,17 @@ class DeviceScreenState extends State<DeviceScreen>
   }
 
   /// Right-click menu on a device card.
-  /// Right-click menu on a device card.
   void _showDeviceMenu(Offset globalPosition, _GridItem item) {
     final l = AppLocalizations.of(context)!;
     final items = <QLContextMenuItem>[];
     if (item.isConnected) {
-      // USB is a physical link — no disconnect; more actions come later.
+      items.add(
+        QLContextMenuItem(
+          label: l.open,
+          onTap: () => setState(() => _viewing = item),
+        ),
+      );
+      // USB is a physical link — no disconnect.
       if (item.serial.contains(':')) {
         items.add(
           QLContextMenuItem(
@@ -330,6 +312,18 @@ class DeviceScreenState extends State<DeviceScreen>
     final l = AppLocalizations.of(context)!;
     final c = context.ql;
     final textTheme = Theme.of(context).textTheme;
+
+    // A connected device was opened — show its view inside this tab.
+    final viewing = _viewing;
+    if (viewing != null) {
+      return _DeviceViewBody(
+        adb: widget.adb,
+        item: viewing,
+        smooth: widget.smoothScroll,
+        onBack: () => setState(() => _viewing = null),
+      );
+    }
+
     final scroller = widget.smoothScroll
         ? SilkyCustomScrollView.new
         : CustomScrollView.new;
@@ -477,7 +471,7 @@ class DeviceScreenState extends State<DeviceScreen>
   ) {
     final isConnected = item.isConnected;
     final svgPath = isConnected
-        ? _svgForModel(item.model)
+        ? headsetSvgForModel(item.model)
         : 'assets/headsets/unknown.svg';
 
     return Container(
@@ -492,7 +486,7 @@ class DeviceScreenState extends State<DeviceScreen>
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: isConnected
-              ? null
+              ? () => setState(() => _viewing = item)
               : () => _connectToIp(
                   item.ipAddress ?? item.serial,
                   item.port ?? kDefaultAdbPort,
@@ -672,6 +666,181 @@ class _DisconnectButton extends StatelessWidget {
                 : Icon(Icons.link_off_rounded, size: 13, color: c.textMuted),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// In-tab device view: back bar + hero widget + info. Everything stays
+/// inside the device tab, so the window title bar isn't touched.
+class _DeviceViewBody extends StatefulWidget {
+  final AdbService adb;
+  final _GridItem item;
+  final bool smooth;
+  final VoidCallback onBack;
+
+  const _DeviceViewBody({
+    required this.adb,
+    required this.item,
+    required this.smooth,
+    required this.onBack,
+  });
+
+  @override
+  State<_DeviceViewBody> createState() => _DeviceViewBodyState();
+}
+
+class _DeviceViewBodyState extends State<_DeviceViewBody> {
+  int? _headsetBattery;
+  int? _leftBattery;
+  int? _rightBattery;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBattery();
+  }
+
+  Future<void> _loadBattery() async {
+    final h = await widget.adb.getBattery(widget.item.serial);
+    final cc = await widget.adb.getControllerBatteries(widget.item.serial);
+    if (!mounted) return;
+    setState(() {
+      _headsetBattery = int.tryParse(h ?? '');
+      _leftBattery = cc.left;
+      _rightBattery = cc.right;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final c = context.ql;
+    final isUsb = !widget.item.serial.contains(':');
+
+    final children = <Widget>[
+      QLDeviceWidget(
+        headsetSvg: headsetSvgForModel(widget.item.model),
+        controllerSvg: controllerSvgForModel(widget.item.model),
+        headsetBattery: _headsetBattery,
+        leftBattery: _leftBattery,
+        rightBattery: _rightBattery,
+      ),
+      const SizedBox(height: 26),
+      Text(
+        l.info,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: c.textPrimary,
+        ),
+      ),
+      const SizedBox(height: 10),
+      Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: c.cardBorder),
+        ),
+        child: Column(
+          children: [
+            _infoRow(c, l.infoModel, widget.item.model ?? '—'),
+            _infoRow(c, l.infoSerial, widget.item.serial),
+            _infoRow(c, l.infoIp, widget.item.ipAddress ?? '—'),
+            _infoRow(c, l.infoPort, widget.item.port?.toString() ?? '—'),
+            _infoRow(c, l.connection, isUsb ? l.usb : l.wireless),
+          ],
+        ),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 6),
+          child: Row(
+            children: [
+              _BackButton(onTap: widget.onBack),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  widget.item.model ?? widget.item.serial,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: c.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: widget.smooth
+              ? SilkyListView(
+                  padding: const EdgeInsets.all(24),
+                  children: children,
+                )
+              : ListView(
+                  padding: const EdgeInsets.all(24),
+                  children: children,
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoRow(
+    QuestLoadColors c,
+    String label,
+    String value,
+  ) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 96,
+              child: Text(
+                label,
+                style: TextStyle(fontSize: 13, color: c.textSecondary),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                value,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, color: c.textPrimary),
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+class _BackButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _BackButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.ql;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: c.surfaceLight,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: c.cardBorder),
+        ),
+        child: Icon(Icons.chevron_left_rounded, size: 20, color: c.textPrimary),
       ),
     );
   }

@@ -355,6 +355,24 @@ class AdbService {
     return match?.group(1);
   }
 
+  /// Controller battery levels from the touch service.
+  /// Output order is left then right; null when a level is missing.
+  Future<({int? left, int? right})> getControllerBatteries(
+    String serial,
+  ) async {
+    final output = await shell(serial, 'dumpsys OVRRemoteService');
+    final levels = RegExp(
+      r'Battery:\s*(\d+)',
+    ).allMatches(output).map((m) => int.tryParse(m.group(1)!)).whereType<
+      int
+    >().toList();
+    if (levels.isEmpty) return (left: null, right: null);
+    return (
+      left: levels.first,
+      right: levels.length > 1 ? levels[1] : null,
+    );
+  }
+
   Future<String?> getIpAddress(String serial) async {
     final output = await shell(serial, 'ip -4 addr show wlan0');
     final match = RegExp(r'inet\s+(\d+\.\d+\.\d+\.\d+)').firstMatch(output);

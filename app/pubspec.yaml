@@ -35,5 +35,6 @@ flutter:
     - assets/themes/index.json
     - assets/themes/
     - assets/headsets/
+    - assets/controller/
     - assets/mascot/
 

@@ -519,4 +519,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shortcutDeleted => 'Desktop shortcut deleted';
+
+  @override
+  String get open => 'Open';
+
+  @override
+  String get info => 'Info';
+
+  @override
+  String get wireless => 'Wireless';
+
+  @override
+  String get infoModel => 'Model';
+
+  @override
+  String get infoSerial => 'Serial';
+
+  @override
+  String get infoIp => 'IP address';
+
+  @override
+  String get infoPort => 'Port';
+
+  @override
+  String get connection => 'Connection';
 }
