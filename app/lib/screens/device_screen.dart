@@ -315,45 +315,67 @@ class DeviceScreenState extends State<DeviceScreen>
 
     // A connected device was opened — show its view inside this tab.
     final viewing = _viewing;
+
+    final Widget page;
     if (viewing != null) {
-      return _DeviceViewBody(
+      page = _DeviceViewBody(
         adb: widget.adb,
         item: viewing,
         smooth: widget.smoothScroll,
         onBack: () => setState(() => _viewing = null),
       );
-    }
-
-    final scroller = widget.smoothScroll
-        ? SilkyCustomScrollView.new
-        : CustomScrollView.new;
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: _gridItems.isEmpty
-          ? _noAdb
-                ? _adbMissingLayout(l, c, textTheme)
-                : _emptyLayout(l, c, textTheme)
-          : scroller(
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                  sliver: SliverGrid(
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200.0,
-                      mainAxisExtent: 200.0,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          _gridCard(_gridItems[index], l, c, textTheme),
-                      childCount: _gridItems.length,
+    } else {
+      final scroller = widget.smoothScroll
+          ? SilkyCustomScrollView.new
+          : CustomScrollView.new;
+      page = Scaffold(
+        backgroundColor: Colors.transparent,
+        body: _gridItems.isEmpty
+            ? _noAdb
+                  ? _adbMissingLayout(l, c, textTheme)
+                  : _emptyLayout(l, c, textTheme)
+            : scroller(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 200.0,
+                        mainAxisExtent: 200.0,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) =>
+                            _gridCard(_gridItems[index], l, c, textTheme),
+                        childCount: _gridItems.length,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+      );
+    }
+
+    // Enter/exit crossfade + slide between the grid and the device view.
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 240),
+      switchOutCurve: Curves.easeInCubic,
+      switchInCurve: Curves.easeOutCubic,
+      transitionBuilder: (child, anim) => FadeTransition(
+        opacity: anim,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.03, 0),
+            end: Offset.zero,
+          ).animate(anim),
+          child: child,
+        ),
+      ),
+      child: KeyedSubtree(
+        key: ValueKey(viewing?.serial ?? 'grid'),
+        child: page,
+      ),
     );
   }
 
@@ -924,26 +946,51 @@ class _SerialInfoState extends State<_SerialInfo> {
   }
 }
 
-class _BackButton extends StatelessWidget {
+class _BackButton extends StatefulWidget {
   final VoidCallback onTap;
 
   const _BackButton({required this.onTap});
 
   @override
+  State<_BackButton> createState() => _BackButtonState();
+}
+
+class _BackButtonState extends State<_BackButton> {
+  bool _hover = false;
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     final c = context.ql;
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: c.surfaceLight,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: c.cardBorder),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: _pressed ? 0.9 : (_hover ? 1.08 : 1.0),
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: _hover ? c.surface : c.surfaceLight,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: c.cardBorder),
+            ),
+            child: Icon(
+              Icons.chevron_left_rounded,
+              size: 20,
+              color: c.textPrimary,
+            ),
+          ),
         ),
-        child: Icon(Icons.chevron_left_rounded, size: 20, color: c.textPrimary),
       ),
     );
   }
