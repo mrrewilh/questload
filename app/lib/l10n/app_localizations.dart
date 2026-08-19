@@ -1089,6 +1089,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connection'**
   String get connection;
+
+  /// No description provided for @serialUsbHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect via USB to read serial'**
+  String get serialUsbHint;
 }
 
 class _AppLocalizationsDelegate

@@ -2,6 +2,8 @@
 const kDevicePollInterval = Duration(seconds: 3);
 const kScanInterval = Duration(seconds: 30);
 const kThemeBrightnessPoll = Duration(seconds: 3);
+// How often the device view re-reads charge levels.
+const kDeviceBatteryRefresh = Duration(seconds: 30);
 
 // ─── ADB ─────────────────────────────────────────────────────────────
 const kDefaultAdbPort = 5555;

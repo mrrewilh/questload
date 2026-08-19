@@ -694,11 +694,29 @@ class _DeviceViewBodyState extends State<_DeviceViewBody> {
   int? _headsetBattery;
   int? _leftBattery;
   int? _rightBattery;
+  String? _serial;
+  Timer? _batteryTimer;
 
   @override
   void initState() {
     super.initState();
     _loadBattery();
+    _loadSerial();
+    _batteryTimer = Timer.periodic(
+      kDeviceBatteryRefresh,
+      (_) => _loadBattery(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _batteryTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadSerial() async {
+    final serial = await widget.adb.getDeviceSerial(widget.item.serial);
+    if (mounted) setState(() => _serial = serial);
   }
 
   Future<void> _loadBattery() async {
@@ -706,9 +724,12 @@ class _DeviceViewBodyState extends State<_DeviceViewBody> {
     final cc = await widget.adb.getControllerBatteries(widget.item.serial);
     if (!mounted) return;
     setState(() {
-      _headsetBattery = int.tryParse(h ?? '');
-      _leftBattery = cc.left;
-      _rightBattery = cc.right;
+      // Keep the old value if a fetch comes back empty — no blanking on
+      // the periodic refresh, the % just moves to the new one.
+      final hs = int.tryParse(h ?? '');
+      if (hs != null) _headsetBattery = hs;
+      if (cc.left != null) _leftBattery = cc.left;
+      if (cc.right != null) _rightBattery = cc.right;
     });
   }
 
@@ -746,9 +767,9 @@ class _DeviceViewBodyState extends State<_DeviceViewBody> {
         child: Column(
           children: [
             _infoRow(c, l.infoModel, widget.item.model ?? '—'),
-            _infoRow(c, l.infoSerial, widget.item.serial),
+            _SerialInfo(c: c, serial: _serial, hint: l.serialUsbHint),
             _infoRow(c, l.infoIp, widget.item.ipAddress ?? '—'),
-            _infoRow(c, l.infoPort, widget.item.port?.toString() ?? '—'),
+            if (!isUsb) _infoRow(c, l.infoPort, _wirelessPort()),
             _infoRow(c, l.connection, isUsb ? l.usb : l.wireless),
           ],
         ),
@@ -784,41 +805,123 @@ class _DeviceViewBodyState extends State<_DeviceViewBody> {
                   padding: const EdgeInsets.all(24),
                   children: children,
                 )
-              : ListView(
-                  padding: const EdgeInsets.all(24),
-                  children: children,
-                ),
+              : ListView(padding: const EdgeInsets.all(24), children: children),
         ),
       ],
     );
   }
 
-  Widget _infoRow(
-    QuestLoadColors c,
-    String label,
-    String value,
-  ) =>
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 96,
-              child: Text(
-                label,
-                style: TextStyle(fontSize: 13, color: c.textSecondary),
+  Widget _infoRow(QuestLoadColors c, String label, String value) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      children: [
+        SizedBox(
+          width: 96,
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 13, color: c.textSecondary),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 13, color: c.textPrimary),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  /// Wireless serial is `ip:port` — pull the port out of it.
+  String _wirelessPort() {
+    final s = widget.item.serial;
+    final i = s.lastIndexOf(':');
+    return i >= 0 ? s.substring(i + 1) : '—';
+  }
+}
+
+/// Serial row: censored by default, hover or click reveals the real one.
+class _SerialInfo extends StatefulWidget {
+  final QuestLoadColors c;
+  final String? serial;
+  final String hint;
+
+  const _SerialInfo({
+    required this.c,
+    required this.serial,
+    required this.hint,
+  });
+
+  @override
+  State<_SerialInfo> createState() => _SerialInfoState();
+}
+
+class _SerialInfoState extends State<_SerialInfo> {
+  bool _revealed = false;
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final c = widget.c;
+    final serial = widget.serial;
+
+    // Can't read the hardware serial — tell the user how.
+    final Widget value;
+    if (serial == null || serial.isEmpty) {
+      value = Text(
+        widget.hint,
+        style: TextStyle(fontSize: 13, color: c.textSecondary),
+      );
+    } else {
+      final shown = (_revealed || _hover) ? serial : '••••••••';
+      value = MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          onTap: () => setState(() => _revealed = !_revealed),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  shown,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 13, color: c.textPrimary),
+                ),
               ),
-            ),
-            Expanded(
-              child: Text(
-                value,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 13, color: c.textPrimary),
+              const SizedBox(width: 6),
+              Icon(
+                _revealed
+                    ? Icons.visibility_off_rounded
+                    : Icons.visibility_rounded,
+                size: 13,
+                color: c.textMuted,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 96,
+            child: Text(
+              l.infoSerial,
+              style: TextStyle(fontSize: 13, color: c.textSecondary),
+            ),
+          ),
+          Expanded(child: value),
+        ],
+      ),
+    );
+  }
 }
 
 class _BackButton extends StatelessWidget {

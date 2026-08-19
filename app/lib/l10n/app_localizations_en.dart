@@ -543,4 +543,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connection => 'Connection';
+
+  @override
+  String get serialUsbHint => 'Connect via USB to read serial';
 }

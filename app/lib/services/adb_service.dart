@@ -361,16 +361,20 @@ class AdbService {
     String serial,
   ) async {
     final output = await shell(serial, 'dumpsys OVRRemoteService');
-    final levels = RegExp(
-      r'Battery:\s*(\d+)',
-    ).allMatches(output).map((m) => int.tryParse(m.group(1)!)).whereType<
-      int
-    >().toList();
+    final levels = RegExp(r'Battery:\s*(\d+)')
+        .allMatches(output)
+        .map((m) => int.tryParse(m.group(1)!))
+        .whereType<int>()
+        .toList();
     if (levels.isEmpty) return (left: null, right: null);
-    return (
-      left: levels.first,
-      right: levels.length > 1 ? levels[1] : null,
-    );
+    return (left: levels.first, right: levels.length > 1 ? levels[1] : null);
+  }
+
+  /// Real hardware serial via `getprop ro.serialno`.
+  /// Works for both usb and wireless transports; null when unreadable.
+  Future<String?> getDeviceSerial(String serial) async {
+    final out = (await shell(serial, 'getprop ro.serialno')).trim();
+    return out.isEmpty ? null : out;
   }
 
   Future<String?> getIpAddress(String serial) async {

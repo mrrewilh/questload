@@ -186,5 +186,6 @@
   "infoSerial": "Serial",
   "infoIp": "IP address",
   "infoPort": "Port",
-  "connection": "Connection"
+  "connection": "Connection",
+  "serialUsbHint": "Connect via USB to read serial"
 }
