@@ -655,7 +655,14 @@ class QLContextMenuItem {
   final String label;
   final VoidCallback onTap;
 
-  const QLContextMenuItem({required this.label, required this.onTap});
+  /// Accent-highlight this item (e.g. an active toggle).
+  final bool highlighted;
+
+  const QLContextMenuItem({
+    required this.label,
+    required this.onTap,
+    this.highlighted = false,
+  });
 }
 
 /// Shows a desktop-style context menu at [globalPosition].
@@ -764,6 +771,7 @@ class _QLContextMenuState extends State<_QLContextMenu>
                         _QLContextMenuItemButton(
                           label: item.label,
                           colors: widget.colors,
+                          highlighted: item.highlighted,
                           onTap: () {
                             item.onTap();
                             widget.onDismiss();
@@ -784,11 +792,13 @@ class _QLContextMenuState extends State<_QLContextMenu>
 class _QLContextMenuItemButton extends StatelessWidget {
   final String label;
   final QuestLoadColors colors;
+  final bool highlighted;
   final VoidCallback onTap;
 
   const _QLContextMenuItemButton({
     required this.label,
     required this.colors,
+    required this.highlighted,
     required this.onTap,
   });
 
@@ -811,8 +821,8 @@ class _QLContextMenuItemButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               letterSpacing: -0.15,
-              fontWeight: FontWeight.w400,
-              color: c.textPrimary,
+              fontWeight: highlighted ? FontWeight.w600 : FontWeight.w400,
+              color: highlighted ? c.accent : c.textPrimary,
             ),
           ),
         ),

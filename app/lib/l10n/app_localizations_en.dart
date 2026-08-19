@@ -546,4 +546,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serialUsbHint => 'Connect via USB to read serial';
+
+  @override
+  String get autoSelect => 'Auto-select Off';
+
+  @override
+  String get autoSelectOn => 'Auto-select On';
 }

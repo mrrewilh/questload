@@ -1095,6 +1095,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connect via USB to read serial'**
   String get serialUsbHint;
+
+  /// No description provided for @autoSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-select Off'**
+  String get autoSelect;
+
+  /// No description provided for @autoSelectOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-select On'**
+  String get autoSelectOn;
 }
 
 class _AppLocalizationsDelegate

@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../services/device_service.dart';
 import '../services/adb_service.dart';
 import '../services/log_service.dart';
+import '../services/device_settings_service.dart';
 import '../core/app_theme.dart';
 import '../core/constants.dart';
 import '../widgets/ql_widgets.dart';
@@ -31,6 +32,7 @@ class DeviceScreenState extends State<DeviceScreen>
     with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   List<_GridItem> _gridItems = [];
   _GridItem? _viewing;
+  bool _autoSelectApplied = false;
   List<MdnsDiscoveredDevice> _scanResults = [];
   bool _scanning = false;
   bool _syncing = false;
@@ -45,6 +47,7 @@ class DeviceScreenState extends State<DeviceScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    DeviceSettingsService.instance.load();
 
     // Re-scan every 30 seconds to discover new devices
     _scanTimer = Timer.periodic(kScanInterval, (_) {
@@ -111,12 +114,16 @@ class DeviceScreenState extends State<DeviceScreen>
         final battery = await widget.adb.getBattery(serial);
         final ip = await widget.adb.getIpAddress(serial);
         final model = props['ro.product.model'] ?? 'Quest';
+        // Real hardware serial (ro.serialno) — same on usb and wireless,
+        // used to match device settings in devices.json.
+        final realSerial = props['ro.serialno'];
         connectedItems.add(
           _GridItem.connected(
             serial: serial,
             model: model,
             battery: battery,
             ipAddress: ip,
+            realSerial: realSerial,
           ),
         );
       }
@@ -140,6 +147,18 @@ class DeviceScreenState extends State<DeviceScreen>
         setState(() => _gridItems = [...connectedItems, ...preserved]);
         _managePing();
         widget.onConnectionChanged?.call();
+      }
+
+      // Auto-open the auto-selected device once the grid is first filled.
+      if (connectedItems.isNotEmpty && !_autoSelectApplied) {
+        _autoSelectApplied = true;
+        for (final it in connectedItems) {
+          final rs = it.realSerial;
+          if (rs != null && DeviceSettingsService.instance.autoSelectFor(rs)) {
+            setState(() => _viewing = it);
+            break;
+          }
+        }
       }
 
       // Start scan AFTER setState so connected devices are in the grid
@@ -284,6 +303,18 @@ class DeviceScreenState extends State<DeviceScreen>
           onTap: () => setState(() => _viewing = item),
         ),
       );
+      // Auto-select: open this device automatically when the tab is shown.
+      final rs = item.realSerial;
+      if (rs != null) {
+        final on = DeviceSettingsService.instance.autoSelectFor(rs);
+        items.add(
+          QLContextMenuItem(
+            label: on ? l.autoSelectOn : l.autoSelect,
+            highlighted: on,
+            onTap: () => DeviceSettingsService.instance.setAutoSelect(rs, !on),
+          ),
+        );
+      }
       // USB is a physical link — no disconnect.
       if (item.serial.contains(':')) {
         items.add(
@@ -578,6 +609,7 @@ class _GridItem {
   final String? battery;
   final String? ipAddress;
   final int? port;
+  final String? realSerial;
 
   const _GridItem({
     required this.serial,
@@ -586,6 +618,7 @@ class _GridItem {
     this.battery,
     this.ipAddress,
     this.port,
+    this.realSerial,
   });
 
   factory _GridItem.connected({
@@ -593,12 +626,14 @@ class _GridItem {
     String? model,
     String? battery,
     String? ipAddress,
+    String? realSerial,
   }) => _GridItem(
     serial: serial,
     isConnected: true,
     model: model,
     battery: battery,
     ipAddress: ipAddress,
+    realSerial: realSerial,
   );
 
   factory _GridItem.discovered({

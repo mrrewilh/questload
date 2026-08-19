@@ -187,5 +187,7 @@
   "infoIp": "IP address",
   "infoPort": "Port",
   "connection": "Connection",
-  "serialUsbHint": "Connect via USB to read serial"
+  "serialUsbHint": "Connect via USB to read serial",
+  "autoSelect": "Auto-select Off",
+  "autoSelectOn": "Auto-select On"
 }
