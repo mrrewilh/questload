@@ -830,3 +830,86 @@ class _QLContextMenuItemButton extends StatelessWidget {
     );
   }
 }
+
+// ─── QL Dialog ────────────────────────────────────────────────────
+// Clean custom dialog: a card with a title up top and two actions spread
+// left and right. No Material dialog chrome.
+
+class QLDialog extends StatelessWidget {
+  final String title;
+  final Widget content;
+  final Widget leftAction;
+  final Widget rightAction;
+
+  const QLDialog({
+    super.key,
+    required this.title,
+    required this.content,
+    required this.leftAction,
+    required this.rightAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.ql;
+    return Container(
+      width: 380,
+      padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.cardBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.45),
+            blurRadius: 32,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: c.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          content,
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [leftAction, rightAction],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shows a [QLDialog] in a modal barrier.
+Future<T?> showQLDialog<T>({
+  required BuildContext context,
+  required String title,
+  required Widget content,
+  required Widget leftAction,
+  required Widget rightAction,
+}) {
+  return showDialog<T>(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) => Center(
+      child: QLDialog(
+        title: title,
+        content: content,
+        leftAction: leftAction,
+        rightAction: rightAction,
+      ),
+    ),
+  );
+}

@@ -896,7 +896,7 @@ class _DeviceViewBodyState extends State<_DeviceViewBody> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    _PenButton(onTap: _rename, tooltip: l.rename),
+                    _PenButton(onTap: _rename),
                   ],
                 ),
               ),
@@ -1082,41 +1082,35 @@ class _BackButtonState extends State<_BackButton> {
 Future<String?> _promptDeviceName(BuildContext context, String current) async {
   final l = AppLocalizations.of(context)!;
   final controller = TextEditingController(text: current);
-  final name = await showDialog<String>(
+  final name = await showQLDialog<String>(
     context: context,
-    builder: (ctx) {
-      final c = context.ql;
-      return AlertDialog(
-        backgroundColor: c.card,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Text(l.renameDevice, style: TextStyle(color: c.textPrimary)),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLength: kDeviceNameMaxLength,
-          style: TextStyle(color: c.textPrimary, fontSize: 14),
-          decoration: InputDecoration(
-            hintText: l.renameDeviceHint,
-            hintStyle: TextStyle(color: c.textMuted),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: c.cardBorder),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: c.accent),
-            ),
-          ),
+    title: l.renameDevice,
+    content: TextField(
+      controller: controller,
+      autofocus: true,
+      maxLength: kDeviceNameMaxLength,
+      style: TextStyle(color: context.ql.textPrimary, fontSize: 14),
+      decoration: InputDecoration(
+        hintText: l.renameDeviceHint,
+        hintStyle: TextStyle(color: context.ql.textMuted),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: context.ql.cardBorder),
         ),
-        actions: [
-          QLButton(label: l.cancel, onPressed: () => Navigator.of(ctx).pop()),
-          QLButton(
-            label: l.save,
-            onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
-          ),
-        ],
-      );
-    },
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: context.ql.accent),
+        ),
+      ),
+    ),
+    leftAction: QLButton(
+      label: l.cancel,
+      onPressed: () => Navigator.of(context).pop(),
+    ),
+    rightAction: QLButton(
+      label: l.save,
+      onPressed: () => Navigator.of(context).pop(controller.text.trim()),
+    ),
   );
   controller.dispose();
   return name;
@@ -1126,9 +1120,8 @@ Future<String?> _promptDeviceName(BuildContext context, String current) async {
 /// hover.
 class _PenButton extends StatefulWidget {
   final VoidCallback onTap;
-  final String tooltip;
 
-  const _PenButton({required this.onTap, required this.tooltip});
+  const _PenButton({required this.onTap});
 
   @override
   State<_PenButton> createState() => _PenButtonState();
@@ -1150,19 +1143,10 @@ class _PenButtonState extends State<_PenButton> {
           scale: _hover ? 1.18 : 1.0,
           duration: const Duration(milliseconds: 120),
           curve: Curves.easeOut,
-          child: Tooltip(
-            message: widget.tooltip,
-            decoration: BoxDecoration(
-              color: c.card,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: c.cardBorder),
-            ),
-            textStyle: TextStyle(color: c.textPrimary, fontSize: 12),
-            child: Icon(
-              Icons.edit_rounded,
-              size: 16,
-              color: _hover ? c.textPrimary : c.textSecondary,
-            ),
+          child: Icon(
+            Icons.edit_rounded,
+            size: 16,
+            color: _hover ? c.textPrimary : c.textSecondary,
           ),
         ),
       ),
