@@ -33,53 +33,51 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final c = context.ql;
-    return AlertDialog(
-      backgroundColor: c.card,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SvgPicture.asset(
-            'assets/mascot/update.svg',
-            width: 140,
-            height: 140,
-            colorFilter: ColorFilter.mode(
-              c.textMuted.withValues(alpha: 0.3),
-              BlendMode.srcIn,
+    return Center(
+      child: QLDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              'assets/mascot/update.svg',
+              width: 120,
+              height: 120,
+              colorFilter: ColorFilter.mode(
+                c.textMuted.withValues(alpha: 0.3),
+                BlendMode.srcIn,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l.updateTitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            l.updateSubtitle(widget.currentVersion, widget.newVersion),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 12),
-          QLCheckbox(
-            value: _skip,
-            label: l.updateRemindNever,
-            onChanged: (v) => setState(() => _skip = v),
-          ),
-        ],
-      ),
-      actions: [
-        QLButton(
+            const SizedBox(height: 16),
+            Text(
+              l.updateTitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l.updateSubtitle(widget.currentVersion, widget.newVersion),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 14),
+            QLCheckbox(
+              value: _skip,
+              label: l.updateRemindNever,
+              onChanged: (v) => setState(() => _skip = v),
+            ),
+          ],
+        ),
+        leftAction: QLButton(
           label: l.updateLater,
           onPressed: () => Navigator.of(context).pop(UpdateChoice.later),
         ),
-        QLButton(
+        rightAction: QLButton(
           label: widget.canDownload ? l.updateDownload : l.updateContinue,
           onPressed: () => Navigator.of(
             context,
           ).pop(_skip ? UpdateChoice.skip : UpdateChoice.download),
         ),
-      ],
+      ),
     );
   }
 }
@@ -87,24 +85,17 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
 /// Asks to apply a downloaded update by restarting. Windows only.
 Future<bool> showApplyUpdateDialog(BuildContext context) async {
   final l = AppLocalizations.of(context)!;
-  final c = context.ql;
-  final result = await showDialog<bool>(
+  final result = await showQLDialog<bool>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      backgroundColor: c.card,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      title: Text(l.updateApplyTitle),
-      content: Text(l.updateApplyText),
-      actions: [
-        QLButton(
-          label: l.updateLater,
-          onPressed: () => Navigator.of(ctx).pop(false),
-        ),
-        QLButton(
-          label: l.updateRestartNow,
-          onPressed: () => Navigator.of(ctx).pop(true),
-        ),
-      ],
+    title: l.updateApplyTitle,
+    content: Text(l.updateApplyText),
+    leftAction: QLButton(
+      label: l.updateLater,
+      onPressed: () => Navigator.of(context).pop(false),
+    ),
+    rightAction: QLButton(
+      label: l.updateRestartNow,
+      onPressed: () => Navigator.of(context).pop(true),
     ),
   );
   return result ?? false;
@@ -116,25 +107,22 @@ Future<void> showChangelogDialog(
   required String body,
 }) async {
   final l = AppLocalizations.of(context)!;
-  final c = context.ql;
-  await showDialog<void>(
+  await showQLDialog<void>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      backgroundColor: c.card,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      title: Text(l.updateWhatNew),
-      content: SizedBox(
-        width: 380,
-        child: SingleChildScrollView(
-          child: Text(
-            body.isEmpty ? l.updateNoChangelog : body,
-            style: Theme.of(ctx).textTheme.bodyMedium,
-          ),
+    title: l.updateWhatNew,
+    content: ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 400),
+      child: SingleChildScrollView(
+        child: Text(
+          body.isEmpty ? l.updateNoChangelog : body,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ),
-      actions: [
-        QLButton(label: l.close, onPressed: () => Navigator.of(ctx).pop()),
-      ],
+    ),
+    leftAction: const SizedBox.shrink(),
+    rightAction: QLButton(
+      label: l.close,
+      onPressed: () => Navigator.of(context).pop(),
     ),
   );
 }

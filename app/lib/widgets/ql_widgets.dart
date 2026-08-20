@@ -836,14 +836,14 @@ class _QLContextMenuItemButton extends StatelessWidget {
 // left and right. No Material dialog chrome.
 
 class QLDialog extends StatelessWidget {
-  final String title;
+  final String? title;
   final Widget content;
   final Widget leftAction;
   final Widget rightAction;
 
   const QLDialog({
     super.key,
-    required this.title,
+    this.title,
     required this.content,
     required this.leftAction,
     required this.rightAction,
@@ -871,15 +871,17 @@ class QLDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: c.textPrimary,
+          if (title != null) ...[
+            Text(
+              title!,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: c.textPrimary,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ],
           content,
           const SizedBox(height: 20),
           Row(
