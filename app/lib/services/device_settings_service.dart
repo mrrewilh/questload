@@ -53,7 +53,14 @@ class DeviceSettingsService {
     await _save();
   }
 
+  /// Only one device is auto-selected at a time — turning it on for one
+  /// clears it on every other.
   Future<void> setAutoSelect(String realSerial, bool value) async {
+    if (value) {
+      for (final k in _devices.keys) {
+        if (k != realSerial) _devices[k]?.remove('autoSelect');
+      }
+    }
     (_devices[realSerial] ??= {})['autoSelect'] = value;
     await _save();
   }
