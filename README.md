@@ -18,6 +18,9 @@ I'm a user, just like you. Tried to give the best experience to myself, and ever
 - mDNS auto-discovery
 - File manager for on-device storage
 
+### Related Projects
+[Vr Cyberdeck by DMP](https://github.com/DeliciousMeatPop/VRCD)
+
 ### License
 
 > Questload uses GPL-3.0 — Every copy of it must have source code on the internet. 
