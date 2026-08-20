@@ -306,6 +306,22 @@ class DeviceScreenState extends State<DeviceScreen>
       // Auto-select: open this device automatically when the tab is shown.
       final rs = item.realSerial;
       if (rs != null) {
+        items.add(
+          QLContextMenuItem(
+            label: l.rename,
+            onTap: () async {
+              final current =
+                  DeviceSettingsService.instance.nameFor(rs) ??
+                  item.model ??
+                  item.serial;
+              final name = await _promptDeviceName(context, current);
+              if (name != null) {
+                await DeviceSettingsService.instance.setName(rs, name);
+                if (mounted) setState(() {});
+              }
+            },
+          ),
+        );
         final on = DeviceSettingsService.instance.autoSelectFor(rs);
         items.add(
           QLContextMenuItem(
@@ -586,7 +602,11 @@ class DeviceScreenState extends State<DeviceScreen>
                 const SizedBox(height: 8.0),
                 Text(
                   isConnected
-                      ? (item.model ?? item.serial)
+                      ? (DeviceSettingsService.instance.nameFor(
+                              item.realSerial ?? '',
+                            ) ??
+                            item.model ??
+                            item.serial)
                       : (item.ipAddress ?? item.serial),
                   style: textTheme.bodyLarge,
                   maxLines: 1,
@@ -790,6 +810,24 @@ class _DeviceViewBodyState extends State<_DeviceViewBody> {
     });
   }
 
+  String _displayName() {
+    final rs = widget.item.realSerial;
+    final custom = rs == null
+        ? null
+        : DeviceSettingsService.instance.nameFor(rs);
+    return custom ?? widget.item.model ?? widget.item.serial;
+  }
+
+  Future<void> _rename() async {
+    final rs = widget.item.realSerial;
+    if (rs == null) return;
+    final name = await _promptDeviceName(context, _displayName());
+    if (name != null) {
+      await DeviceSettingsService.instance.setName(rs, name);
+      if (mounted) setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -843,14 +881,23 @@ class _DeviceViewBodyState extends State<_DeviceViewBody> {
               _BackButton(onTap: widget.onBack),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  widget.item.model ?? widget.item.serial,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                    color: c.textPrimary,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _displayName(),
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: c.textPrimary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    _PenButton(onTap: _rename, tooltip: l.rename),
+                  ],
                 ),
               ),
             ],
@@ -1023,6 +1070,98 @@ class _BackButtonState extends State<_BackButton> {
               Icons.chevron_left_rounded,
               size: 20,
               color: c.textPrimary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Asks for a device name. Returns the trimmed name, or null when cancelled.
+Future<String?> _promptDeviceName(BuildContext context, String current) async {
+  final l = AppLocalizations.of(context)!;
+  final controller = TextEditingController(text: current);
+  final name = await showDialog<String>(
+    context: context,
+    builder: (ctx) {
+      final c = context.ql;
+      return AlertDialog(
+        backgroundColor: c.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        title: Text(l.renameDevice, style: TextStyle(color: c.textPrimary)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: kDeviceNameMaxLength,
+          style: TextStyle(color: c.textPrimary, fontSize: 14),
+          decoration: InputDecoration(
+            hintText: l.renameDeviceHint,
+            hintStyle: TextStyle(color: c.textMuted),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: c.cardBorder),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: c.accent),
+            ),
+          ),
+        ),
+        actions: [
+          QLButton(label: l.cancel, onPressed: () => Navigator.of(ctx).pop()),
+          QLButton(
+            label: l.save,
+            onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
+          ),
+        ],
+      );
+    },
+  );
+  controller.dispose();
+  return name;
+}
+
+/// Small pen that sits right after a title's text. Plain icon, lifts on
+/// hover.
+class _PenButton extends StatefulWidget {
+  final VoidCallback onTap;
+  final String tooltip;
+
+  const _PenButton({required this.onTap, required this.tooltip});
+
+  @override
+  State<_PenButton> createState() => _PenButtonState();
+}
+
+class _PenButtonState extends State<_PenButton> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.ql;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: _hover ? 1.18 : 1.0,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          child: Tooltip(
+            message: widget.tooltip,
+            decoration: BoxDecoration(
+              color: c.card,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: c.cardBorder),
+            ),
+            textStyle: TextStyle(color: c.textPrimary, fontSize: 12),
+            child: Icon(
+              Icons.edit_rounded,
+              size: 16,
+              color: _hover ? c.textPrimary : c.textSecondary,
             ),
           ),
         ),

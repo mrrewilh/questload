@@ -552,4 +552,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get autoSelectOn => 'Auto-select On';
+
+  @override
+  String get rename => 'Rename';
+
+  @override
+  String get renameDevice => 'Rename device';
+
+  @override
+  String get renameDeviceHint => 'Custom name';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
 }

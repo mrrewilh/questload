@@ -189,5 +189,10 @@
   "connection": "Connection",
   "serialUsbHint": "Connect via USB to read serial",
   "autoSelect": "Auto-select Off",
-  "autoSelectOn": "Auto-select On"
+  "autoSelectOn": "Auto-select On",
+  "rename": "Rename",
+  "renameDevice": "Rename device",
+  "renameDeviceHint": "Custom name",
+  "cancel": "Cancel",
+  "save": "Save"
 }

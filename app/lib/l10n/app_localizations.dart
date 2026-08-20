@@ -1107,6 +1107,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Auto-select On'**
   String get autoSelectOn;
+
+  /// No description provided for @rename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get rename;
+
+  /// No description provided for @renameDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename device'**
+  String get renameDevice;
+
+  /// No description provided for @renameDeviceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom name'**
+  String get renameDeviceHint;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
 }
 
 class _AppLocalizationsDelegate

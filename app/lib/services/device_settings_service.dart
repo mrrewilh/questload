@@ -42,8 +42,10 @@ class DeviceSettingsService {
     }
   }
 
-  String? nameFor(String realSerial) =>
-      _devices[realSerial]?['name'] as String?;
+  String? nameFor(String realSerial) {
+    final n = _devices[realSerial]?['name'] as String?;
+    return (n == null || n.isEmpty) ? null : n;
+  }
 
   bool autoSelectFor(String realSerial) =>
       _devices[realSerial]?['autoSelect'] as bool? ?? false;
