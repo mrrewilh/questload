@@ -15,6 +15,7 @@ import '../core/constants.dart';
 /// 2. `avahi-browse` on Linux (fallback if mDNS fails)
 class MdnsScanner {
   MDnsClient? _client;
+  bool? _hasAvahi;
 
   /// Scan for Quest VR devices on the local network.
   Future<List<MdnsDiscoveredDevice>> scan({
@@ -36,20 +37,32 @@ class MdnsScanner {
       stop();
     }
 
-    // Strategy 2: avahi-browse on Linux (fallback)
+    // Strategy 2: avahi-browse on Linux (fallback). Checked once — the
+    // check + "not found" log only happen on the first scan.
     if (Platform.isLinux) {
-      try {
-        final hasAvahi = await Process.run('which', ['avahi-browse']);
-        if (hasAvahi.exitCode == 0) {
+      _hasAvahi ??= await _checkAvahi();
+      if (_hasAvahi == true && timeoutSeconds >= 0) {
+        try {
           return await _scanWithAvahi(timeoutSeconds);
+        } catch (e) {
+          LogService.error('avahi-browse scan failed: $e');
         }
-        LogService.info('avahi-browse not found on system');
-      } catch (e) {
-        LogService.error('avahi-browse check failed: $e');
       }
     }
 
     return [];
+  }
+
+  Future<bool> _checkAvahi() async {
+    try {
+      final r = await Process.run('which', ['avahi-browse']);
+      final ok = r.exitCode == 0;
+      if (!ok) LogService.info('avahi-browse not found on system');
+      return ok;
+    } catch (_) {
+      LogService.info('avahi-browse not found on system');
+      return false;
+    }
   }
 
   /// Starts the mDNS client once and keeps it alive. Null when it can't
