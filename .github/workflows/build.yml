@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   build:
@@ -19,13 +20,19 @@ jobs:
         shell: pwsh
         run: |
           $date = Get-Date -Format "yy.M.d"
-          $today = (Get-Date).ToString("yyyy-MM-dd")
-          $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = "application/vnd.github+json" }
-          $runs = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/runs?per_page=100"
-          $todayCount = ($runs.workflow_runs | Where-Object { $_.status -eq "completed" -and $_.conclusion -eq "success" -and $_.created_at.StartsWith($today) } | Measure-Object).Count
+          $todayCount = 0
+          try {
+            $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = "application/vnd.github+json" }
+            $today = (Get-Date).ToString("yyyy-MM-dd")
+            $runs = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/runs?per_page=100"
+            $todayCount = ($runs.workflow_runs | Where-Object { $_.status -eq "completed" -and $_.conclusion -eq "success" -and $_.created_at.StartsWith($today) } | Measure-Object).Count
+          } catch {
+            Write-Host "workflow_runs api failed, fallback to tags: $_"
+            git fetch --tags --quiet
+            $tags = git tag --list "v$date*"
+            $todayCount = ($tags | Measure-Object).Count
+          }
           $ver = if ($todayCount -eq 0) { $date } else { "$date-$todayCount" }
-          $num = if ($todayCount -eq 0) { 1 } else { $todayCount + 1 }
-          # dart build-number must be int: use day ordinal + build
           $buildNum = $todayCount + 1
           echo "version=$ver" >> $env:GITHUB_OUTPUT
           echo "buildNum=$buildNum" >> $env:GITHUB_OUTPUT
