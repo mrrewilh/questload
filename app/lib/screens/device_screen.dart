@@ -220,6 +220,7 @@ class DeviceScreenState extends State<DeviceScreen>
   }
 
   Future<void> _startScan() async {
+    if (!mounted) return;
     setState(() => _scanning = true);
 
     try {
