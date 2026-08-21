@@ -60,21 +60,11 @@ class AdbService {
     // Windows / macOS: try bundled first, then PATH
     final dirs = <String>{};
 
-    // 1. From the running executable's directory (+ qlapp sibling handling)
+    // 1. From the running executable's directory
     try {
       final execPath = Platform.resolvedExecutable;
       if (execPath.isNotEmpty) {
-        final exeDir = Directory(execPath).parent.path;
-        dirs.add(exeDir);
-        // New layout: exe lives in qlapp/, old flat layout has no qlapp.
-        // Add the sibling so both layouts are probed in one pass.
-        final isQlapp =
-            exeDir.split(Platform.pathSeparator).last == 'qlapp';
-        if (isQlapp) {
-          dirs.add(Directory(exeDir).parent.path);
-        } else {
-          dirs.add('$exeDir${Platform.pathSeparator}qlapp');
-        }
+        dirs.add(Directory(execPath).parent.path);
       }
     } catch (_) {
       LogService.warning('Could not resolve executable path');
