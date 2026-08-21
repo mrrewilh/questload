@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -214,7 +216,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       _themeMode = (json['theme_mode'] as String?) ?? 'auto';
       _smoothScroll = (json['smooth_scroll'] as bool?) ?? true;
       _updateAutoCheck = (json['update_auto_check'] as bool?) ?? true;
-      _openLastPageOnStart = (json['open_last_page_on_start'] as bool?) ?? false;
+      _openLastPageOnStart =
+          (json['open_last_page_on_start'] as bool?) ?? false;
       _lastPage = (json['last_page'] as String?) ?? 'home';
       _updateSkipVersion = (json['update_skip_version'] as String?) ?? '';
       _lastSeenVersion = (json['last_seen_version'] as String?) ?? '';
@@ -385,6 +388,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     final canDownload = defaultTargetPlatform == TargetPlatform.windows;
     final choice = await showDialog<UpdateChoice>(
       context: _uiContext,
+      barrierDismissible: false,
       builder: (ctx) => Theme(
         data: _themeData,
         child: UpdateAvailableDialog(
@@ -403,7 +407,47 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     // Download only where the update can actually be applied — on Linux
     // 'Continue' just closes the popup, no pointless zip.
     if (canDownload && choice == UpdateChoice.download) {
+      // Modal progress — not dismissible, stays until download finishes.
+      if (!mounted) return;
+      showDialog<void>(
+        context: _uiContext,
+        barrierDismissible: false,
+        builder: (ctx) => PopScope(
+          canPop: false,
+          child: Theme(
+            data: _themeData,
+            child: Center(
+              child: QLDialog(
+                content: Row(
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: _themeData
+                            .extension<QuestLoadColors>()!
+                            .textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(_uiContext)!.updateDownloading('…'),
+                        style: Theme.of(_uiContext).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                leftAction: const SizedBox.shrink(),
+                rightAction: const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      );
       final zip = await UpdateService.downloadAndVerify(update);
+      if (mounted) Navigator.of(_uiContext).pop();
       if (!mounted) return;
       if (zip == null) {
         QLToast.show(
@@ -414,7 +458,11 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         return;
       }
       await UpdateService.markPending(update.version, update.sha256);
-      // applied on next launch, when the popup asks
+      QLToast.show(
+        _uiContext,
+        'Update downloaded — restart to apply',
+        kind: QLToastKind.success,
+      );
     }
   }
 

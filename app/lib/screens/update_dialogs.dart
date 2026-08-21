@@ -88,7 +88,10 @@ Future<bool> showApplyUpdateDialog(BuildContext context) async {
   final result = await showQLDialog<bool>(
     context: context,
     title: l.updateApplyTitle,
-    content: Text(l.updateApplyText),
+    content: Text(
+      l.updateApplyText,
+      style: Theme.of(context).textTheme.bodyMedium,
+    ),
     leftAction: QLButton(
       label: l.updateLater,
       onPressed: () => Navigator.of(context).pop(false),
@@ -97,6 +100,7 @@ Future<bool> showApplyUpdateDialog(BuildContext context) async {
       label: l.updateRestartNow,
       onPressed: () => Navigator.of(context).pop(true),
     ),
+    barrierDismissible: false,
   );
   return result ?? false;
 }

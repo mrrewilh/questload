@@ -30,7 +30,7 @@ PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=..\..\..\build
 OutputBaseFilename=QuestLoad-Setup-{#MyAppVersion}
 SetupIconFile=setup.ico
-WizardStyle=modern
+WizardStyle=modern dynamic
 Compression=lzma2/ultra64
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
@@ -61,6 +61,20 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  ResultCode: Integer;
+begin
+  if CurUninstallStep = usUninstall then
+  begin
+    // stop our adbd so uninstall can delete bundled adb.exe/dlls
+    Exec(ExpandConstant('{app}\adb.exe'), 'kill-server', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Exec('taskkill', '/f /im adb.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Exec('taskkill', '/f /im questload.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  end;
+end;
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\downloads"

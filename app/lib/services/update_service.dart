@@ -87,7 +87,10 @@ class UpdateService {
 
       // GitHub releases/latest -> {tag_name, assets:[{name, browser_download_url}]}
       if (data.containsKey('tag_name')) {
-        final tag = (data['tag_name'] as String).replaceFirst(RegExp(r'^v'), '');
+        final tag = (data['tag_name'] as String).replaceFirst(
+          RegExp(r'^v'),
+          '',
+        );
         if (compareVersions(tag, currentVersion) <= 0) {
           return const UpdateCheckResult(reachable: true);
         }
@@ -281,38 +284,55 @@ class UpdateService {
     );
     final src = await inner.exists() ? inner.path : extracted.path;
     final installDir = File(currentExePath).parent.path;
-    // Paths sit in single-quoted PS literals: a quote or dollar in the
-    // install dir can't alter the script. If the swap hits a permission
-    // wall the script re-runs itself elevated (UAC) — no string building.
+    final extractedRoot = extracted.path;
     String psLiteral(String s) => "'${s.replaceAll("'", "''")}'";
     final script =
         '''
 \$src = ${psLiteral(src)}
 \$dest = ${psLiteral(installDir)}
+\$root = ${psLiteral(extractedRoot)}
+\$exe = Join-Path \$dest 'questload.exe'
 \$script = \$PSCommandPath
+# wait for app to fully exit then settle
 while (Get-Process -Name questload -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 400 }
+Start-Sleep -Milliseconds 800
 try {
   Copy-Item -Recurse -Force (Join-Path \$src '*') \$dest -ErrorAction Stop
-  Remove-Item -Recurse -Force \$src
-  Start-Process (Join-Path \$dest 'questload.exe')
+  # clean extracted folder (src may be inner questload subdir)
+  if (Test-Path \$root) { Remove-Item -Recurse -Force \$root -ErrorAction SilentlyContinue }
+  Start-Process -FilePath \$exe -WorkingDirectory \$dest
 } catch {
-  Remove-Item -Recurse -Force \$src
-  Start-Process powershell -Verb RunAs -ArgumentList ('-NoProfile -ExecutionPolicy Bypass -File "' + \$script + '"')
+  # permission wall is unlikely for per-user LocalAppData, but retry elevated
+  try { Start-Process powershell -Verb RunAs -ArgumentList ('-NoProfile -ExecutionPolicy Bypass -File "' + \$script + '"') } catch {}
 }
 ''';
     final scriptFile = File('${zip.parent.path}/apply.ps1');
     await scriptFile.writeAsString(script);
-    // Await the spawn — exiting before it finishes kills the handoff
-    // before it ever runs.
     try {
-      await Process.start('powershell', [
-        '-NoProfile',
-        '-ExecutionPolicy',
-        'Bypass',
-        '-File',
-        scriptFile.path,
-      ], mode: ProcessStartMode.detached);
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+      // prefer powershell.exe, fallback to pwsh
+      Future<bool> spawn(String exe) async {
+        try {
+          await Process.start(exe, [
+            '-NoProfile',
+            '-ExecutionPolicy',
+            'Bypass',
+            '-File',
+            scriptFile.path,
+          ], mode: ProcessStartMode.detached);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      var ok = await spawn('powershell.exe');
+      if (!ok) ok = await spawn('powershell');
+      if (!ok) ok = await spawn('pwsh');
+      if (!ok) {
+        LogService.error('Update handoff failed to start: no shell');
+        return false;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 700));
       return true;
     } catch (e) {
       LogService.error('Update handoff failed to start: $e');

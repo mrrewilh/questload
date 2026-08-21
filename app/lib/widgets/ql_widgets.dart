@@ -115,6 +115,7 @@ class _QLButtonState extends State<QLButton> {
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                             color: enabled ? c.textPrimary : c.textMuted,
+                            decoration: TextDecoration.none,
                           ),
                         ),
                       ],
@@ -902,10 +903,12 @@ Future<T?> showQLDialog<T>({
   required Widget content,
   required Widget leftAction,
   required Widget rightAction,
+  bool barrierDismissible = true,
 }) {
   return showDialog<T>(
     context: context,
-    barrierDismissible: true,
+    barrierDismissible: barrierDismissible,
+    barrierColor: Colors.black.withValues(alpha: 0.55),
     builder: (_) => Center(
       child: QLDialog(
         title: title,
