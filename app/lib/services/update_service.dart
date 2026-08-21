@@ -70,14 +70,73 @@ class UpdateService {
     required String currentVersion,
   }) async {
     try {
-      final client = HttpClient();
-      final req = await client.getUrl(Uri.parse(kUpdateManifestUrl));
-      final res = await req.close();
-      if (res.statusCode != 200) {
-        return const UpdateCheckResult(reachable: false);
+      Future<Map<String, dynamic>?> fetchJson(String url) async {
+        final c = HttpClient();
+        final r = await c.getUrl(Uri.parse(url));
+        r.headers.set('User-Agent', 'QuestLoad');
+        r.headers.set('Accept', 'application/vnd.github+json');
+        final resp = await r.close();
+        if (resp.statusCode != 200) return null;
+        final b = await resp.transform(utf8.decoder).join();
+        return jsonDecode(b) as Map<String, dynamic>;
       }
-      final body = await res.transform(utf8.decoder).join();
+
+      final body = await _get(kUpdateManifestUrl);
+      if (body == null) return const UpdateCheckResult(reachable: false);
       final data = jsonDecode(body) as Map<String, dynamic>;
+
+      // GitHub releases/latest -> {tag_name, assets:[{name, browser_download_url}]}
+      if (data.containsKey('tag_name')) {
+        final tag = (data['tag_name'] as String).replaceFirst(RegExp(r'^v'), '');
+        if (compareVersions(tag, currentVersion) <= 0) {
+          return const UpdateCheckResult(reachable: true);
+        }
+        final assets = (data['assets'] as List?) ?? [];
+        String manifestUrl = '';
+        for (final a in assets) {
+          final m = a as Map<String, dynamic>;
+          if ((m['name'] as String?) == 'manifest.json') {
+            manifestUrl = (m['browser_download_url'] as String?) ?? '';
+            break;
+          }
+        }
+        if (manifestUrl.isNotEmpty) {
+          final mf = await fetchJson(manifestUrl);
+          if (mf != null) {
+            final v = (mf['version'] as String?) ?? tag;
+            if (compareVersions(v, currentVersion) <= 0) {
+              return const UpdateCheckResult(reachable: true);
+            }
+            return UpdateCheckResult(
+              reachable: true,
+              info: UpdateInfo(
+                version: v,
+                sha256: (mf['sha256'] as String?) ?? '',
+                zipUrl: (mf['zip_url'] as String?) ?? '',
+                zipName: (mf['zip'] as String?) ?? 'questload-$v.zip',
+              ),
+            );
+          }
+        }
+        // fallback: find zip directly in assets
+        for (final a in assets) {
+          final m = a as Map<String, dynamic>;
+          final n = m['name'] as String? ?? '';
+          if (n.endsWith('.zip')) {
+            return UpdateCheckResult(
+              reachable: true,
+              info: UpdateInfo(
+                version: tag,
+                sha256: '',
+                zipUrl: (m['browser_download_url'] as String?) ?? '',
+                zipName: n,
+              ),
+            );
+          }
+        }
+        return const UpdateCheckResult(reachable: true);
+      }
+
       final version = data['version'] as String?;
       if (version == null || compareVersions(version, currentVersion) <= 0) {
         return const UpdateCheckResult(reachable: true);
@@ -95,6 +154,16 @@ class UpdateService {
       LogService.warning('Update check failed: $e');
       return const UpdateCheckResult(reachable: false);
     }
+  }
+
+  static Future<String?> _get(String url) async {
+    final c = HttpClient();
+    final r = await c.getUrl(Uri.parse(url));
+    r.headers.set('User-Agent', 'QuestLoad');
+    r.headers.set('Accept', 'application/vnd.github+json');
+    final resp = await r.close();
+    if (resp.statusCode != 200) return null;
+    return resp.transform(utf8.decoder).join();
   }
 
   /// Downloads the update zip and verifies its sha256.

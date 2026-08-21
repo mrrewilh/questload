@@ -1,0 +1,98 @@
+name: build-windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: compute version yy.M.d + -N
+        id: ver
+        shell: pwsh
+        run: |
+          $date = Get-Date -Format "yy.M.d"
+          $today = (Get-Date).ToString("yyyy-MM-dd")
+          $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = "application/vnd.github+json" }
+          $runs = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/runs?per_page=100"
+          $todayCount = ($runs.workflow_runs | Where-Object { $_.status -eq "completed" -and $_.conclusion -eq "success" -and $_.created_at.StartsWith($today) } | Measure-Object).Count
+          $ver = if ($todayCount -eq 0) { $date } else { "$date-$todayCount" }
+          $num = if ($todayCount -eq 0) { 1 } else { $todayCount + 1 }
+          # dart build-number must be int: use day ordinal + build
+          $buildNum = $todayCount + 1
+          echo "version=$ver" >> $env:GITHUB_OUTPUT
+          echo "buildNum=$buildNum" >> $env:GITHUB_OUTPUT
+          Write-Host "version=$ver buildNum=$buildNum"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: flutter analyze + build
+        shell: pwsh
+        run: |
+          cd app
+          flutter pub get
+          flutter analyze
+          dart format --output=none --set-exit-if-changed lib
+          flutter build windows --release --build-name "${{ steps.ver.outputs.version }}" --build-number "${{ steps.ver.outputs.buildNum }}"
+
+      - name: bundle adb + changelog
+        shell: pwsh
+        run: |
+          $ver = "${{ steps.ver.outputs.version }}"
+          $release = "app/build/windows/x64/runner/Release"
+          Invoke-WebRequest -Uri "https://dl.google.com/android/repository/platform-tools-latest-windows.zip" -OutFile platform-tools.zip
+          Expand-Archive platform-tools.zip -DestinationPath platform-tools
+          Copy-Item platform-tools/platform-tools/adb.exe, platform-tools/platform-tools/AdbWinApi.dll, platform-tools/platform-tools/AdbWinUsbApi.dll $release\
+          if (Test-Path repo/CHANGELOG.md) { Copy-Item repo/CHANGELOG.md $release\ }
+          Write-Host "bundled"
+
+      - name: build Inno Setup installer
+        shell: pwsh
+        run: |
+          $ver = "${{ steps.ver.outputs.version }}"
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { $iscc = "C:\Program Files\Inno Setup 6\ISCC.exe" }
+          & $iscc /DMyAppVersion="$ver" app/windows/installer/setup.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed $LASTEXITCODE" }
+          Get-ChildItem build | Format-Table
+
+      - name: portable zip + manifest
+        shell: pwsh
+        run: |
+          $ver = "${{ steps.ver.outputs.version }}"
+          $release = "app/build/windows/x64/runner/Release"
+          New-Item -ItemType Directory -Force build/questload | Out-Null
+          Copy-Item $release\* build/questload\ -Recurse
+          Compress-Archive -Path build/questload -DestinationPath build/questload-$ver.zip -Force
+          $hash = (Get-FileHash build/questload-$ver.zip -Algorithm SHA256).Hash.ToLower()
+          $zipUrl = "https://github.com/${{ github.repository }}/releases/download/v$ver/questload-$ver.zip"
+          $setupName = "QuestLoad-Setup-$ver.exe"
+          $setupUrl = "https://github.com/${{ github.repository }}/releases/download/v$ver/$setupName"
+          $manifest = @{ version = $ver; sha256 = $hash; zip = "questload-$ver.zip"; zip_url = $zipUrl; setup = $setupName; setup_url = $setupUrl } | ConvertTo-Json
+          Set-Content build/manifest.json $manifest
+          Write-Host $manifest
+
+      - name: create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: v${{ steps.ver.outputs.version }}
+          body_path: repo/CHANGELOG.md
+          files: |
+            build/questload-*.zip
+            build/QuestLoad-Setup-*.exe
+            build/manifest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

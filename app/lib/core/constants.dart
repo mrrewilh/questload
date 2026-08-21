@@ -23,10 +23,6 @@ const kMdnsTimeoutSeconds = 3;
 const kLogMaxEntries = 500;
 
 // ─── Updates ──────────────────────────────────────────────────────────
-// The manifest is attached to the latest release on the main repo once
-// it goes public; until then the check silently finds nothing.
 const kUpdateManifestUrl =
-    'https://gitlab.com/api/v4/projects/qload%2Fquestload/releases/permalink/latest';
-// Changelog files, pulled at build time from the public changelog repo and
-// shipped inside the app. Shown once after an update.
+    'https://api.github.com/repos/mrrewilh/questload/releases/latest';
 const kChangelogFileName = 'CHANGELOG.md';
