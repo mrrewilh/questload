@@ -28,6 +28,8 @@ class SettingsScreen extends StatefulWidget {
   final bool updateAutoCheck;
   final VoidCallback onToggleUpdateAutoCheck;
   final VoidCallback onCheckForUpdates;
+  final bool openLastPageOnStart;
+  final VoidCallback onToggleOpenLastPage;
 
   const SettingsScreen({
     super.key,
@@ -44,6 +46,8 @@ class SettingsScreen extends StatefulWidget {
     this.updateAutoCheck = true,
     required this.onToggleUpdateAutoCheck,
     required this.onCheckForUpdates,
+    this.openLastPageOnStart = false,
+    required this.onToggleOpenLastPage,
   });
 
   @override
@@ -241,13 +245,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           _SettingRow(
             title: l.updateAutoCheck,
-            subtitle: '',
+            subtitle: widget.updateAutoCheck
+                ? "i stalk GitHub every launch so you don't have to"
+                : "you're on your own — hit Check yourself, cowboy",
             trailing: QLSwitch(
               value: widget.updateAutoCheck,
               onChanged: (_) => widget.onToggleUpdateAutoCheck(),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
+          _SettingRow(
+            title: "Open last page on start",
+            subtitle: widget.openLastPageOnStart
+                ? "welcome back to your rabbit hole — same page as last time"
+                : "nope, home sweet home every launch",
+            trailing: QLSwitch(
+              value: widget.openLastPageOnStart,
+              onChanged: (_) => widget.onToggleOpenLastPage(),
+            ),
+          ),
+          const SizedBox(height: 12),
           QLButton(
             label: l.updateCheck,
             loading: false,
@@ -277,9 +294,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 8.0),
           Text(l.pairWithCodeInstructions, style: textTheme.bodySmall),
           const SizedBox(height: 10),
-          IntrinsicHeight(
+          SizedBox(
+            height: 38,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
                   flex: 2,
@@ -307,9 +324,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Divider(height: 24, color: c.cardBorder),
           Text(l.connectDevice, style: textTheme.bodyLarge),
           const SizedBox(height: 8.0),
-          IntrinsicHeight(
+          SizedBox(
+            height: 38,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
                   child: QLTextField(

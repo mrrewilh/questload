@@ -183,9 +183,10 @@ class _QLTextFieldState extends State<QLTextField> {
             prefixIcon: widget.prefixIcon,
             filled: true,
             fillColor: c.surface,
+            isDense: true,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
-              vertical: 10,
+              vertical: 11,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),

@@ -20,6 +20,8 @@ class LayoutShell extends StatefulWidget {
   final AppLayout layout;
   final bool smoothScroll;
   final VoidCallback onToggleLayout;
+  final AppPage initialPage;
+  final ValueChanged<AppPage>? onPageChanged;
 
   const LayoutShell({
     super.key,
@@ -33,6 +35,8 @@ class LayoutShell extends StatefulWidget {
     this.layout = AppLayout.sidebar,
     this.smoothScroll = true,
     required this.onToggleLayout,
+    this.initialPage = AppPage.home,
+    this.onPageChanged,
   });
 
   @override
@@ -62,6 +66,7 @@ class LayoutShellState extends State<LayoutShell>
   void navigate(AppPage page) {
     if (!_visiblePages.contains(page)) return;
     setState(() => _currentPage = page);
+    widget.onPageChanged?.call(page);
   }
 
   Widget _buildCurrentPage() => switch (_currentPage) {
@@ -75,8 +80,20 @@ class LayoutShellState extends State<LayoutShell>
   @override
   void initState() {
     super.initState();
+    _currentPage = widget.initialPage;
     if (!widget.showDeviceTab && _currentPage == AppPage.device) {
       _currentPage = AppPage.home;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant LayoutShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialPage != oldWidget.initialPage &&
+        _currentPage == AppPage.home &&
+        widget.initialPage != AppPage.home) {
+      _currentPage = widget.initialPage;
+      if (!_visiblePages.contains(_currentPage)) _currentPage = AppPage.home;
     }
   }
 

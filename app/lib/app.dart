@@ -133,6 +133,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   String _themeMode = 'auto';
   bool _smoothScroll = true;
   bool _updateAutoCheck = true;
+  bool _openLastPageOnStart = false;
+  String _lastPage = 'home';
   String _updateSkipVersion = '';
   String _lastSeenVersion = '';
   bool _deviceConnected = false;
@@ -182,6 +184,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     'theme_mode': _themeMode,
     'smooth_scroll': _smoothScroll,
     'update_auto_check': _updateAutoCheck,
+    'open_last_page_on_start': _openLastPageOnStart,
+    'last_page': _lastPage,
     'update_skip_version': _updateSkipVersion,
     'last_seen_version': _lastSeenVersion,
   };
@@ -210,6 +214,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       _themeMode = (json['theme_mode'] as String?) ?? 'auto';
       _smoothScroll = (json['smooth_scroll'] as bool?) ?? true;
       _updateAutoCheck = (json['update_auto_check'] as bool?) ?? true;
+      _openLastPageOnStart = (json['open_last_page_on_start'] as bool?) ?? false;
+      _lastPage = (json['last_page'] as String?) ?? 'home';
       _updateSkipVersion = (json['update_skip_version'] as String?) ?? '';
       _lastSeenVersion = (json['last_seen_version'] as String?) ?? '';
       await _applyTheme(_themeId);
@@ -286,6 +292,26 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       _updateAutoCheck = !_updateAutoCheck;
     });
     _saveSettings();
+  }
+
+  void _toggleOpenLastPage() {
+    setState(() {
+      _openLastPageOnStart = !_openLastPageOnStart;
+    });
+    _saveSettings();
+  }
+
+  void _onPageChanged(AppPage page) {
+    _lastPage = page.name;
+    _saveSettings();
+  }
+
+  AppPage _initialPage() {
+    if (!_openLastPageOnStart) return AppPage.home;
+    return AppPage.values.firstWhere(
+      (p) => p.name == _lastPage,
+      orElse: () => AppPage.home,
+    );
   }
 
   /// Launch flow: after-update changelog, pending apply, then the check.
@@ -449,6 +475,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
             layout: _layout,
             smoothScroll: _smoothScroll,
             onToggleLayout: _toggleLayout,
+            initialPage: _initialPage(),
+            onPageChanged: _onPageChanged,
             settings: SettingsScreen(
               adb: widget.adb,
               isSidebarLayout: _layout == AppLayout.sidebar,
@@ -461,6 +489,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
               updateAutoCheck: _updateAutoCheck,
               onToggleUpdateAutoCheck: _toggleUpdateAutoCheck,
               onCheckForUpdates: () => _checkForUpdates(),
+              openLastPageOnStart: _openLastPageOnStart,
+              onToggleOpenLastPage: _toggleOpenLastPage,
               onSelectTheme: _selectTheme,
               onSelectThemeMode: _selectThemeMode,
             ),
