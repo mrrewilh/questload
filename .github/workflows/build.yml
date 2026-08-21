@@ -18,18 +18,24 @@ jobs:
         shell: pwsh
         run: |
           $date = Get-Date -Format "yy.M.d"
+          $today = (Get-Date).ToString("yyyy-MM-dd")
           $todayCount = 0
+          $apiCount = 0
           try {
             $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = "application/vnd.github+json" }
-            $today = (Get-Date).ToString("yyyy-MM-dd")
             $runs = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/runs?per_page=100"
-            $todayCount = ($runs.workflow_runs | Where-Object { $_.status -eq "completed" -and $_.conclusion -eq "success" -and $_.created_at.ToString().StartsWith($today) } | Measure-Object).Count
+            $apiCount = ($runs.workflow_runs | Where-Object { $_.status -eq "completed" -and $_.conclusion -eq "success" -and $_.created_at.ToString("yyyy-MM-dd") -eq $today } | Measure-Object).Count
+            # fallback string compare if date was string
+            if ($apiCount -eq 0) { $apiCount = ($runs.workflow_runs | Where-Object { $_.status -eq "completed" -and $_.conclusion -eq "success" -and "$($_.created_at)".StartsWith($today) } | Measure-Object).Count }
+            Write-Host "apiCount=$apiCount"
           } catch {
-            Write-Host "workflow_runs api failed, fallback to tags: $_"
-            git fetch --tags --quiet
-            $tags = git tag --list "v$date*"
-            $todayCount = ($tags | Measure-Object).Count
+            Write-Host "workflow_runs api failed: $_"
           }
+          git fetch --tags --quiet
+          $tags = git tag --list "v$date*"
+          $tagCount = ($tags | Measure-Object).Count
+          Write-Host "tagCount=$tagCount"
+          $todayCount = [Math]::Max($apiCount, $tagCount)
           $ver = if ($todayCount -eq 0) { $date } else { "$date-$todayCount" }
           $buildNum = $todayCount + 1
           echo "version=$ver" >> $env:GITHUB_OUTPUT
