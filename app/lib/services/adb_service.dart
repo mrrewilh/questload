@@ -57,14 +57,22 @@ class AdbService {
       return _completeFind('');
     }
 
-    // Windows / macOS: try bundled first, then PATH
+    // Windows / macOS: try bundled first, then PATH. With qlapp layout
+    // the exe is .../qlapp/questload.exe and adb is .../qlapp/adb.exe or
+    // .../qlapp/platform-tools/adb.exe
     final dirs = <String>{};
 
-    // 1. From the running executable's directory
+    // 1. From the running executable's directory (qlapp)
     try {
       final execPath = Platform.resolvedExecutable;
       if (execPath.isNotEmpty) {
-        dirs.add(Directory(execPath).parent.path);
+        final execDir = Directory(execPath).parent;
+        dirs.add(execDir.path);
+        // qlapp's parent = QuestLoad root — also check there for legacy
+        try {
+          dirs.add(execDir.parent.path);
+          dirs.add('${execDir.parent.path}/qlapp');
+        } catch (_) {}
       }
     } catch (_) {
       LogService.warning('Could not resolve executable path');

@@ -57,10 +57,10 @@ int compareVersions(String a, String b) {
 
 /// Update check + download + apply, Windows only for the apply part.
 class UpdateService {
-  /// Downloads directory (app data root, next to settings.json).
+  /// Downloads directory (userdata/downloads/update) — not raw downloads.
   static Future<Directory> downloadsDir() async {
     final root = await PathsService.root;
-    final dir = Directory('$root/downloads');
+    final dir = Directory('$root/downloads/update');
     if (!await dir.exists()) await dir.create(recursive: true);
     return dir;
   }
@@ -278,12 +278,22 @@ class UpdateService {
     File zip,
     String currentExePath,
   ) async {
-    // The zip ships a questload/ folder — swap from inside it.
+    // Zip ships questload/ — that is the qlapp content. Swap only qlapp,
+    // never the userdata sibling.
     final inner = Directory(
       '${extracted.path}${Platform.pathSeparator}questload',
     );
     final src = await inner.exists() ? inner.path : extracted.path;
-    final installDir = File(currentExePath).parent.path;
+    // currentExe is .../qlapp/questload.exe -> dest is .../qlapp
+    final exeDir = File(currentExePath).parent.path;
+    final isQlapp = exeDir.toLowerCase().endsWith(
+      '${Platform.pathSeparator}qlapp',
+    );
+    final installDir = exeDir;
+    // sanity: if not qlapp (dev portable), still swap that folder
+    if (!isQlapp) {
+      LogService.warning('applyStaged: exe not in qlapp, swapping $exeDir');
+    }
     final extractedRoot = extracted.path;
     String psLiteral(String s) => "'${s.replaceAll("'", "''")}'";
     final script =
@@ -340,7 +350,7 @@ try {
     }
   }
 
-  /// Reads the embedded changelog shipped with this build.
+  /// Reads the embedded changelog shipped with this build (inside qlapp).
   static Future<String> embeddedChangelog(String currentExePath) async {
     final file = File(
       '${File(currentExePath).parent.path}${Platform.pathSeparator}$kChangelogFileName',

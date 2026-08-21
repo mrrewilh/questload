@@ -33,7 +33,7 @@ SetupIconFile=setup.ico
 WizardStyle=modern dynamic
 Compression=lzma2/ultra64
 SolidCompression=yes
-UninstallDisplayIcon={app}\{#MyAppExeName}
+UninstallDisplayIcon={app}\qlapp\{#MyAppExeName}
 UninstallDisplayName={#MyAppName}
 VersionInfoVersion={#MyAppVersionInfo}
 VersionInfoCompany={#MyAppPublisher}
@@ -49,18 +49,18 @@ MinVersion=10.0
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#BuildDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-; CHANGELOG shipped next to exe if present (CI copies repo/CHANGELOG.md into Release/)
-Source: "{#BuildDir}\CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion; Permissions: everyone-modify
+; real app → {app}\qlapp, userdata stays at {app}\userdata (never touched on update)
+Source: "{#BuildDir}\*"; DestDir: "{app}\qlapp"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#BuildDir}\CHANGELOG.md"; DestDir: "{app}\qlapp"; Flags: ignoreversion; Permissions: everyone-modify
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\qlapp\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\qlapp\{#MyAppExeName}"; Tasks: desktopicon
 ; optional start menu handled by group above
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\qlapp\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Code]
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
@@ -69,13 +69,15 @@ var
 begin
   if CurUninstallStep = usUninstall then
   begin
-    // stop our adbd so uninstall can delete bundled adb.exe/dlls
+    // only our bundled adb (in {app}\qlapp), never system adb
+    Exec(ExpandConstant('{app}\qlapp\adb.exe'), 'kill-server', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
     Exec(ExpandConstant('{app}\adb.exe'), 'kill-server', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-    Exec('taskkill', '/f /im adb.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
     Exec('taskkill', '/f /im questload.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   end;
 end;
 
 [UninstallDelete]
+Type: filesandordirs; Name: "{app}\qlapp"
+Type: filesandordirs; Name: "{app}\userdata"
 Type: filesandordirs; Name: "{app}\downloads"
 Type: filesandordirs; Name: "{localappdata}\questload"
