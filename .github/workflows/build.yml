@@ -60,6 +60,7 @@ jobs:
       - name: Build launcher exe
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Force build | Out-Null
           dart pub get --directory=launcher
           dart compile exe launcher/bin/launcher.dart -o build/questload.exe
           if (!(Test-Path build/questload.exe)) { throw "launcher build failed" }
