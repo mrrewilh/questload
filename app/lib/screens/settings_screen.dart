@@ -113,14 +113,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<bool> _createShortcut() async {
     try {
       final exe = Platform.resolvedExecutable;
-      final dir = File(exe).parent.path;
+      final exeDir = File(exe).parent;
+      final isQlapp =
+          exeDir.path.split(Platform.pathSeparator).last == 'qlapp';
+      // Shortcut must point at the launcher (root) not the inner qlapp exe.
+      final launcher = isQlapp
+          ? '${exeDir.parent.path}${Platform.pathSeparator}questload.exe'
+          : exe;
+      final workDir = isQlapp ? exeDir.parent.path : exeDir.path;
       // Single-quoted PS literals: quotes/dollars in the path can't alter
       // the script.
       String ps(String s) => "'${s.replaceAll("'", "''")}'";
       final script =
           '''
-\$exe = ${ps(exe)}
-\$dir = ${ps(dir)}
+\$exe = ${ps(launcher)}
+\$dir = ${ps(workDir)}
 \$desktop = [Environment]::GetFolderPath('Desktop')
 \$lnk = Join-Path \$desktop 'QuestLoad.lnk'
 \$ws = New-Object -ComObject WScript.Shell

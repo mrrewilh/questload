@@ -25,10 +25,15 @@ class PathsService {
       _cachedRoot = dir.path;
       return _cachedRoot!;
     }
-    // Portable: data in a userdata/ folder next to the executable, so the
-    // app files and user files don't mix in one folder.
+    // Portable: data in a userdata/ folder next to the install root, so the
+    // app files and user files don't mix in one folder. New layout is
+    // ./qlapp/questload.exe + ./userdata, old layout was ./questload.exe +
+    // ./userdata — both are handled.
     final execPath = Platform.resolvedExecutable;
-    final dir = Directory('${Directory(execPath).parent.path}/userdata');
+    final exeDir = Directory(execPath).parent;
+    final isQlapp = exeDir.path.split(Platform.pathSeparator).last == 'qlapp';
+    final rootDir = isQlapp ? exeDir.parent : exeDir;
+    final dir = Directory('${rootDir.path}/userdata');
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }

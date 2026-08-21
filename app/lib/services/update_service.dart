@@ -66,31 +66,86 @@ class UpdateService {
   }
 
   /// Asks the release manifest whether a newer version exists.
+  /// Supports both the old direct manifest (version/sha256/zip_url) and the
+  /// GitHub releases/latest API (tag_name + assets containing manifest.json).
   static Future<UpdateCheckResult> check({
     required String currentVersion,
   }) async {
     try {
       final client = HttpClient();
+      // 1. Fetch release json (GitHub) or raw manifest (legacy).
       final req = await client.getUrl(Uri.parse(kUpdateManifestUrl));
+      // GitHub API needs a UA or it 403s.
+      req.headers.set('User-Agent', 'QuestLoad');
+      req.headers.set('Accept', 'application/vnd.github+json');
       final res = await req.close();
       if (res.statusCode != 200) {
         return const UpdateCheckResult(reachable: false);
       }
       final body = await res.transform(utf8.decoder).join();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      final version = data['version'] as String?;
-      if (version == null || compareVersions(version, currentVersion) <= 0) {
+
+      // If this already looks like a raw manifest, use it directly.
+      if (data.containsKey('version')) {
+        final version = data['version'] as String?;
+        if (version == null || compareVersions(version, currentVersion) <= 0) {
+          return const UpdateCheckResult(reachable: true);
+        }
+        return UpdateCheckResult(
+          reachable: true,
+          info: UpdateInfo(
+            version: version,
+            sha256: (data['sha256'] as String?) ?? '',
+            zipUrl: (data['zip_url'] as String?) ?? '',
+            zipName: (data['zip'] as String?) ?? 'questload-$version.zip',
+          ),
+        );
+      }
+
+      // GitHub release: try manifest.json asset first.
+      final assets = (data['assets'] as List?) ?? const [];
+      Map<String, dynamic>? manifest;
+      String? manifestUrl;
+      for (final a in assets) {
+        if (a is Map && (a['name'] as String?) == 'manifest.json') {
+          manifestUrl = a['browser_download_url'] as String?;
+          break;
+        }
+      }
+      if (manifestUrl != null) {
+        try {
+          final mReq = await client.getUrl(Uri.parse(manifestUrl));
+          mReq.headers.set('User-Agent', 'QuestLoad');
+          final mRes = await mReq.close();
+          if (mRes.statusCode == 200) {
+            final mBody = await mRes.transform(utf8.decoder).join();
+            manifest = jsonDecode(mBody) as Map<String, dynamic>;
+          }
+        } catch (_) {}
+      }
+      if (manifest != null && manifest.containsKey('version')) {
+        final version = manifest['version'] as String?;
+        if (version == null || compareVersions(version, currentVersion) <= 0) {
+          return const UpdateCheckResult(reachable: true);
+        }
+        return UpdateCheckResult(
+          reachable: true,
+          info: UpdateInfo(
+            version: version,
+            sha256: (manifest['sha256'] as String?) ?? '',
+            zipUrl: (manifest['zip_url'] as String?) ?? '',
+            zipName: (manifest['zip'] as String?) ?? 'questload-$version.zip',
+          ),
+        );
+      }
+
+      // Fallback: use tag_name + zip asset directly (no sha -> not verifiable, so skip).
+      final tag = (data['tag_name'] as String?)?.replaceFirst(RegExp(r'^v'), '');
+      if (tag == null || compareVersions(tag, currentVersion) <= 0) {
         return const UpdateCheckResult(reachable: true);
       }
-      return UpdateCheckResult(
-        reachable: true,
-        info: UpdateInfo(
-          version: version,
-          sha256: (data['sha256'] as String?) ?? '',
-          zipUrl: (data['zip_url'] as String?) ?? '',
-          zipName: (data['zip'] as String?) ?? 'questload-$version.zip',
-        ),
-      );
+      // Find a questload-*.zip asset to offer, but without sha256 we can't verify — report reachable with no info so UI shows "check succeeded, no verified update".
+      return const UpdateCheckResult(reachable: true);
     } catch (e) {
       LogService.warning('Update check failed: $e');
       return const UpdateCheckResult(reachable: false);
@@ -197,6 +252,16 @@ class UpdateService {
     if (await marker.exists()) await marker.delete();
   }
 
+  static String _appDirFor(String exePath) {
+    final exeDir = File(exePath).parent;
+    final base = exeDir.path.split(Platform.pathSeparator).last;
+    if (base == 'qlapp') return exeDir.path;
+    // Root launcher launching — real app lives in qlapp subdir.
+    final qlapp = Directory('${exeDir.path}${Platform.pathSeparator}qlapp');
+    if (qlapp.existsSync()) return qlapp.path;
+    return exeDir.path; // old flat layout fallback
+  }
+
   /// Spawns the handoff that swaps the new files in and relaunches.
   /// Only the app's restart click calls this — never app close.
   /// Returns false when the handoff couldn't launch — the caller must
@@ -206,12 +271,22 @@ class UpdateService {
     File zip,
     String currentExePath,
   ) async {
-    // The zip ships a questload/ folder — swap from inside it.
-    final inner = Directory(
+    // Zip may ship qlapp/ (new) or questload/ (old) or flat files.
+    final qlappInner = Directory(
+      '${extracted.path}${Platform.pathSeparator}qlapp',
+    );
+    final questloadInner = Directory(
       '${extracted.path}${Platform.pathSeparator}questload',
     );
-    final src = await inner.exists() ? inner.path : extracted.path;
-    final installDir = File(currentExePath).parent.path;
+    String src;
+    if (await qlappInner.exists()) {
+      src = qlappInner.path;
+    } else if (await questloadInner.exists()) {
+      src = questloadInner.path;
+    } else {
+      src = extracted.path;
+    }
+    final installDir = _appDirFor(currentExePath);
     // Paths sit in single-quoted PS literals: a quote or dollar in the
     // install dir can't alter the script. If the swap hits a permission
     // wall the script re-runs itself elevated (UAC) — no string building.
@@ -252,12 +327,19 @@ try {
   }
 
   /// Reads the embedded changelog shipped with this build.
+  /// New layout: qlapp/CHANGELOG.md, old: next to exe. Launcher case: sibling qlapp/CHANGELOG.md.
   static Future<String> embeddedChangelog(String currentExePath) async {
-    final file = File(
-      '${File(currentExePath).parent.path}${Platform.pathSeparator}$kChangelogFileName',
-    );
-    if (!await file.exists()) return '';
-    return file.readAsString();
+    final exeDir = File(currentExePath).parent;
+    final candidates = <String>[
+      '${exeDir.path}${Platform.pathSeparator}$kChangelogFileName',
+      '${exeDir.path}${Platform.pathSeparator}qlapp${Platform.pathSeparator}$kChangelogFileName',
+      '${_appDirFor(currentExePath)}${Platform.pathSeparator}$kChangelogFileName',
+    ];
+    for (final p in candidates) {
+      final f = File(p);
+      if (await f.exists()) return f.readAsString();
+    }
+    return '';
   }
 }
 

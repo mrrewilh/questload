@@ -1,0 +1,4 @@
+name: ql_launcher
+description: QuestLoad launcher/installer - forwards to qlapp or fetches latest release.
+environment:
+  sdk: ">=3.0.0 <4.0.0"
