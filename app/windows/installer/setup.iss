@@ -8,6 +8,7 @@
 #ifndef MyAppVersion
   #define MyAppVersion "0.0.0"
 #endif
+#define MyAppVersionInfo StringChange(MyAppVersion, "-", ".")
 #ifndef BuildDir
   #define BuildDir "..\\..\\build\\windows\\x64\\runner\\Release"
 #endif
@@ -34,10 +35,10 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName}
-VersionInfoVersion={#MyAppVersion}
+VersionInfoVersion={#MyAppVersionInfo}
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoProductName={#MyAppName}
-VersionInfoProductVersion={#MyAppVersion}
+VersionInfoProductVersion={#MyAppVersionInfo}
 CloseApplications=yes
 RestartApplications=no
 ArchitecturesInstallIn64BitMode=x64
